@@ -207,54 +207,55 @@ async function renderPDF(url) {
   pdfContainer.innerHTML = "";
   const pdf = await pdfjsLib.getDocument(url).promise;
   const numPages = pdf.numPages;
-  const scale = 1.5; // tamanho mais adequado para visualização
+  const scale = 1.5;
   pdfContainer.style.position = "relative";
 
-  // Para mapear campos para a página correta no futuro (se necessário)
-  let pageCanvases = [];
-
+  // Cria um wrapper relativo para cada página
+  let pageWrappers = [];
   for (let pageNum = 1; pageNum <= numPages; pageNum++) {
     const page = await pdf.getPage(pageNum);
     const viewport = page.getViewport({ scale });
+    // Wrapper relativo
+    const pageWrapper = document.createElement('div');
+    pageWrapper.style.position = 'relative';
+    pageWrapper.style.marginBottom = '24px';
+    pageWrapper.dataset.pageNumber = pageNum;
+    pdfContainer.appendChild(pageWrapper);
+    pageWrappers.push(pageWrapper);
+
+    // Canvas da página
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     canvas.height = viewport.height;
     canvas.width = viewport.width;
     canvas.style.display = 'block';
-    canvas.style.marginBottom = '24px';
     canvas.dataset.pageNumber = pageNum;
-    pdfContainer.appendChild(canvas);
-    pageCanvases.push(canvas);
+    pageWrapper.appendChild(canvas);
     await page.render({ canvasContext: ctx, viewport }).promise;
-  // fim da função renderPDF
 
-  // Adicionar campo novo só no modo edição (apenas na página clicada)
-  pdfContainer.onclick = (e) => {
-    if (!isEditorMode) return;
-    // Verifica se clicou em algum canvas
-    const canvas = e.target.closest('canvas');
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    let fieldName = `?`;
-    // Salva também a página do campo
-    templateConfig.fields.push({ x, y, name: fieldName, value: '', page: parseInt(canvas.dataset.pageNumber) });
-    createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, parseInt(canvas.dataset.pageNumber));
-  };
+    // Clique para adicionar campo nesta página
+    canvas.onclick = (e) => {
+      if (!isEditorMode) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      let fieldName = `?`;
+      templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum });
+      createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
+    };
+  }
 
   downloadBtn.classList.remove("hidden");
   // Renderiza os campos existentes
   templateConfig.fields.forEach((field, idx) => {
-    // Se não tiver page, assume 1 (retrocompatibilidade)
     createInputField(field.x, field.y, field.name, field.value, isEditorMode, idx, field.page || 1);
   });
-}
+// fim da função renderPDF
 
 function createInputField(x, y, name, value, editorMode, idx, page = 1) {
-  // Seleciona o canvas da página correta
-  const canvas = pdfContainer.querySelector(`canvas[data-page-number='${page}']`);
-  if (!canvas) return;
+  // Seleciona o wrapper da página correta
+  const pageWrapper = pdfContainer.querySelector(`div[data-page-number='${page}']`);
+  if (!pageWrapper) return;
   const wrapper = document.createElement("div");
   wrapper.className = "absolute group";
   wrapper.style.left = `${x}px`;
@@ -262,11 +263,8 @@ function createInputField(x, y, name, value, editorMode, idx, page = 1) {
   wrapper.style.cursor = editorMode ? 'move' : 'text';
   wrapper.style.zIndex = 10;
   wrapper.style.pointerEvents = 'auto';
-
-  // Posiciona o wrapper relativo ao canvas da página
   wrapper.style.position = 'absolute';
-  canvas.parentElement.appendChild(wrapper);
-  canvas.style.position = 'relative';
+  pageWrapper.appendChild(wrapper);
 
   // Drag handle (círculo maior e mais próximo do input)
   const dragHandle = document.createElement('div');
@@ -302,12 +300,12 @@ function createInputField(x, y, name, value, editorMode, idx, page = 1) {
   };
   document.onmousemove = function(e) {
     if (!dragging) return;
-    const rect = canvas.getBoundingClientRect();
+    const rect = pageWrapper.getBoundingClientRect();
     let newX = e.clientX - rect.left - offsetX;
     let newY = e.clientY - rect.top - offsetY;
-    // Limitar dentro do canvas
-    newX = Math.max(0, Math.min(newX, canvas.offsetWidth - wrapper.offsetWidth));
-    newY = Math.max(0, Math.min(newY, canvas.offsetHeight - wrapper.offsetHeight));
+    // Limitar dentro do wrapper da página
+    newX = Math.max(0, Math.min(newX, pageWrapper.offsetWidth - wrapper.offsetWidth));
+    newY = Math.max(0, Math.min(newY, pageWrapper.offsetHeight - wrapper.offsetHeight));
     wrapper.style.left = `${newX}px`;
     wrapper.style.top = `${newY}px`;
     templateConfig.fields[idx].x = newX;
