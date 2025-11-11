@@ -1,3 +1,5 @@
+// Contador global para ids únicos sequenciais dos campos
+let inputFieldIdCount = 0;
 let uploadedFile = null;
 let inputData = [];
 let currentPdfUrl = null;
@@ -264,6 +266,9 @@ function createInputField(x, y, name, value, editorMode, idx, page = 1) {
   wrapper.style.zIndex = 10;
   wrapper.style.pointerEvents = 'auto';
   wrapper.style.position = 'absolute';
+  // Gera um id único sequencial para o campo/input
+  const uniqueId = `inputfield-${inputFieldIdCount++}`;
+  wrapper.id = uniqueId;
   pageWrapper.appendChild(wrapper);
 
   // Drag handle (círculo maior e mais próximo do input)
@@ -281,8 +286,9 @@ function createInputField(x, y, name, value, editorMode, idx, page = 1) {
   dragHandle.style.zIndex = '10000';
   dragHandle.title = 'Arraste para mover';
 
+  // Drag-and-drop independente para cada campo
   let offsetX, offsetY, dragging = false;
-  dragHandle.onmousedown = function(e) {
+  dragHandle.addEventListener('mousedown', function(e) {
     e.stopPropagation();
     dragging = true;
     const rect = wrapper.getBoundingClientRect();
@@ -290,27 +296,31 @@ function createInputField(x, y, name, value, editorMode, idx, page = 1) {
     offsetY = e.clientY - rect.top;
     document.body.style.userSelect = 'none';
     dragHandle.style.cursor = 'grabbing';
-  };
-  document.onmouseup = function() {
-    if (dragging) {
-      dragging = false;
-      document.body.style.userSelect = '';
-      dragHandle.style.cursor = 'grab';
+    // Eventos de mousemove/mouseup só para este drag
+    function onMouseMove(ev) {
+      if (!dragging) return;
+      const rect = pageWrapper.getBoundingClientRect();
+      let newX = ev.clientX - rect.left - offsetX;
+      let newY = ev.clientY - rect.top - offsetY;
+      newX = Math.max(0, Math.min(newX, pageWrapper.offsetWidth - wrapper.offsetWidth));
+      newY = Math.max(0, Math.min(newY, pageWrapper.offsetHeight - wrapper.offsetHeight));
+      wrapper.style.left = `${newX}px`;
+      wrapper.style.top = `${newY}px`;
+      templateConfig.fields[idx].x = newX;
+      templateConfig.fields[idx].y = newY;
     }
-  };
-  document.onmousemove = function(e) {
-    if (!dragging) return;
-    const rect = pageWrapper.getBoundingClientRect();
-    let newX = e.clientX - rect.left - offsetX;
-    let newY = e.clientY - rect.top - offsetY;
-    // Limitar dentro do wrapper da página
-    newX = Math.max(0, Math.min(newX, pageWrapper.offsetWidth - wrapper.offsetWidth));
-    newY = Math.max(0, Math.min(newY, pageWrapper.offsetHeight - wrapper.offsetHeight));
-    wrapper.style.left = `${newX}px`;
-    wrapper.style.top = `${newY}px`;
-    templateConfig.fields[idx].x = newX;
-    templateConfig.fields[idx].y = newY;
-  };
+    function onMouseUp() {
+      if (dragging) {
+        dragging = false;
+        document.body.style.userSelect = '';
+        dragHandle.style.cursor = 'grab';
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+    }
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
 
   // Input de texto
   const input = document.createElement("input");
@@ -321,6 +331,7 @@ function createInputField(x, y, name, value, editorMode, idx, page = 1) {
   input.dataset.x = x;
   input.dataset.y = y;
   input.dataset.page = page;
+  input.id = uniqueId + '-input';
   input.style.height = '20px';
   input.style.fontSize = '16px';
 
