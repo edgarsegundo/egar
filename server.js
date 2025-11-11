@@ -7,7 +7,8 @@ const app = express();
 const upload = multer({ dest: "uploads/" });
 
 app.use(express.static("public"));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); // Aumenta limite para aceitar PDFs grandes
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.post("/upload", upload.single("pdf"), (req, res) => {
   if (!req.file) return res.status(400).send("No file uploaded");
@@ -84,6 +85,26 @@ app.post("/create-config-file", (req, res) => {
     } else {
         return res.status(400).json({ error: "Nome do arquivo e campos são obrigatórios." });
     }
+});
+
+// Salvar PDF preenchido no servidor
+app.post('/save-pdf', (req, res) => {
+    const { filename, pdfData } = req.body;
+    if (!filename || !pdfData) {
+        return res.status(400).json({ error: "Nome do arquivo e dados do PDF são obrigatórios." });
+    }
+    const outputDir = path.resolve('generated-pdfs');
+    if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+    }
+    const filePath = path.join(outputDir, filename);
+    const buffer = Buffer.from(pdfData);
+    fs.writeFile(filePath, buffer, (err) => {
+        if (err) {
+            return res.status(500).json({ error: "Erro ao salvar PDF no servidor." });
+        }
+        return res.json({ success: true, path: filePath, message: `PDF salvo em: ${filePath}` });
+    });
 });
 
 const PORT = 3000;

@@ -562,35 +562,57 @@ downloadBtn.addEventListener("click", async () => {
     });
 
     const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    // a.download = `filled-${currentTemplate || 'document'}.pdf`;
-    a.download = `${userFileName}.pdf`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    // 2. Cria uma cópia do JSON de configuração com o novo nome
-    if (currentTemplate) {
-        try {
-            const res = await fetch(`/create-config-file`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    from: currentTemplate,
-                    to: `${userFileName}.pdf.json`,
-                    fields: templateConfig.fields
-                })
-            });
-            console.log('Resposta:', await res.json());
-        } catch (err) {
-            console.error('Error copying config:', err);
-            // Opcional: console.error('Erro ao copiar config', err);
+    
+    // Enviar PDF para o servidor em vez de fazer download
+    try {
+        const pdfDataArray = Array.from(new Uint8Array(pdfBytes));
+        const fileName = `${userFileName}.pdf`;
+        
+        const saveResponse = await fetch("/save-pdf", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                filename: fileName,
+                pdfData: pdfDataArray
+            })
+        });
+        const saveResult = await saveResponse.json();
+        
+        if (saveResult.success) {
+            // 2. Cria uma cópia do JSON de configuração com o novo nome
+            if (currentTemplate) {
+                try {
+                    const res = await fetch(`/create-config-file`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            from: currentTemplate,
+                            to: `${userFileName}.pdf.json`,
+                            fields: templateConfig.fields
+                        })
+                    });
+                    const createResult = await res.json();
+                    console.log('Resposta:', createResult);
+                    
+                    if (createResult.success) {
+                        alert(`PDF salvo no servidor como '${fileName}' e configuração salva como '${userFileName}.pdf.json'!\nCaminho: ${saveResult.path}`);
+                    } else {
+                        alert(`PDF salvo no servidor como '${fileName}', mas houve erro ao salvar configuração.\nCaminho: ${saveResult.path}`);
+                    }
+                } catch (err) {
+                    console.error('Error copying config:', err);
+                    alert(`PDF salvo no servidor como '${fileName}', mas houve erro ao criar configuração.\nCaminho: ${saveResult.path}`);
+                }
+            } else {
+                alert(`PDF salvo no servidor como '${fileName}'!\nCaminho: ${saveResult.path}`);
+            }
+        } else {
+            alert("Erro ao salvar PDF no servidor: " + saveResult.error);
         }
+    } catch (err) {
+        console.error("Erro ao salvar PDF:", err);
+        alert("Erro ao salvar PDF no servidor.");
     }
-
-
 });
 
 function toggleFieldEditButtons(show) {
