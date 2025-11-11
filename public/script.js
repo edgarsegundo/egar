@@ -380,6 +380,11 @@ async function renderPDF(url) {
     });
     createdFields = [];
 
+    // Normaliza campos para garantir que todos tenham fontSize
+    templateConfig.fields.forEach(field => {
+        if (!field.fontSize) field.fontSize = 16;
+    });
+
     templateConfig.fields.forEach((field, idx) => {
         const inputWrapper = createInputField(field.x, field.y, field.name, field.value, isEditorMode, idx, field.page || 1);
         // Após criar o input, adiciona listener para salvar alterações no templateConfig e refletir no modal
@@ -466,6 +471,12 @@ async function renderPDF(url) {
                 wrapper.style.top = `${newY}px`;
                 templateConfig.fields[idx].x = newX;
                 templateConfig.fields[idx].y = newY;
+                // Atualiza também o dataset do input para manter sincronizado
+                const inputEl = wrapper.querySelector('input[type="text"]');
+                if (inputEl) {
+                    inputEl.dataset.x = newX;
+                    inputEl.dataset.y = newY;
+                }
             }
 
             function onMouseUp() {

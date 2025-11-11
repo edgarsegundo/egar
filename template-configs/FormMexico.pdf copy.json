@@ -1,5 +1,4 @@
 {
-  "derivedFrom": "FormMexico.pdf",
   "fields": [
     {
       "x": 225,
@@ -30,7 +29,7 @@
       "fontSize": 16
     },
     {
-      "x": 243,
+      "x": 240,
       "y": 472,
       "name": "SexoM",
       "value": "X",
