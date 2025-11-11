@@ -359,7 +359,7 @@ async function renderPDF(url) {
             const y = e.clientY - rect.top;
             let fieldName = prompt("Digite o nome do campo:", "?");
             // Sempre salva a página do campo
-            templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum });
+            templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum, fontSize: 16 });
             createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
         };
     }
@@ -529,6 +529,59 @@ async function renderPDF(url) {
         resizeHandle.addEventListener('mousedown', onResizeMouseDown);
         listeners.push({ target: resizeHandle, type: 'mousedown', handler: onResizeMouseDown });
 
+        // Handle de ajuste de fonte (canto superior direito com flecha vertical dupla)
+        const fontSizeHandle = document.createElement('div');
+        fontSizeHandle.style.width = '18px';
+        fontSizeHandle.style.height = '18px';
+        fontSizeHandle.style.position = 'absolute';
+        fontSizeHandle.style.right = '-10px';
+        fontSizeHandle.style.top = '-6px';
+        fontSizeHandle.style.cursor = 'ns-resize';
+        fontSizeHandle.style.zIndex = '10001';
+        fontSizeHandle.style.background = '#fff';
+        fontSizeHandle.style.border = '2px solid #16a34a';
+        fontSizeHandle.style.borderRadius = '50%';
+        fontSizeHandle.style.display = 'flex';
+        fontSizeHandle.style.alignItems = 'center';
+        fontSizeHandle.style.justifyContent = 'center';
+        fontSizeHandle.title = 'Arraste para ajustar tamanho da fonte';
+        fontSizeHandle.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1L6 11M3 3L6 1L9 3M3 9L6 11L9 9" stroke="#16a34a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        
+        let fontSizing = false, fontStartY, fontStartSize;
+        const onFontSizeMouseDown = function (e) {
+            e.stopPropagation();
+            fontSizing = true;
+            fontStartY = e.clientY;
+            fontStartSize = parseInt(input.style.fontSize) || templateConfig.fields[idx]?.fontSize || 16;
+            document.body.style.userSelect = 'none';
+            
+            function onFontSizeMouseMove(ev) {
+                if (!fontSizing) return;
+                const deltaY = fontStartY - ev.clientY; // Invertido: arrastar pra cima aumenta
+                let newFontSize = Math.max(8, Math.min(72, fontStartSize + deltaY)); // Min 8px, Max 72px
+                input.style.fontSize = newFontSize + 'px';
+                // Salva no config
+                templateConfig.fields[idx].fontSize = newFontSize;
+            }
+            
+            function onFontSizeMouseUp() {
+                if (fontSizing) {
+                    fontSizing = false;
+                    document.body.style.userSelect = '';
+                    document.removeEventListener('mousemove', onFontSizeMouseMove);
+                    document.removeEventListener('mouseup', onFontSizeMouseUp);
+                }
+            }
+            
+            document.addEventListener('mousemove', onFontSizeMouseMove);
+            document.addEventListener('mouseup', onFontSizeMouseUp);
+            listeners.push({ target: document, type: 'mousemove', handler: onFontSizeMouseMove });
+            listeners.push({ target: document, type: 'mouseup', handler: onFontSizeMouseUp });
+        };
+        
+        fontSizeHandle.addEventListener('mousedown', onFontSizeMouseDown);
+        listeners.push({ target: fontSizeHandle, type: 'mousedown', handler: onFontSizeMouseDown });
+
         const input = document.createElement("input");
         input.type = "text";
         input.value = value;
@@ -541,7 +594,7 @@ async function renderPDF(url) {
         input.id = uniqueId + '-input';
         input.style.height = (templateConfig.fields[idx]?.height || 20) + 'px';
         input.style.width = (templateConfig.fields[idx]?.width || 120) + 'px';
-        input.style.fontSize = '16px';
+        input.style.fontSize = (templateConfig.fields[idx]?.fontSize || 16) + 'px';
 
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "×";
@@ -570,9 +623,10 @@ async function renderPDF(url) {
         wrapper.appendChild(dragHandle);
         wrapper.appendChild(input);
         wrapper.appendChild(resizeHandle);
+        wrapper.appendChild(fontSizeHandle);
 
         toggleFieldEditButtons(isEditorMode);
-        createdFields.push({ wrapper, input, dragHandle, deleteBtn, resizeHandle, listeners });
+        createdFields.push({ wrapper, input, dragHandle, deleteBtn, resizeHandle, fontSizeHandle, listeners });
         
         return wrapper;
     }
@@ -601,6 +655,7 @@ downloadBtn.addEventListener("click", async () => {
         let y = parseFloat(input.dataset.y) + yOffset;
         const value = input.value;
         const page = parseInt(input.dataset.page, 10) || 1;
+        const fontSize = parseInt(input.style.fontSize) || 16;
 
         if (page === 1) {
             y += firstPageExtraOffset;
@@ -614,7 +669,7 @@ downloadBtn.addEventListener("click", async () => {
             pdfPage.drawText(value, {
                 x: x / 1.5,
                 y: pdfPage.getHeight() - y / 1.5,
-                size: 12,
+                size: fontSize * 0.75, // Ajuste de escala para o PDF
                 color: rgb(0, 0, 0)
             });
         }
@@ -683,11 +738,11 @@ downloadBtn.addEventListener("click", async () => {
 });
 
 function toggleFieldEditButtons(show) {
-    document.querySelectorAll('.absolute.group').forEach(wrapper => {
-        const drag = wrapper.querySelector('div');
-        const del = wrapper.querySelector('button');
-        if (drag) drag.style.display = show ? 'block' : 'none';
-        if (del) del.style.display = show ? 'block' : 'none';
+    createdFields.forEach(fieldObj => {
+        if (fieldObj.dragHandle) fieldObj.dragHandle.style.display = show ? 'block' : 'none';
+        if (fieldObj.deleteBtn) fieldObj.deleteBtn.style.display = show ? 'block' : 'none';
+        if (fieldObj.resizeHandle) fieldObj.resizeHandle.style.display = show ? 'block' : 'none';
+        if (fieldObj.fontSizeHandle) fieldObj.fontSizeHandle.style.display = show ? 'block' : 'none';
     });
 }
 
