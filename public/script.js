@@ -362,7 +362,7 @@ syncToOriginBtn.addEventListener('click', async () => {
         return;
     }
     
-    const confirmMsg = `Deseja sincronizar as posições (x, y, page, width, height, fontSize) deste arquivo para o template original "${templateConfig.derivedFrom}"?\n\nIsso irá atualizar apenas os campos correspondentes no arquivo original, mantendo os valores.`;
+    const confirmMsg = `Deseja sincronizar as posições (x, y, page, width, height, fontSize) do template original "${templateConfig.derivedFrom}" para este arquivo?\n\nIsso irá SUBSTITUIR as posições atuais pelas posições do arquivo original, mantendo os valores preenchidos.`;
     
     if (!confirm(confirmMsg)) return;
     
@@ -380,7 +380,9 @@ syncToOriginBtn.addEventListener('click', async () => {
         const result = await response.json();
         
         if (result.success) {
-            alert(`✅ Sucesso!\n\n${result.message}`);
+            alert(`✅ Sucesso!\n\n${result.message}\n\nRecarregando o arquivo...`);
+            // Recarrega o template para mostrar as novas posições
+            await loadTemplate(currentTemplate, 'generated', true);
         } else {
             alert(`❌ Erro: ${result.error}`);
         }

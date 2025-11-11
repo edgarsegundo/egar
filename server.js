@@ -128,7 +128,7 @@ app.post('/save-pdf', (req, res) => {
     });
 });
 
-// Sincronizar posições do arquivo derivado para o original
+// Sincronizar posições do arquivo original para o arquivo derivado atual
 app.post('/sync-to-origin', (req, res) => {
     const { currentFile, derivedFrom, fields } = req.body;
     
@@ -138,6 +138,7 @@ app.post('/sync-to-origin', (req, res) => {
     
     const configDir = path.resolve("template-configs");
     const originConfigPath = path.join(configDir, `${derivedFrom}.json`);
+    const currentConfigPath = path.join(configDir, `${currentFile}.json`);
     
     // Verifica se o arquivo original existe
     if (!fs.existsSync(originConfigPath)) {
@@ -148,34 +149,38 @@ app.post('/sync-to-origin', (req, res) => {
         // Lê a configuração original
         const originConfig = JSON.parse(fs.readFileSync(originConfigPath, 'utf-8'));
         
-        // Cria um mapa dos campos derivados por nome
-        const derivedFieldsMap = {};
-        fields.forEach(field => {
-            derivedFieldsMap[field.name] = field;
+        // Cria um mapa dos campos originais por nome
+        const originFieldsMap = {};
+        originConfig.fields.forEach(field => {
+            originFieldsMap[field.name] = field;
         });
         
-        // Atualiza apenas as posições dos campos correspondentes no original
+        // Atualiza apenas as posições dos campos correspondentes no arquivo atual
         let updatedCount = 0;
-        originConfig.fields.forEach(originField => {
-            const derivedField = derivedFieldsMap[originField.name];
-            if (derivedField) {
-                // Atualiza apenas x, y, page, width, height, fontSize
-                originField.x = derivedField.x;
-                originField.y = derivedField.y;
-                originField.page = derivedField.page;
-                if (derivedField.width !== undefined) originField.width = derivedField.width;
-                if (derivedField.height !== undefined) originField.height = derivedField.height;
-                if (derivedField.fontSize !== undefined) originField.fontSize = derivedField.fontSize;
+        fields.forEach(currentField => {
+            const originField = originFieldsMap[currentField.name];
+            if (originField) {
+                // Atualiza apenas x, y, page, width, height, fontSize do original para o atual
+                currentField.x = originField.x;
+                currentField.y = originField.y;
+                currentField.page = originField.page;
+                if (originField.width !== undefined) currentField.width = originField.width;
+                if (originField.height !== undefined) currentField.height = originField.height;
+                if (originField.fontSize !== undefined) currentField.fontSize = originField.fontSize;
                 updatedCount++;
             }
         });
         
-        // Salva o arquivo original atualizado
-        fs.writeFileSync(originConfigPath, JSON.stringify(originConfig, null, 2));
+        // Salva o arquivo atual atualizado (mantém derivedFrom e values atuais)
+        const updatedConfig = {
+            derivedFrom: derivedFrom,
+            fields: fields
+        };
+        fs.writeFileSync(currentConfigPath, JSON.stringify(updatedConfig, null, 2));
         
         res.json({ 
             success: true, 
-            message: `${updatedCount} campos sincronizados de ${currentFile} para ${derivedFrom}.json`,
+            message: `${updatedCount} campos sincronizados de ${derivedFrom}.json para ${currentFile}`,
             updatedCount 
         });
     } catch (error) {
