@@ -286,8 +286,8 @@ async function renderPDF(url) {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            // preciso de um input alert para nome do campo
             let fieldName = prompt("Digite o nome do campo:", "?");
+            // Sempre salva a página do campo
             templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum });
             createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
         };
@@ -489,16 +489,25 @@ downloadBtn.addEventListener("click", async () => {
     const firstPage = pages[0];
 
     const allInputs = pdfContainer.querySelectorAll('input[type="text"]');
-    const yOffset = 20; // ajuste para descer o texto
+    const yOffset = 5; // ajuste para descer o texto
+    const pageYOffset = 10; // offset adicional para páginas diferentes
     allInputs.forEach(input => {
         const x = parseFloat(input.dataset.x);
-        const y = parseFloat(input.dataset.y) + yOffset;
+        let y = parseFloat(input.dataset.y) + yOffset;
         const value = input.value;
+        const page = parseInt(input.dataset.page, 10) || 1;
 
+        // Aplica offset adicional se não for a primeira página
+        if (page > 1) {
+            y += pageYOffset * (page - 1);
+        }
+
+        // Seleciona a página correta
+        const pdfPage = pages[page - 1] || firstPage;
         if (value) {
-            firstPage.drawText(value, {
+            pdfPage.drawText(value, {
                 x: x / 1.5,
-                y: firstPage.getHeight() - y / 1.5,
+                y: pdfPage.getHeight() - y / 1.5,
                 size: 12,
                 color: rgb(0, 0, 0)
             });
