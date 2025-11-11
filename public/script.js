@@ -301,12 +301,19 @@ function createInputField(x, y, name, value, editorMode, idx) {
   input.dataset.y = y;
 //   input.disabled = !!editorMode;
   input.style.height = '20px';
-  input.style.fontSize = '13px';
+  input.style.fontSize = '16px';
 
   // Botão de excluir
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "×";
-  deleteBtn.className = "ml-1 text-red-600 hover:text-red-800 font-bold absolute -top-2 -right-2 bg-white rounded-full border border-red-200 px-2 py-0.5 shadow group-hover:block";
+  deleteBtn.className = "text-red-600 hover:text-red-800 font-bold absolute bg-white rounded-full border border-red-200 shadow group-hover:block flex items-center justify-center";
+  deleteBtn.style.width = '16px';
+  deleteBtn.style.height = '16px';
+  deleteBtn.style.fontSize = '12px';
+  deleteBtn.style.lineHeight = '14px';
+  deleteBtn.style.padding = '0';
+  deleteBtn.style.top = '5px'; // mais acima
+  deleteBtn.style.right = '-15px';
   deleteBtn.style.display = 'block';
   deleteBtn.style.zIndex = '9999';
   deleteBtn.onclick = (e) => {
