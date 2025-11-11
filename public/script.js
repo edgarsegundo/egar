@@ -574,7 +574,7 @@ downloadBtn.addEventListener("click", async () => {
     // 2. Cria uma cópia do JSON de configuração com o novo nome
     if (currentTemplate) {
         try {
-            await fetch(`/template-config/create`, {
+            const res = await fetch(`/template-config/create`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -584,6 +584,7 @@ downloadBtn.addEventListener("click", async () => {
                 })
             });
         } catch (err) {
+            console.error('Error copying config:', err);
             // Opcional: console.error('Erro ao copiar config', err);
         }
     }
