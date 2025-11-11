@@ -30,10 +30,25 @@ app.get("/pdf-templates/list", (req, res) => {
     res.json(files);
 });
 
+app.get("/generated-pdf-files/list", (req, res) => {
+    const templatesDir = path.resolve("generated-pdf-files");
+    if (!fs.existsSync(templatesDir)) {
+        return res.json([]);
+    }
+    const files = fs.readdirSync(templatesDir).filter(file => file.endsWith('.pdf'));
+    res.json(files);
+});
+
 app.get("/pdf-templates/:filename", (req, res) => {
     const filePath = path.resolve("pdf-files", req.params.filename);
     if (fs.existsSync(filePath)) res.sendFile(filePath);
     else res.status(404).send("Template not found");
+});
+
+app.get("/generated-pdf-files/:filename", (req, res) => {
+    const filePath = path.resolve("generated-pdf-files", req.params.filename);
+    if (fs.existsSync(filePath)) res.sendFile(filePath);
+    else res.status(404).send("Generated file not found");
 });
 
 // Get template configuration
@@ -93,7 +108,7 @@ app.post('/save-pdf', (req, res) => {
     if (!filename || !pdfData) {
         return res.status(400).json({ error: "Nome do arquivo e dados do PDF são obrigatórios." });
     }
-    const outputDir = path.resolve('pdf-files');
+    const outputDir = path.resolve('generated-pdf-files');
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
     }

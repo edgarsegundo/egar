@@ -152,37 +152,75 @@ async function loadTemplates() {
 
         if (templates.length === 0) {
             templatesList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum template encontrado</p>';
-            return;
-        }
+        } else {
+            templatesList.innerHTML = templates.map(template => `
+                <button 
+                    class="template-btn w-full text-left px-3 py-2 rounded hover:bg-blue-50 border border-gray-200 text-sm transition-colors"
+                    data-template="${template}"
+                    data-source="templates"
+                >
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                        </svg>
+                        <span class="truncate">${template}</span>
+                    </div>
+                </button>
+            `).join('');
 
-        templatesList.innerHTML = templates.map(template => `
-            <button 
-                class="template-btn w-full text-left px-3 py-2 rounded hover:bg-blue-50 border border-gray-200 text-sm transition-colors"
-                data-template="${template}"
-            >
-                <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
-                    </svg>
-                    <span class="truncate">${template}</span>
-                </div>
-            </button>
-        `).join('');
-
-        document.querySelectorAll('.template-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const template = btn.dataset.template;
-                loadTemplate(template);
+            document.querySelectorAll('.template-btn[data-source="templates"]').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const template = btn.dataset.template;
+                    loadTemplate(template, 'templates');
+                });
             });
-        });
+        }
     } catch (error) {
         console.error("Error loading templates:", error);
         templatesList.innerHTML = '<p class="text-red-500 text-sm">Erro ao carregar templates</p>';
     }
 }
 
-async function loadTemplate(templateName, keepMode = false) {
-    const url = `/pdf-templates/${templateName}`;
+async function loadGeneratedFiles() {
+    try {
+        const res = await fetch("/generated-pdf-files/list");
+        const files = await res.json();
+
+        if (files.length === 0) {
+            generatedFilesList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum arquivo gerado</p>';
+        } else {
+            generatedFilesList.innerHTML = files.map(file => `
+                <button 
+                    class="template-btn w-full text-left px-3 py-2 rounded hover:bg-green-50 border border-gray-200 text-sm transition-colors"
+                    data-template="${file}"
+                    data-source="generated"
+                >
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                        </svg>
+                        <span class="truncate">${file}</span>
+                    </div>
+                </button>
+            `).join('');
+
+            document.querySelectorAll('.template-btn[data-source="generated"]').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const template = btn.dataset.template;
+                    loadTemplate(template, 'generated');
+                });
+            });
+        }
+    } catch (error) {
+        console.error("Error loading generated files:", error);
+        generatedFilesList.innerHTML = '<p class="text-red-500 text-sm">Erro ao carregar arquivos</p>';
+    }
+}
+
+async function loadTemplate(templateName, source = 'templates', keepMode = false) {
+    const url = source === 'generated' 
+        ? `/generated-pdf-files/${templateName}` 
+        : `/pdf-templates/${templateName}`;
     currentPdfUrl = url;
     currentTemplate = templateName;
     inputData = [];
@@ -269,6 +307,7 @@ clearFieldsBtn.addEventListener('click', () => {
 
 // Load templates when page loads
 loadTemplates();
+loadGeneratedFiles();
 
 async function renderPDF(url) {
     pdfContainer.innerHTML = "";
@@ -596,15 +635,23 @@ downloadBtn.addEventListener("click", async () => {
                     
                     if (createResult.success) {
                         alert(`PDF salvo no servidor como '${fileName}' e configuração salva como '${userFileName}.pdf.json'!\nCaminho: ${saveResult.path}`);
+                        // Recarregar a lista de arquivos gerados
+                        loadGeneratedFiles();
                     } else {
                         alert(`PDF salvo no servidor como '${fileName}', mas houve erro ao salvar configuração.\nCaminho: ${saveResult.path}`);
+                        // Recarregar a lista de arquivos gerados
+                        loadGeneratedFiles();
                     }
                 } catch (err) {
                     console.error('Error copying config:', err);
                     alert(`PDF salvo no servidor como '${fileName}', mas houve erro ao criar configuração.\nCaminho: ${saveResult.path}`);
+                    // Recarregar a lista de arquivos gerados
+                    loadGeneratedFiles();
                 }
             } else {
                 alert(`PDF salvo no servidor como '${fileName}'!\nCaminho: ${saveResult.path}`);
+                // Recarregar a lista de arquivos gerados
+                loadGeneratedFiles();
             }
         } else {
             alert("Erro ao salvar PDF no servidor: " + saveResult.error);
