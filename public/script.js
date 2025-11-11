@@ -489,16 +489,18 @@ downloadBtn.addEventListener("click", async () => {
     const firstPage = pages[0];
 
     const allInputs = pdfContainer.querySelectorAll('input[type="text"]');
-    const yOffset = 5; // ajuste para descer o texto
+    const yOffset = 5; // ajuste base
     const pageYOffset = 10; // offset adicional para páginas diferentes
+    const firstPageExtraOffset = 15; // offset especial para página 1
     allInputs.forEach(input => {
         const x = parseFloat(input.dataset.x);
         let y = parseFloat(input.dataset.y) + yOffset;
         const value = input.value;
         const page = parseInt(input.dataset.page, 10) || 1;
 
-        // Aplica offset adicional se não for a primeira página
-        if (page > 1) {
+        if (page === 1) {
+            y += firstPageExtraOffset;
+        } else if (page > 1) {
             y += pageYOffset * (page - 1);
         }
 
