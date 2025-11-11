@@ -6,6 +6,8 @@ let currentPdfUrl = null;
 let currentTemplate = null;
 let isEditorMode = false;
 let templateConfig = { fields: [] };
+// Guarda referências dos campos criados
+let createdFields = [];
 
 const uploadForm = document.getElementById("uploadForm");
 const pdfContainer = document.getElementById("pdfContainer");
@@ -249,10 +251,20 @@ async function renderPDF(url) {
     }
 
     downloadBtn.classList.remove("hidden");
-    // Renderiza os campos existentes
-    templateConfig.fields.forEach((field, idx) => {
-        createInputField(field.x, field.y, field.name, field.value, isEditorMode, idx, field.page || 1);
+  // Limpa campos antigos do DOM e listeners
+  createdFields.forEach(fieldObj => {
+    fieldObj.listeners.forEach(({target, type, handler}) => {
+      target.removeEventListener(type, handler);
     });
+    if (fieldObj.wrapper && fieldObj.wrapper.parentNode) {
+      fieldObj.wrapper.parentNode.removeChild(fieldObj.wrapper);
+    }
+  });
+  createdFields = [];
+  // Renderiza os campos existentes
+  templateConfig.fields.forEach((field, idx) => {
+    createInputField(field.x, field.y, field.name, field.value, isEditorMode, idx, field.page || 1);
+  });
     // fim da função renderPDF
 
     function createInputField(x, y, name, value, editorMode, idx, page = 1) {
@@ -260,107 +272,121 @@ async function renderPDF(url) {
         const pageWrapper = pdfContainer.querySelector(`div[data-page-number='${page}']`);
         if (!pageWrapper) return;
 
-        const wrapper = document.createElement("div");
-        wrapper.className = "absolute group";
-        wrapper.style.left = `${x}px`;
-        wrapper.style.top = `${y}px`;
-        wrapper.style.cursor = editorMode ? 'move' : 'text';
-        wrapper.style.zIndex = 10;
-        wrapper.style.pointerEvents = 'auto';
-        wrapper.style.position = 'absolute';
-        // Gera um id único sequencial para o campo/input
-        const uniqueId = `inputfield-${inputFieldIdCount++}`;
-        wrapper.id = uniqueId;
-        pageWrapper.appendChild(wrapper);
+    const wrapper = document.createElement("div");
+    wrapper.className = "absolute group";
+    wrapper.style.left = `${x}px`;
+    wrapper.style.top = `${y}px`;
+    wrapper.style.cursor = editorMode ? 'move' : 'text';
+    wrapper.style.zIndex = 10;
+    wrapper.style.pointerEvents = 'auto';
+    wrapper.style.position = 'absolute';
+    // Gera um id único sequencial para o campo/input
+    const uniqueId = `inputfield-${inputFieldIdCount++}`;
+    wrapper.id = uniqueId;
+    pageWrapper.appendChild(wrapper);
 
-        // Drag handle (círculo maior e mais próximo do input)
-        const dragHandle = document.createElement('div');
-        dragHandle.style.width = '18px';
-        dragHandle.style.height = '18px';
-        dragHandle.style.background = '#fff';
-        dragHandle.style.border = '2px solid #888';
-        dragHandle.style.borderRadius = '50%';
-        dragHandle.style.position = 'absolute';
-        dragHandle.style.left = '50%';
-        dragHandle.style.top = '-6px';
-        dragHandle.style.transform = 'translate(-50%, 0)';
-        dragHandle.style.cursor = 'grab';
-        dragHandle.style.zIndex = '10000';
-        dragHandle.title = 'Arraste para mover';
+    // Drag handle (círculo maior e mais próximo do input)
+    const dragHandle = document.createElement('div');
+    dragHandle.style.width = '18px';
+    dragHandle.style.height = '18px';
+    dragHandle.style.background = '#fff';
+    dragHandle.style.border = '2px solid #888';
+    dragHandle.style.borderRadius = '50%';
+    dragHandle.style.position = 'absolute';
+    dragHandle.style.left = '50%';
+    dragHandle.style.top = '-6px';
+    dragHandle.style.transform = 'translate(-50%, 0)';
+    dragHandle.style.cursor = 'grab';
+    dragHandle.style.zIndex = '10000';
+    dragHandle.title = 'Arraste para mover';
+    let offsetX, offsetY, dragging = false;
+    // Listeners para limpeza
+    const listeners = [];
+    // Drag-and-drop independente para cada campo
+    const onMouseDown = function(e) {
+      e.stopPropagation();
+      dragging = true;
+      const rect = wrapper.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      document.body.style.userSelect = 'none';
+      dragHandle.style.cursor = 'grabbing';
+      // Eventos de mousemove/mouseup só para este drag
+      function onMouseMove(ev) {
+        if (!dragging) return;
+        const rect = pageWrapper.getBoundingClientRect();
+        let newX = ev.clientX - rect.left - offsetX;
+        let newY = ev.clientY - rect.top - offsetY;
+        newX = Math.max(0, Math.min(newX, pageWrapper.offsetWidth - wrapper.offsetWidth));
+        newY = Math.max(0, Math.min(newY, pageWrapper.offsetHeight - wrapper.offsetHeight));
+        wrapper.style.left = `${newX}px`;
+        wrapper.style.top = `${newY}px`;
+        templateConfig.fields[idx].x = newX;
+        templateConfig.fields[idx].y = newY;
+      }
+      function onMouseUp() {
+        if (dragging) {
+          dragging = false;
+          document.body.style.userSelect = '';
+          dragHandle.style.cursor = 'grab';
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+        }
+      }
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+      listeners.push({target: document, type: 'mousemove', handler: onMouseMove});
+      listeners.push({target: document, type: 'mouseup', handler: onMouseUp});
+    };
+    dragHandle.addEventListener('mousedown', onMouseDown);
+    listeners.push({target: dragHandle, type: 'mousedown', handler: onMouseDown});
 
-        // Drag-and-drop independente para cada campo
-        let offsetX, offsetY, dragging = false;
-        dragHandle.addEventListener('mousedown', function(e) {
-            e.stopPropagation();
-            dragging = true;
-            const rect = wrapper.getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-            document.body.style.userSelect = 'none';
-            dragHandle.style.cursor = 'grabbing';
-            // Eventos de mousemove/mouseup só para este drag
-            function onMouseMove(ev) {
-            if (!dragging) return;
-            const rect = pageWrapper.getBoundingClientRect();
-            let newX = ev.clientX - rect.left - offsetX;
-            let newY = ev.clientY - rect.top - offsetY;
-            newX = Math.max(0, Math.min(newX, pageWrapper.offsetWidth - wrapper.offsetWidth));
-            newY = Math.max(0, Math.min(newY, pageWrapper.offsetHeight - wrapper.offsetHeight));
-            wrapper.style.left = `${newX}px`;
-            wrapper.style.top = `${newY}px`;
-            templateConfig.fields[idx].x = newX;
-            templateConfig.fields[idx].y = newY;
-            }
-            function onMouseUp() {
-            if (dragging) {
-                dragging = false;
-                document.body.style.userSelect = '';
-                dragHandle.style.cursor = 'grab';
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-            }
-            }
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        });
+    // Input de texto
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = value;
+    input.className = 'border p-1 rounded text-sm bg-blue-100 border-blue-400 opacity-80';
+    input.dataset.fieldName = name;
+    input.dataset.x = x;
+    input.dataset.y = y;
+    input.dataset.page = page;
+    input.id = uniqueId + '-input';
+    input.style.height = '20px';
+    input.style.fontSize = '16px';
 
-        // Input de texto
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = value;
-        input.className = 'border p-1 rounded text-sm bg-blue-100 border-blue-400 opacity-80';
-        input.dataset.fieldName = name;
-        input.dataset.x = x;
-        input.dataset.y = y;
-        input.dataset.page = page;
-        input.id = uniqueId + '-input';
-        input.style.height = '20px';
-        input.style.fontSize = '16px';
+    // Botão de excluir
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "×";
+    deleteBtn.className = "text-red-600 hover:text-red-800 font-bold absolute bg-white rounded-full border border-red-200 shadow group-hover:block flex items-center justify-center";
+    deleteBtn.style.width = '16px';
+    deleteBtn.style.height = '16px';
+    deleteBtn.style.fontSize = '12px';
+    deleteBtn.style.lineHeight = '14px';
+    deleteBtn.style.padding = '0';
+    deleteBtn.style.top = '5px';
+    deleteBtn.style.right = '-15px';
+    deleteBtn.style.display = 'block';
+    deleteBtn.style.zIndex = '9999';
+    const onDelete = (e) => {
+      e.stopPropagation();
+      templateConfig.fields.splice(idx, 1);
+      // Remove listeners e wrapper
+      listeners.forEach(({target, type, handler}) => {
+        target.removeEventListener(type, handler);
+      });
+      if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+    };
+    deleteBtn.addEventListener('click', onDelete);
+    listeners.push({target: deleteBtn, type: 'click', handler: onDelete});
 
-        // Botão de excluir
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "×";
-        deleteBtn.className = "text-red-600 hover:text-red-800 font-bold absolute bg-white rounded-full border border-red-200 shadow group-hover:block flex items-center justify-center";
-        deleteBtn.style.width = '16px';
-        deleteBtn.style.height = '16px';
-        deleteBtn.style.fontSize = '12px';
-        deleteBtn.style.lineHeight = '14px';
-        deleteBtn.style.padding = '0';
-        deleteBtn.style.top = '5px';
-        deleteBtn.style.right = '-15px';
-        deleteBtn.style.display = 'block';
-        deleteBtn.style.zIndex = '9999';
-        deleteBtn.onclick = (e) => {
-            e.stopPropagation();
-            templateConfig.fields.splice(idx, 1);
-        };
+    wrapper.appendChild(deleteBtn);
+    wrapper.appendChild(dragHandle);
+    wrapper.appendChild(input);
 
-        wrapper.appendChild(deleteBtn);
-        wrapper.appendChild(dragHandle);
-        wrapper.appendChild(input);
-
-        toggleFieldEditButtons(isEditorMode);
-    }
+    toggleFieldEditButtons(isEditorMode);
+    // Guarda referência global para limpeza
+    createdFields.push({wrapper, input, dragHandle, deleteBtn, listeners});
+}
 }
 
 downloadBtn.addEventListener("click", async () => {
