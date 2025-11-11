@@ -76,8 +76,8 @@ app.post("/template-config/:templateName", (req, res) => {
 
 // Copiar configuração de template para novo nome
 app.post("/create-config-file", (req, res) => {
-    const { to, fields } = req.body;
-    console.log('REQ BODY /template-config/create:', req.body);
+    const { to, fields, from } = req.body;
+    console.log('REQ BODY /create-config-file:', req.body);
     const configDir = path.resolve("template-configs");
     // Verifica se o campo 'to' é válido
     if (!to || typeof to !== 'string' || !to.endsWith('.json')) {
@@ -91,11 +91,17 @@ app.post("/create-config-file", (req, res) => {
     }
 
     if (fields && Array.isArray(fields)) {
-        fs.writeFile(destPath, JSON.stringify({ fields }, null, 2), (err) => {
-        if (err) {
-            return res.status(500).json({ error: "Erro ao salvar novo arquivo de configuração." });
-        }
-        return res.json({ success: true, saved: true, file: to });
+        // Adiciona a informação do template original
+        const configData = {
+            derivedFrom: from || null,
+            fields: fields
+        };
+        
+        fs.writeFile(destPath, JSON.stringify(configData, null, 2), (err) => {
+            if (err) {
+                return res.status(500).json({ error: "Erro ao salvar novo arquivo de configuração." });
+            }
+            return res.json({ success: true, saved: true, file: to });
         });
     } else {
         return res.status(400).json({ error: "Nome do arquivo e campos são obrigatórios." });
