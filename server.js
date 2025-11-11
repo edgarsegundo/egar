@@ -93,7 +93,7 @@ app.post('/save-pdf', (req, res) => {
     if (!filename || !pdfData) {
         return res.status(400).json({ error: "Nome do arquivo e dados do PDF são obrigatórios." });
     }
-    const outputDir = path.resolve('generated-pdfs');
+    const outputDir = path.resolve('pdf-files');
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
     }
