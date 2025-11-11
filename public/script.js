@@ -359,7 +359,9 @@ async function renderPDF(url) {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            let fieldName = prompt("Digite o nome do campo:", "?");
+            let fieldName = prompt("Digite o nome do campo:", "");
+            // Se o usuário cancelar ou não digitar nada, não cria o campo
+            if (!fieldName || fieldName.trim() === '') return;
             // Sempre salva a página do campo
             templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum, fontSize: 16 });
             createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
