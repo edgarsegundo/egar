@@ -245,16 +245,16 @@ function createInputField(x, y, name, value, editorMode, idx) {
   wrapper.style.cursor = editorMode ? 'move' : 'text';
   wrapper.style.zIndex = 10;
 
-  // Drag handle (círculo pequeno acima do input)
+  // Drag handle (círculo maior e mais próximo do input)
   const dragHandle = document.createElement('div');
-  dragHandle.style.width = '12px';
-  dragHandle.style.height = '12px';
+  dragHandle.style.width = '18px';
+  dragHandle.style.height = '18px';
   dragHandle.style.background = '#fff';
   dragHandle.style.border = '2px solid #888';
   dragHandle.style.borderRadius = '50%';
   dragHandle.style.position = 'absolute';
   dragHandle.style.left = '50%';
-  dragHandle.style.top = '-14px';
+  dragHandle.style.top = '-6px';
   dragHandle.style.transform = 'translate(-50%, 0)';
   dragHandle.style.cursor = 'grab';
   dragHandle.style.zIndex = '10000';
@@ -295,13 +295,13 @@ function createInputField(x, y, name, value, editorMode, idx) {
   input.type = "text";
   input.value = value;
   input.className = `border p-1 rounded text-sm ${editorMode ? 'bg-blue-100 border-blue-400' : 'bg-yellow-100'} ${editorMode ? 'opacity-80' : ''}`;
-  input.placeholder = name || '';
+//   input.placeholder = name || '';
   input.dataset.fieldName = name;
   input.dataset.x = x;
   input.dataset.y = y;
-  input.disabled = !!editorMode;
-  input.style.height = '18px';
-  input.style.fontSize = '9px';
+//   input.disabled = !!editorMode;
+  input.style.height = '20px';
+  input.style.fontSize = '13px';
 
   // Botão de excluir
   const deleteBtn = document.createElement("button");
