@@ -5,7 +5,7 @@
       "x": 225,
       "y": 181,
       "name": "Consulado em",
-      "value": "SÃO PAULO",
+      "value": "                        SÃO PAULO",
       "page": 1,
       "width": 311,
       "height": 20
@@ -14,19 +14,39 @@
       "x": 170,
       "y": 384,
       "name": "Nome",
-      "value": "LUIZ A",
+      "value": "",
       "page": 1,
-      "width": 374,
-      "height": 19,
-      "fontSize": 21
+      "fontSize": 16,
+      "width": 369,
+      "height": 18
     },
     {
-      "x": 137,
-      "y": 659,
-      "name": "Lugar",
-      "value": "lugar test",
-      "page": 2,
+      "x": 171,
+      "y": 368,
+      "name": "Primeiro Sobrenome",
+      "value": "",
+      "page": 1,
       "fontSize": 16
+    },
+    {
+      "x": 241,
+      "y": 473,
+      "name": "SexoM",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 30,
+      "height": 28
+    },
+    {
+      "x": 233,
+      "y": 500,
+      "name": "DataNasc",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 140,
+      "height": 18
     }
   ]
 }
