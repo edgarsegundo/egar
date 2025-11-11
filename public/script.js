@@ -489,9 +489,10 @@ downloadBtn.addEventListener("click", async () => {
     const firstPage = pages[0];
 
     const allInputs = pdfContainer.querySelectorAll('input[type="text"]');
+    const yOffset = 20; // ajuste para descer o texto
     allInputs.forEach(input => {
         const x = parseFloat(input.dataset.x);
-        const y = parseFloat(input.dataset.y);
+        const y = parseFloat(input.dataset.y) + yOffset;
         const value = input.value;
 
         if (value) {
