@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF Form Filler</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+<body class="bg-gray-100 flex h-screen overflow-hidden">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="w-64 bg-white shadow-md p-4 overflow-y-auto transition-all duration-300">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-700">Templates</h2>
+      <button id="toggleSidebar" class="text-gray-500 hover:text-gray-700">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+        </svg>
+      </button>
+    </div>
+    <div id="templatesList" class="space-y-2">
+      <!-- Templates will be loaded here -->
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col items-center p-6 overflow-y-auto">
+    <button id="showSidebar" class="hidden self-start mb-4 text-gray-500 hover:text-gray-700">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+      </svg>
+    </button>
+
+    <h1 class="text-2xl font-bold mb-4">PDF Form Filler Prototype</h1>
+
+    <!-- Mode Toggle & Actions -->
+    <div id="actionBar" class="mb-4 flex gap-2 items-center hidden">
+      <button id="toggleModeBtn" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 font-medium">
+        Modo: <span id="currentMode">Preenchimento</span>
+      </button>
+      <button id="saveConfigBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">
+        Salvar Configuração
+      </button>
+      <button id="clearFieldsBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 hidden">
+        Limpar Campos
+      </button>
+      <span id="modeDescription" class="text-sm text-gray-600 ml-2">Preencha os campos</span>
+    </div>
+
+    <form id="uploadForm" class="flex gap-2 mb-4" style="display: none;">
+      <input type="file" id="pdfFile" name="pdf" accept="application/pdf" class="border p-2 rounded">
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Upload PDF</button>
+    </form>
+
+    <div id="pdfContainer" class="relative border shadow-lg"></div>
+
+    <button id="downloadBtn" class="mt-4 bg-green-600 text-white px-4 py-2 rounded hidden hover:bg-green-700">Download Filled PDF</button>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>  
+  <script src="./script.js"></script>
+</body>
+</html>
