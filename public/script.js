@@ -218,12 +218,6 @@ async function renderPDF(url) {
 
   await page.render({ canvasContext: ctx, viewport }).promise;
 
-//   // Render fields
-//   if (templateConfig.fields.length > 0) {
-//     templateConfig.fields.forEach((field, idx) => {
-//       createInputField(field.x, field.y, field.name, field.value || '', isEditorMode, idx);
-//     });
-//   }
 
   // Adicionar campo novo só no modo edição
   pdfContainer.onclick = (e) => {
@@ -251,12 +245,51 @@ function createInputField(x, y, name, value, editorMode, idx) {
   wrapper.style.cursor = editorMode ? 'move' : 'text';
   wrapper.style.zIndex = 10;
 
-  if (name) {
-    const label = document.createElement("label");
-    label.className = "block text-xs text-gray-700 font-medium mb-1 select-none";
-    label.textContent = name;
-    wrapper.appendChild(label);
-  }
+  // Drag handle (círculo pequeno acima do input)
+  const dragHandle = document.createElement('div');
+  dragHandle.style.width = '12px';
+  dragHandle.style.height = '12px';
+  dragHandle.style.background = '#fff';
+  dragHandle.style.border = '2px solid #888';
+  dragHandle.style.borderRadius = '50%';
+  dragHandle.style.position = 'absolute';
+  dragHandle.style.left = '50%';
+  dragHandle.style.top = '-14px';
+  dragHandle.style.transform = 'translate(-50%, 0)';
+  dragHandle.style.cursor = 'grab';
+  dragHandle.style.zIndex = '10000';
+  dragHandle.title = 'Arraste para mover';
+
+  let offsetX, offsetY, dragging = false;
+  dragHandle.onmousedown = function(e) {
+    e.stopPropagation();
+    dragging = true;
+    const rect = wrapper.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    document.body.style.userSelect = 'none';
+    dragHandle.style.cursor = 'grabbing';
+  };
+  document.onmouseup = function() {
+    if (dragging) {
+      dragging = false;
+      document.body.style.userSelect = '';
+      dragHandle.style.cursor = 'grab';
+    }
+  };
+  document.onmousemove = function(e) {
+    if (!dragging) return;
+    const rect = pdfContainer.getBoundingClientRect();
+    let newX = e.clientX - rect.left - offsetX;
+    let newY = e.clientY - rect.top - offsetY;
+    // Limitar dentro do container
+    newX = Math.max(0, Math.min(newX, pdfContainer.offsetWidth - wrapper.offsetWidth));
+    newY = Math.max(0, Math.min(newY, pdfContainer.offsetHeight - wrapper.offsetHeight));
+    wrapper.style.left = `${newX}px`;
+    wrapper.style.top = `${newY}px`;
+    templateConfig.fields[idx].x = newX;
+    templateConfig.fields[idx].y = newY;
+  };
 
   const input = document.createElement("input");
   input.type = "text";
@@ -267,48 +300,23 @@ function createInputField(x, y, name, value, editorMode, idx) {
   input.dataset.x = x;
   input.dataset.y = y;
   input.disabled = !!editorMode;
+  input.style.height = '18px';
+  input.style.fontSize = '9px';
 
-  // Drag and drop (apenas no modo edição)
-  if (editorMode) {
-    let offsetX, offsetY, dragging = false;
-    wrapper.onmousedown = function(e) {
-      dragging = true;
-      offsetX = e.offsetX;
-      offsetY = e.offsetY;
-      document.body.style.userSelect = 'none';
-    };
-    document.onmouseup = function() {
-      dragging = false;
-      document.body.style.userSelect = '';
-    };
-    document.onmousemove = function(e) {
-      if (!dragging) return;
-      const rect = pdfContainer.getBoundingClientRect();
-      const newX = e.clientX - rect.left - offsetX;
-      const newY = e.clientY - rect.top - offsetY;
-      wrapper.style.left = `${newX}px`;
-      wrapper.style.top = `${newY}px`;
-      // Atualiza posição em tempo real
-      templateConfig.fields[idx].x = newX;
-      templateConfig.fields[idx].y = newY;
-    };
-    // Botão de excluir
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "×";
-    deleteBtn.className = "ml-1 text-red-600 hover:text-red-800 font-bold absolute -top-2 -right-2 bg-white rounded-full border border-red-200 px-2 py-0.5 shadow group-hover:block";
-    deleteBtn.style.display = 'block';
-    deleteBtn.onclick = (e) => {
-      e.stopPropagation();
-      templateConfig.fields.splice(idx, 1);
-      renderPDF(currentPdfUrl);
-    };
-    wrapper.appendChild(deleteBtn);
-  } else {
-    // Preenchimento normal
-    input.oninput = () => {
-      templateConfig.fields[idx].value = input.value;
-    };
-  }
+  // Botão de excluir
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "×";
+  deleteBtn.className = "ml-1 text-red-600 hover:text-red-800 font-bold absolute -top-2 -right-2 bg-white rounded-full border border-red-200 px-2 py-0.5 shadow group-hover:block";
+  deleteBtn.style.display = 'block';
+  deleteBtn.style.zIndex = '9999';
+  deleteBtn.onclick = (e) => {
+    e.stopPropagation();
+    templateConfig.fields.splice(idx, 1);
+    renderPDF(currentPdfUrl);
+  };
+  wrapper.appendChild(deleteBtn);
+
+  wrapper.appendChild(dragHandle);
   wrapper.appendChild(input);
   pdfContainer.appendChild(wrapper);
 }
