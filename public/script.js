@@ -52,6 +52,14 @@ document.body.appendChild(overlay);
 
 // Função para abrir o modal e preencher campos
 function openFillModal() {
+    // Antes de abrir o modal, sincroniza os valores dos inputs do containerpdf para o templateConfig
+    const pdfInputs = document.querySelectorAll('#pdfContainer input[type="text"]');
+    pdfInputs.forEach((input, idx) => {
+        if (templateConfig.fields[idx]) {
+            templateConfig.fields[idx].value = input.value;
+        }
+    });
+
     // Limpa campos antigos
     modalFieldsContainer.innerHTML = '';
     // Cria um input para cada campo do templateConfig
@@ -60,23 +68,19 @@ function openFillModal() {
         const wrapper = document.createElement('div');
         wrapper.className = 'relative flex flex-col';
 
-
-    // Label (sempre visível)
-    const label = document.createElement('span');
-    label.textContent = field.name || `Campo ${idx+1}`;
-    label.className = 'absolute left-2 top-2 text-xs text-blue-700 font-semibold pointer-events-none';
-    label.style.transform = 'translateY(-70%)';
-    wrapper.appendChild(label);
+        // Label (sempre visível)
+        const label = document.createElement('span');
+        label.textContent = field.name || `Campo ${idx+1}`;
+        label.className = 'absolute left-2 top-2 text-xs text-blue-700 font-semibold pointer-events-none';
+        label.style.transform = 'translateY(-70%)';
+        wrapper.appendChild(label);
 
         // Input
         const input = document.createElement('input');
         input.type = 'text';
         input.value = field.value || '';
-        // input.placeholder = field.name || `Campo ${idx+1}`;
         input.className = 'w-full border border-blue-300 rounded px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition';
         input.dataset.idx = idx;
-
-    // (sem eventos de focus/blur para label)
 
         wrapper.appendChild(input);
         modalFieldsContainer.appendChild(wrapper);
@@ -123,46 +127,6 @@ updateBtn.addEventListener('click', () => {
     });
     closeFillModal();
 });
-
-const uploadForm = document.getElementById("uploadForm");
-const pdfContainer = document.getElementById("pdfContainer");
-const downloadBtn = document.getElementById("downloadBtn");
-const sidebar = document.getElementById("sidebar");
-const toggleSidebar = document.getElementById("toggleSidebar");
-const showSidebar = document.getElementById("showSidebar");
-const templatesList = document.getElementById("templatesList");
-const clearFieldsBtn = document.getElementById("clearFieldsBtn");
-const modeDescription = document.getElementById("modeDescription");
-
-// Modo começa sempre em preenchimento
-function setMode(editor) {
-    isEditorMode = editor;
-    if (isEditorMode) {
-        toggleModeBtn.textContent = 'Voltar Modo Preenchimento';
-        saveConfigBtn.classList.remove('hidden');
-        clearFieldsBtn.classList.remove('hidden');
-        modeDescription.textContent = 'Arraste, adicione ou exclua campos';
-    } else {
-        toggleModeBtn.textContent = 'Ativar Modo Edição';
-        saveConfigBtn.classList.add('hidden');
-        clearFieldsBtn.classList.add('hidden');
-        modeDescription.textContent = 'Preencha os campos';
-    }
-}
-
-async function saveTemplateConfig() {
-    if (!currentTemplate) return;
-    const config = { fields: templateConfig.fields };
-    try {
-        await fetch(`/template-config/${currentTemplate}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(config)
-        });
-    } catch (error) {
-        alert('Erro ao salvar configuração');
-    }
-}
 
 // Load templates on page load
 async function loadTemplates() {
