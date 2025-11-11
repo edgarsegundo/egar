@@ -208,7 +208,8 @@ async function renderPDF(url) {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            let fieldName = `?`;
+            // preciso de um input alert para nome do campo
+            let fieldName = prompt("Digite o nome do campo:", "?");
             templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum });
             createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
         };
@@ -357,6 +358,7 @@ async function renderPDF(url) {
         input.value = value;
         input.className = 'border p-1 rounded text-sm bg-blue-100 border-blue-400 opacity-80';
         input.dataset.fieldName = name;
+        input.placeholder = name;
         input.dataset.x = x;
         input.dataset.y = y;
         input.dataset.page = page;
@@ -373,8 +375,8 @@ async function renderPDF(url) {
         deleteBtn.style.fontSize = '12px';
         deleteBtn.style.lineHeight = '14px';
         deleteBtn.style.padding = '0';
-        deleteBtn.style.top = '5px';
-        deleteBtn.style.right = '-15px';
+        deleteBtn.style.top = '-4px';
+        deleteBtn.style.right = '-10px';
         deleteBtn.style.display = 'block';
         deleteBtn.style.zIndex = '9999';
         const onDelete = (e) => {
@@ -388,13 +390,13 @@ async function renderPDF(url) {
         deleteBtn.addEventListener('click', onDelete);
         listeners.push({ target: deleteBtn, type: 'click', handler: onDelete });
 
-    wrapper.appendChild(deleteBtn);
-    wrapper.appendChild(dragHandle);
-    wrapper.appendChild(input);
-    wrapper.appendChild(resizeHandle);
+        wrapper.appendChild(deleteBtn);
+        wrapper.appendChild(dragHandle);
+        wrapper.appendChild(input);
+        wrapper.appendChild(resizeHandle);
 
-    toggleFieldEditButtons(isEditorMode);
-    createdFields.push({ wrapper, input, dragHandle, deleteBtn, resizeHandle, listeners });
+        toggleFieldEditButtons(isEditorMode);
+        createdFields.push({ wrapper, input, dragHandle, deleteBtn, resizeHandle, listeners });
     }
 }
 
