@@ -56,13 +56,37 @@ function openFillModal() {
     modalFieldsContainer.innerHTML = '';
     // Cria um input para cada campo do templateConfig
     templateConfig.fields.forEach((field, idx) => {
+        // Wrapper para label animada
+        const wrapper = document.createElement('div');
+        wrapper.className = 'relative flex flex-col';
+
+        // Label (inicialmente escondida)
+        const label = document.createElement('span');
+        label.textContent = field.name || `Campo ${idx+1}`;
+        label.className = 'absolute left-2 top-2 text-xs text-blue-700 font-semibold opacity-0 transition-all duration-200 pointer-events-none';
+        label.style.transform = 'translateY(-70%)';
+        wrapper.appendChild(label);
+
+        // Input
         const input = document.createElement('input');
         input.type = 'text';
         input.value = field.value || '';
         input.placeholder = field.name || `Campo ${idx+1}`;
         input.className = 'w-full border border-blue-300 rounded px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition';
         input.dataset.idx = idx;
-        modalFieldsContainer.appendChild(input);
+
+        // Eventos para mostrar/ocultar label
+        input.addEventListener('focus', () => {
+            label.classList.remove('opacity-0');
+            label.classList.add('opacity-100');
+        });
+        input.addEventListener('blur', () => {
+            label.classList.remove('opacity-100');
+            label.classList.add('opacity-0');
+        });
+
+        wrapper.appendChild(input);
+        modalFieldsContainer.appendChild(wrapper);
     });
     overlay.style.display = 'flex';
     setTimeout(() => {
