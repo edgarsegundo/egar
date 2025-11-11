@@ -10,6 +10,103 @@ let templateConfig = { fields: [] };
 // Guarda referências dos campos criados
 let createdFields = [];
 
+// Criação do botão "Preencher Form" e modal
+const fillFormBtn = document.createElement('button');
+fillFormBtn.textContent = 'Preencher Form';
+fillFormBtn.className = 'fixed bottom-8 right-8 z-50 px-6 py-3 bg-blue-700 text-white rounded-lg shadow-lg hover:bg-blue-800 transition-all duration-200';
+document.body.appendChild(fillFormBtn);
+
+// Modal e overlay
+const overlay = document.createElement('div');
+overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 opacity-0 pointer-events-none backdrop-blur-sm';
+overlay.style.display = 'none';
+
+const modal = document.createElement('div');
+modal.className = 'bg-white rounded-xl shadow-2xl flex flex-col w-[1200px] h-[100vh] max-h-screen p-0 overflow-y-auto relative transition-transform duration-300 scale-95';
+modal.style.maxWidth = '100vw';
+modal.style.margin = '0 auto';
+
+// Header com botões
+const modalHeader = document.createElement('div');
+modalHeader.className = 'flex items-center justify-between px-8 py-6 border-b border-gray-200 bg-white sticky top-0 z-10';
+
+const updateBtn = document.createElement('button');
+updateBtn.textContent = 'Atualizar';
+updateBtn.className = 'px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold transition';
+
+const cancelBtn = document.createElement('button');
+cancelBtn.textContent = 'Cancelar';
+cancelBtn.className = 'px-5 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 font-semibold transition';
+
+modalHeader.appendChild(updateBtn);
+modalHeader.appendChild(cancelBtn);
+modal.appendChild(modalHeader);
+
+// Container para os campos
+const modalFieldsContainer = document.createElement('div');
+modalFieldsContainer.className = 'flex flex-col gap-4 px-8 py-8';
+modal.appendChild(modalFieldsContainer);
+
+overlay.appendChild(modal);
+document.body.appendChild(overlay);
+
+// Função para abrir o modal e preencher campos
+function openFillModal() {
+    // Limpa campos antigos
+    modalFieldsContainer.innerHTML = '';
+    // Cria um input para cada campo do templateConfig
+    templateConfig.fields.forEach((field, idx) => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = field.value || '';
+        input.placeholder = field.name || `Campo ${idx+1}`;
+        input.className = 'w-full border border-blue-300 rounded px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition';
+        input.dataset.idx = idx;
+        modalFieldsContainer.appendChild(input);
+    });
+    overlay.style.display = 'flex';
+    setTimeout(() => {
+        overlay.classList.remove('opacity-0', 'pointer-events-none');
+        overlay.classList.add('opacity-100');
+        modal.classList.remove('scale-95');
+        modal.classList.add('scale-100');
+    }, 10);
+}
+
+// Função para fechar o modal
+function closeFillModal() {
+    overlay.classList.remove('opacity-100');
+    overlay.classList.add('opacity-0', 'pointer-events-none');
+    modal.classList.remove('scale-100');
+    modal.classList.add('scale-95');
+    setTimeout(() => {
+        overlay.style.display = 'none';
+    }, 300);
+}
+
+// Botão para abrir modal
+fillFormBtn.addEventListener('click', openFillModal);
+
+// Botão cancelar
+cancelBtn.addEventListener('click', closeFillModal);
+
+// Botão atualizar
+updateBtn.addEventListener('click', () => {
+    // Atualiza os valores dos campos no templateConfig e no containerpdf
+    const inputs = modalFieldsContainer.querySelectorAll('input');
+    inputs.forEach(input => {
+        const idx = parseInt(input.dataset.idx, 10);
+        templateConfig.fields[idx].value = input.value;
+    });
+    // Atualiza os inputs visuais do PDF
+    document.querySelectorAll('#pdfContainer input[type="text"]').forEach((input, idx) => {
+        if (templateConfig.fields[idx]) {
+            input.value = templateConfig.fields[idx].value;
+        }
+    });
+    closeFillModal();
+});
+
 const uploadForm = document.getElementById("uploadForm");
 const pdfContainer = document.getElementById("pdfContainer");
 const downloadBtn = document.getElementById("downloadBtn");
