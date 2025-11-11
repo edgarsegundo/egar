@@ -59,33 +59,31 @@ app.post("/template-config/:templateName", (req, res) => {
 });
 
 // Copiar configuração de template para novo nome
-app.post("/template-config/create", (req, res) => {
-    console.log('(0)');
-    // console.log('(1)');
-    // const { to, fields } = req.body;
-    // console.log('REQ BODY /template-config/create:', req.body);
-    // const configDir = path.resolve("template-configs");
-    // // Verifica se o campo 'to' é válido
-    // if (!to || typeof to !== 'string' || !to.endsWith('.json')) {
-    //     return res.status(400).json({ error: "O campo 'to' deve ser um nome de arquivo válido terminando com .json." });
-    // }
-    // const destPath = path.join(configDir, to);
+app.post("/create-config-file", (req, res) => {
+    const { to, fields } = req.body;
+    console.log('REQ BODY /template-config/create:', req.body);
+    const configDir = path.resolve("template-configs");
+    // Verifica se o campo 'to' é válido
+    if (!to || typeof to !== 'string' || !to.endsWith('.json')) {
+        return res.status(400).json({ error: "O campo 'to' deve ser um nome de arquivo válido terminando com .json." });
+    }
+    const destPath = path.join(configDir, to);
 
-    // // Garante que o diretório existe
-    // if (!fs.existsSync(configDir)) {
-    //     fs.mkdirSync(configDir, { recursive: true });
-    // }
+    // Garante que o diretório existe
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir, { recursive: true });
+    }
 
-    // if (fields && Array.isArray(fields)) {
-    //     fs.writeFile(destPath, JSON.stringify({ fields }, null, 2), (err) => {
-    //     if (err) {
-    //         return res.status(500).json({ error: "Erro ao salvar novo arquivo de configuração." });
-    //     }
-    //     return res.json({ success: true, saved: true, file: to });
-    //     });
-    // } else {
-    //     return res.status(400).json({ error: "Nome do arquivo e campos são obrigatórios." });
-    // }
+    if (fields && Array.isArray(fields)) {
+        fs.writeFile(destPath, JSON.stringify({ fields }, null, 2), (err) => {
+        if (err) {
+            return res.status(500).json({ error: "Erro ao salvar novo arquivo de configuração." });
+        }
+        return res.json({ success: true, saved: true, file: to });
+        });
+    } else {
+        return res.status(400).json({ error: "Nome do arquivo e campos são obrigatórios." });
+    }
 });
 
 const PORT = 3000;
