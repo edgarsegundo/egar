@@ -30,6 +30,12 @@ app.get("/pdf-templates/list", (req, res) => {
     res.json(files);
 });
 
+app.get("/pdf-templates/:filename", (req, res) => {
+    const filePath = path.resolve("pdf-files", req.params.filename);
+    if (fs.existsSync(filePath)) res.sendFile(filePath);
+    else res.status(404).send("Template not found");
+});
+
 app.get("/generated-pdf-files/list", (req, res) => {
     const templatesDir = path.resolve("generated-pdf-files");
     if (!fs.existsSync(templatesDir)) {
@@ -37,12 +43,6 @@ app.get("/generated-pdf-files/list", (req, res) => {
     }
     const files = fs.readdirSync(templatesDir).filter(file => file.endsWith('.pdf'));
     res.json(files);
-});
-
-app.get("/pdf-templates/:filename", (req, res) => {
-    const filePath = path.resolve("pdf-files", req.params.filename);
-    if (fs.existsSync(filePath)) res.sendFile(filePath);
-    else res.status(404).send("Template not found");
 });
 
 app.get("/generated-pdf-files/:filename", (req, res) => {
