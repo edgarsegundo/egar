@@ -6,7 +6,7 @@ let inputData = [];
 let currentPdfUrl = null;
 let currentTemplate = null;
 let isEditorMode = false;
-let templateConfig = { fields: [] };
+let templateFields = [];
 // Guarda referências dos campos criados
 let createdFields = [];
 
@@ -218,20 +218,36 @@ async function loadGeneratedFiles() {
 }
 
 async function loadTemplate(templateName, source = 'templates', keepMode = false) {
-    const url = source === 'generated' 
-        ? `/generated-pdf-files/${templateName}` 
-        : `/pdf-templates/${templateName}`;
-    currentPdfUrl = url;
     currentTemplate = templateName;
     inputData = [];
     try {
         const res = await fetch(`/template-config/${templateName}`);
         templateConfig = await res.json();
+        
+        // Se for um arquivo gerado e tiver derivedFrom, usa o PDF original
+        if (source === 'generated' && templateConfig.derivedFrom) {
+            const url = `/pdf-templates/${templateConfig.derivedFrom}`;
+            currentPdfUrl = url;
+            console.log(`Carregando arquivo gerado '${templateName}' usando template original '${templateConfig.derivedFrom}'`);
+        } else {
+            // Se for um template normal, usa o próprio arquivo
+            const url = source === 'generated' 
+                ? `/generated-pdf-files/${templateName}` 
+                : `/pdf-templates/${templateName}`;
+            currentPdfUrl = url;
+        }
     } catch (error) {
+        console.error('Erro ao carregar configuração:', error);
         templateConfig = { fields: [] };
+        // Fallback: se não conseguir ler o config, usa o PDF clicado
+        const url = source === 'generated' 
+            ? `/generated-pdf-files/${templateName}` 
+            : `/pdf-templates/${templateName}`;
+        currentPdfUrl = url;
     }
+
     actionBar.classList.remove('hidden');
-    renderPDF(url);
+    renderPDF(currentPdfUrl);
     if (!keepMode) setMode(false);
 }
 
@@ -670,3 +686,5 @@ function toggleFieldEditButtons(show) {
         if (del) del.style.display = show ? 'block' : 'none';
     });
 }
+
+

@@ -1,0 +1,22 @@
+{
+  "fields": [
+    {
+      "x": 296.5,
+      "y": 224,
+      "name": "FullName",
+      "value": "Edgar Rezende",
+      "page": 1,
+      "width": 296,
+      "height": 27
+    },
+    {
+      "x": 305.5,
+      "y": 336,
+      "name": "GenderMale",
+      "value": "X",
+      "page": 1,
+      "width": 31,
+      "height": 38
+    }
+  ]
+}
