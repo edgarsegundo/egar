@@ -1,51 +1,3 @@
-// Handle de redimensionamento (canto inferior direito)
-const resizeHandle = document.createElement('div');
-const listeners = [];
-resizeHandle.style.width = '16px';
-resizeHandle.style.height = '16px';
-resizeHandle.style.position = 'absolute';
-resizeHandle.style.right = '-10px';
-resizeHandle.style.bottom = '-10px';
-resizeHandle.style.cursor = 'nwse-resize';
-resizeHandle.style.zIndex = '10001';
-resizeHandle.title = 'Arraste para redimensionar';
-// Flecha SVG
-resizeHandle.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 14L14 2M10 2h4v4" stroke="#1e40af" stroke-width="2" fill="none"/></svg>`;
-// Redimensionamento
-let resizing = false, startX, startY, startWidth, startHeight;
-const onResizeMouseDown = function (e) {
-    e.stopPropagation();
-    resizing = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    startWidth = input.offsetWidth;
-    startHeight = input.offsetHeight;
-    document.body.style.userSelect = 'none';
-    function onResizeMouseMove(ev) {
-        if (!resizing) return;
-        let newWidth = Math.max(30, startWidth + (ev.clientX - startX));
-        let newHeight = Math.max(18, startHeight + (ev.clientY - startY));
-        input.style.width = newWidth + 'px';
-        input.style.height = newHeight + 'px';
-        // Salva no config
-        templateConfig.fields[idx].width = newWidth;
-        templateConfig.fields[idx].height = newHeight;
-    }
-    function onResizeMouseUp() {
-        if (resizing) {
-            resizing = false;
-            document.body.style.userSelect = '';
-            document.removeEventListener('mousemove', onResizeMouseMove);
-            document.removeEventListener('mouseup', onResizeMouseUp);
-        }
-    }
-    document.addEventListener('mousemove', onResizeMouseMove);
-    document.addEventListener('mouseup', onResizeMouseUp);
-    listeners.push({ target: document, type: 'mousemove', handler: onResizeMouseMove });
-    listeners.push({ target: document, type: 'mouseup', handler: onResizeMouseUp });
-};
-resizeHandle.addEventListener('mousedown', onResizeMouseDown);
-listeners.push({ target: resizeHandle, type: 'mousedown', handler: onResizeMouseDown });
 
 // Contador global para ids únicos sequenciais dos campos
 let inputFieldIdCount = 0;
@@ -294,6 +246,10 @@ async function renderPDF(url) {
         wrapper.id = uniqueId;
         pageWrapper.appendChild(wrapper);
 
+        // Listeners para limpeza
+        const listeners = [];
+
+        // Drag handle (círculo maior e mais próximo do input)
         const dragHandle = document.createElement('div');
         dragHandle.style.width = '18px';
         dragHandle.style.height = '18px';
@@ -350,6 +306,52 @@ async function renderPDF(url) {
         dragHandle.addEventListener('mousedown', onMouseDown);
         listeners.push({ target: dragHandle, type: 'mousedown', handler: onMouseDown });
 
+        // Handle de redimensionamento (canto inferior direito)
+        const resizeHandle = document.createElement('div');
+        resizeHandle.style.width = '16px';
+        resizeHandle.style.height = '16px';
+        resizeHandle.style.position = 'absolute';
+        resizeHandle.style.right = '-10px';
+        resizeHandle.style.bottom = '-10px';
+        resizeHandle.style.cursor = 'nwse-resize';
+        resizeHandle.style.zIndex = '10001';
+        resizeHandle.title = 'Arraste para redimensionar';
+        resizeHandle.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 14L14 2M10 2h4v4" stroke="#1e40af" stroke-width="2" fill="none"/></svg>`;
+        let resizing = false, startX, startY, startWidth, startHeight;
+        const onResizeMouseDown = function (e) {
+            e.stopPropagation();
+            resizing = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = input.offsetWidth;
+            startHeight = input.offsetHeight;
+            document.body.style.userSelect = 'none';
+            function onResizeMouseMove(ev) {
+                if (!resizing) return;
+                let newWidth = Math.max(30, startWidth + (ev.clientX - startX));
+                let newHeight = Math.max(18, startHeight + (ev.clientY - startY));
+                input.style.width = newWidth + 'px';
+                input.style.height = newHeight + 'px';
+                // Salva no config
+                templateConfig.fields[idx].width = newWidth;
+                templateConfig.fields[idx].height = newHeight;
+            }
+            function onResizeMouseUp() {
+                if (resizing) {
+                    resizing = false;
+                    document.body.style.userSelect = '';
+                    document.removeEventListener('mousemove', onResizeMouseMove);
+                    document.removeEventListener('mouseup', onResizeMouseUp);
+                }
+            }
+            document.addEventListener('mousemove', onResizeMouseMove);
+            document.addEventListener('mouseup', onResizeMouseUp);
+            listeners.push({ target: document, type: 'mousemove', handler: onResizeMouseMove });
+            listeners.push({ target: document, type: 'mouseup', handler: onResizeMouseUp });
+        };
+        resizeHandle.addEventListener('mousedown', onResizeMouseDown);
+        listeners.push({ target: resizeHandle, type: 'mousedown', handler: onResizeMouseDown });
+
         const input = document.createElement("input");
         input.type = "text";
         input.value = value;
@@ -386,13 +388,13 @@ async function renderPDF(url) {
         deleteBtn.addEventListener('click', onDelete);
         listeners.push({ target: deleteBtn, type: 'click', handler: onDelete });
 
-        wrapper.appendChild(deleteBtn);
-        wrapper.appendChild(dragHandle);
-        wrapper.appendChild(input);
-        wrapper.appendChild(resizeHandle);
+    wrapper.appendChild(deleteBtn);
+    wrapper.appendChild(dragHandle);
+    wrapper.appendChild(input);
+    wrapper.appendChild(resizeHandle);
 
-        toggleFieldEditButtons(isEditorMode);
-        createdFields.push({ wrapper, input, dragHandle, deleteBtn, resizeHandle, listeners });
+    toggleFieldEditButtons(isEditorMode);
+    createdFields.push({ wrapper, input, dragHandle, deleteBtn, resizeHandle, listeners });
     }
 }
 
