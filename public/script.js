@@ -154,6 +154,7 @@ toggleModeBtn.addEventListener('click', (event) => {
     isEditorMode = !isEditorMode;
 
     setMode(isEditorMode);
+    toggleFieldEditButtons(isEditorMode);
     //   currentModeSpan.textContent = isEditorMode ? 'Editor' : 'Preenchimento';
     saveConfigBtn.classList.toggle('hidden', !isEditorMode);
     // clearFieldsBtn.classList.toggle('hidden', !isEditorMode);
@@ -206,158 +207,160 @@ clearFieldsBtn.addEventListener('click', () => {
 loadTemplates();
 
 async function renderPDF(url) {
-  pdfContainer.innerHTML = "";
-  const pdf = await pdfjsLib.getDocument(url).promise;
-  const numPages = pdf.numPages;
-  const scale = 1.5;
-  pdfContainer.style.position = "relative";
+    pdfContainer.innerHTML = "";
+    const pdf = await pdfjsLib.getDocument(url).promise;
+    const numPages = pdf.numPages;
+    const scale = 1.5;
+    pdfContainer.style.position = "relative";
 
-  // Cria um wrapper relativo para cada página
-  let pageWrappers = [];
-  for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-    const page = await pdf.getPage(pageNum);
-    const viewport = page.getViewport({ scale });
-    // Wrapper relativo
-    const pageWrapper = document.createElement('div');
-    pageWrapper.style.position = 'relative';
-    pageWrapper.style.marginBottom = '24px';
-    pageWrapper.dataset.pageNumber = pageNum;
-    pdfContainer.appendChild(pageWrapper);
-    pageWrappers.push(pageWrapper);
+    // Cria um wrapper relativo para cada página
+    let pageWrappers = [];
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale });
+        // Wrapper relativo
+        const pageWrapper = document.createElement('div');
+        pageWrapper.style.position = 'relative';
+        pageWrapper.style.marginBottom = '24px';
+        pageWrapper.dataset.pageNumber = pageNum;
+        pdfContainer.appendChild(pageWrapper);
+        pageWrappers.push(pageWrapper);
 
-    // Canvas da página
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-    canvas.style.display = 'block';
-    canvas.dataset.pageNumber = pageNum;
-    pageWrapper.appendChild(canvas);
-    await page.render({ canvasContext: ctx, viewport }).promise;
+        // Canvas da página
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        canvas.style.display = 'block';
+        canvas.dataset.pageNumber = pageNum;
+        pageWrapper.appendChild(canvas);
+        await page.render({ canvasContext: ctx, viewport }).promise;
 
-    // Clique para adicionar campo nesta página
-    canvas.onclick = (e) => {
-      if (!isEditorMode) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      let fieldName = `?`;
-      templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum });
-      createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
-    };
-  }
-
-  downloadBtn.classList.remove("hidden");
-  // Renderiza os campos existentes
-  templateConfig.fields.forEach((field, idx) => {
-    createInputField(field.x, field.y, field.name, field.value, isEditorMode, idx, field.page || 1);
-  });
-// fim da função renderPDF
-
-function createInputField(x, y, name, value, editorMode, idx, page = 1) {
-  // Seleciona o wrapper da página correta
-  const pageWrapper = pdfContainer.querySelector(`div[data-page-number='${page}']`);
-  if (!pageWrapper) return;
-  const wrapper = document.createElement("div");
-  wrapper.className = "absolute group";
-  wrapper.style.left = `${x}px`;
-  wrapper.style.top = `${y}px`;
-  wrapper.style.cursor = editorMode ? 'move' : 'text';
-  wrapper.style.zIndex = 10;
-  wrapper.style.pointerEvents = 'auto';
-  wrapper.style.position = 'absolute';
-  // Gera um id único sequencial para o campo/input
-  const uniqueId = `inputfield-${inputFieldIdCount++}`;
-  wrapper.id = uniqueId;
-  pageWrapper.appendChild(wrapper);
-
-  // Drag handle (círculo maior e mais próximo do input)
-  const dragHandle = document.createElement('div');
-  dragHandle.style.width = '18px';
-  dragHandle.style.height = '18px';
-  dragHandle.style.background = '#fff';
-  dragHandle.style.border = '2px solid #888';
-  dragHandle.style.borderRadius = '50%';
-  dragHandle.style.position = 'absolute';
-  dragHandle.style.left = '50%';
-  dragHandle.style.top = '-6px';
-  dragHandle.style.transform = 'translate(-50%, 0)';
-  dragHandle.style.cursor = 'grab';
-  dragHandle.style.zIndex = '10000';
-  dragHandle.title = 'Arraste para mover';
-
-  // Drag-and-drop independente para cada campo
-  let offsetX, offsetY, dragging = false;
-  dragHandle.addEventListener('mousedown', function(e) {
-    e.stopPropagation();
-    dragging = true;
-    const rect = wrapper.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    document.body.style.userSelect = 'none';
-    dragHandle.style.cursor = 'grabbing';
-    // Eventos de mousemove/mouseup só para este drag
-    function onMouseMove(ev) {
-      if (!dragging) return;
-      const rect = pageWrapper.getBoundingClientRect();
-      let newX = ev.clientX - rect.left - offsetX;
-      let newY = ev.clientY - rect.top - offsetY;
-      newX = Math.max(0, Math.min(newX, pageWrapper.offsetWidth - wrapper.offsetWidth));
-      newY = Math.max(0, Math.min(newY, pageWrapper.offsetHeight - wrapper.offsetHeight));
-      wrapper.style.left = `${newX}px`;
-      wrapper.style.top = `${newY}px`;
-      templateConfig.fields[idx].x = newX;
-      templateConfig.fields[idx].y = newY;
+        // Clique para adicionar campo nesta página
+        canvas.onclick = (e) => {
+        if (!isEditorMode) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        let fieldName = `?`;
+        templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum });
+        createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
+        };
     }
-    function onMouseUp() {
-      if (dragging) {
-        dragging = false;
-        document.body.style.userSelect = '';
+
+    downloadBtn.classList.remove("hidden");
+    // Renderiza os campos existentes
+    templateConfig.fields.forEach((field, idx) => {
+        createInputField(field.x, field.y, field.name, field.value, isEditorMode, idx, field.page || 1);
+    });
+    // fim da função renderPDF
+
+    function createInputField(x, y, name, value, editorMode, idx, page = 1) {
+        // Seleciona o wrapper da página correta
+        const pageWrapper = pdfContainer.querySelector(`div[data-page-number='${page}']`);
+        if (!pageWrapper) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "absolute group";
+        wrapper.style.left = `${x}px`;
+        wrapper.style.top = `${y}px`;
+        wrapper.style.cursor = editorMode ? 'move' : 'text';
+        wrapper.style.zIndex = 10;
+        wrapper.style.pointerEvents = 'auto';
+        wrapper.style.position = 'absolute';
+        // Gera um id único sequencial para o campo/input
+        const uniqueId = `inputfield-${inputFieldIdCount++}`;
+        wrapper.id = uniqueId;
+        pageWrapper.appendChild(wrapper);
+
+        // Drag handle (círculo maior e mais próximo do input)
+        const dragHandle = document.createElement('div');
+        dragHandle.style.width = '18px';
+        dragHandle.style.height = '18px';
+        dragHandle.style.background = '#fff';
+        dragHandle.style.border = '2px solid #888';
+        dragHandle.style.borderRadius = '50%';
+        dragHandle.style.position = 'absolute';
+        dragHandle.style.left = '50%';
+        dragHandle.style.top = '-6px';
+        dragHandle.style.transform = 'translate(-50%, 0)';
         dragHandle.style.cursor = 'grab';
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-      }
+        dragHandle.style.zIndex = '10000';
+        dragHandle.title = 'Arraste para mover';
+
+        // Drag-and-drop independente para cada campo
+        let offsetX, offsetY, dragging = false;
+        dragHandle.addEventListener('mousedown', function(e) {
+            e.stopPropagation();
+            dragging = true;
+            const rect = wrapper.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            document.body.style.userSelect = 'none';
+            dragHandle.style.cursor = 'grabbing';
+            // Eventos de mousemove/mouseup só para este drag
+            function onMouseMove(ev) {
+            if (!dragging) return;
+            const rect = pageWrapper.getBoundingClientRect();
+            let newX = ev.clientX - rect.left - offsetX;
+            let newY = ev.clientY - rect.top - offsetY;
+            newX = Math.max(0, Math.min(newX, pageWrapper.offsetWidth - wrapper.offsetWidth));
+            newY = Math.max(0, Math.min(newY, pageWrapper.offsetHeight - wrapper.offsetHeight));
+            wrapper.style.left = `${newX}px`;
+            wrapper.style.top = `${newY}px`;
+            templateConfig.fields[idx].x = newX;
+            templateConfig.fields[idx].y = newY;
+            }
+            function onMouseUp() {
+            if (dragging) {
+                dragging = false;
+                document.body.style.userSelect = '';
+                dragHandle.style.cursor = 'grab';
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+            }
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        // Input de texto
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = value;
+        input.className = 'border p-1 rounded text-sm bg-blue-100 border-blue-400 opacity-80';
+        input.dataset.fieldName = name;
+        input.dataset.x = x;
+        input.dataset.y = y;
+        input.dataset.page = page;
+        input.id = uniqueId + '-input';
+        input.style.height = '20px';
+        input.style.fontSize = '16px';
+
+        // Botão de excluir
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "×";
+        deleteBtn.className = "text-red-600 hover:text-red-800 font-bold absolute bg-white rounded-full border border-red-200 shadow group-hover:block flex items-center justify-center";
+        deleteBtn.style.width = '16px';
+        deleteBtn.style.height = '16px';
+        deleteBtn.style.fontSize = '12px';
+        deleteBtn.style.lineHeight = '14px';
+        deleteBtn.style.padding = '0';
+        deleteBtn.style.top = '5px';
+        deleteBtn.style.right = '-15px';
+        deleteBtn.style.display = 'block';
+        deleteBtn.style.zIndex = '9999';
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            templateConfig.fields.splice(idx, 1);
+        };
+
+        wrapper.appendChild(deleteBtn);
+        wrapper.appendChild(dragHandle);
+        wrapper.appendChild(input);
+
+        toggleFieldEditButtons(isEditorMode);
     }
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
-
-  // Input de texto
-  const input = document.createElement("input");
-  input.type = "text";
-  input.value = value;
-  input.className = 'border p-1 rounded text-sm bg-blue-100 border-blue-400 opacity-80';
-  input.dataset.fieldName = name;
-  input.dataset.x = x;
-  input.dataset.y = y;
-  input.dataset.page = page;
-  input.id = uniqueId + '-input';
-  input.style.height = '20px';
-  input.style.fontSize = '16px';
-
-  // Botão de excluir
-  const deleteBtn = document.createElement("button");
-  deleteBtn.textContent = "×";
-  deleteBtn.className = "text-red-600 hover:text-red-800 font-bold absolute bg-white rounded-full border border-red-200 shadow group-hover:block flex items-center justify-center";
-  deleteBtn.style.width = '16px';
-  deleteBtn.style.height = '16px';
-  deleteBtn.style.fontSize = '12px';
-  deleteBtn.style.lineHeight = '14px';
-  deleteBtn.style.padding = '0';
-  deleteBtn.style.top = '5px';
-  deleteBtn.style.right = '-15px';
-  deleteBtn.style.display = 'block';
-  deleteBtn.style.zIndex = '9999';
-  deleteBtn.onclick = (e) => {
-    e.stopPropagation();
-    templateConfig.fields.splice(idx, 1);
-    renderPDF(currentPdfUrl);
-  };
-
-  wrapper.appendChild(deleteBtn);
-  wrapper.appendChild(dragHandle);
-  wrapper.appendChild(input);
-}
 }
 
 downloadBtn.addEventListener("click", async () => {
@@ -396,3 +399,14 @@ downloadBtn.addEventListener("click", async () => {
   a.click();
   URL.revokeObjectURL(url);
 });
+
+// // Função para mostrar ou esconder botões de edição conforme o modo
+function toggleFieldEditButtons(show) {
+    document.querySelectorAll('.absolute.group').forEach(wrapper => {
+        const drag = wrapper.querySelector('div');
+        const del = wrapper.querySelector('button');
+        if (drag) drag.style.display = show ? 'block' : 'none';
+        if (del) del.style.display = show ? 'block' : 'none';
+    });
+}
+
