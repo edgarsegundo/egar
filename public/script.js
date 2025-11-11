@@ -50,6 +50,22 @@ modal.appendChild(modalFieldsContainer);
 overlay.appendChild(modal);
 document.body.appendChild(overlay);
 
+
+function setMode(editor) {
+  isEditorMode = editor;
+  if (isEditorMode) {
+    toggleModeBtn.textContent = 'Voltar Modo Preenchimento';
+    saveConfigBtn.classList.remove('hidden');
+    clearFieldsBtn.classList.remove('hidden');
+    modeDescription.textContent = 'Arraste, adicione ou exclua campos';
+  } else {
+    toggleModeBtn.textContent = 'Ativar Modo Edição';
+    saveConfigBtn.classList.add('hidden');
+    clearFieldsBtn.classList.add('hidden');
+    modeDescription.textContent = 'Preencha os campos';
+  }
+}
+
 // Função para abrir o modal e preencher campos
 function openFillModal() {
     // Antes de abrir o modal, sincroniza os valores dos inputs do containerpdf para o templateConfig
