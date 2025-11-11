@@ -29,8 +29,8 @@
       "fontSize": 16
     },
     {
-      "x": 244,
-      "y": 473,
+      "x": 240,
+      "y": 472,
       "name": "SexoM",
       "value": "X",
       "page": 1,
@@ -39,8 +39,8 @@
       "height": 28
     },
     {
-      "x": 224,
-      "y": 498,
+      "x": 236,
+      "y": 499,
       "name": "DataNasc",
       "value": "  18      08     1974",
       "page": 1,
@@ -49,14 +49,12 @@
       "height": 18
     },
     {
-      "x": 431,
+      "x": 424,
       "y": 497,
       "name": "Idade",
       "value": "",
       "page": 1,
-      "fontSize": 16,
-      "width": 118,
-      "height": 20
+      "fontSize": 16
     },
     {
       "x": 229,
@@ -72,7 +70,7 @@
       "name": "Nacionalidade",
       "value": "",
       "page": 1,
-      "fontSize": 13,
+      "fontSize": 16,
       "width": 85,
       "height": 20
     },
@@ -117,14 +115,14 @@
       "height": 19
     },
     {
-      "x": 160,
+      "x": 155,
       "y": 474,
       "name": "SexoF",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 30,
-      "height": 18
+      "height": 20
     },
     {
       "x": 201,
@@ -158,11 +156,11 @@
     },
     {
       "x": 211,
-      "y": 729,
+      "y": 731,
       "name": "EnderecoAtual",
       "value": "",
       "page": 1,
-      "fontSize": 10,
+      "fontSize": 16,
       "width": 328,
       "height": 18
     },
@@ -182,7 +180,7 @@
       "name": "email",
       "value": "",
       "page": 1,
-      "fontSize": 11,
+      "fontSize": 16,
       "width": 171,
       "height": 18
     },
@@ -202,8 +200,8 @@
       "name": "NomeCompanhia",
       "value": "",
       "page": 1,
-      "fontSize": 14,
-      "width": 210,
+      "fontSize": 16,
+      "width": 203,
       "height": 19
     },
     {
@@ -217,7 +215,7 @@
       "height": 18
     },
     {
-      "x": 317,
+      "x": 313,
       "y": 834,
       "name": "ContaPermanenciaLegalSim",
       "value": "",
@@ -227,7 +225,7 @@
       "height": 20
     },
     {
-      "x": 378,
+      "x": 371,
       "y": 834,
       "name": "ContaPermanenciaLegalNao",
       "value": "",
@@ -237,10 +235,10 @@
       "height": 21
     },
     {
-      "x": 501,
-      "y": 853,
+      "x": 486,
+      "y": 852,
       "name": "TemAntecedentesPenaisNao",
-      "value": "X",
+      "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 30,
@@ -267,18 +265,18 @@
       "height": 18
     },
     {
-      "x": 311,
-      "y": 995,
+      "x": 305,
+      "y": 993,
       "name": "TempoPermanenciaMenor180",
-      "value": "X",
+      "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 30,
       "height": 20
     },
     {
-      "x": 312,
-      "y": 1011,
+      "x": 307,
+      "y": 1014,
       "name": "TempoPermanencia180Ate4Anos",
       "value": "",
       "page": 1,
@@ -287,8 +285,8 @@
       "height": 21
     },
     {
-      "x": 312,
-      "y": 1049,
+      "x": 297,
+      "y": 1048,
       "name": "JaVisitouMexicoSim",
       "value": "",
       "page": 1,
@@ -297,7 +295,7 @@
       "height": 20
     },
     {
-      "x": 388,
+      "x": 374,
       "y": 1047,
       "name": "JaVisitouMexicoNao",
       "value": "",
@@ -307,10 +305,10 @@
       "height": 19
     },
     {
-      "x": 388,
-      "y": 1071,
+      "x": 378,
+      "y": 1073,
       "name": "FoiDeportadoNao",
-      "value": "X",
+      "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 30,

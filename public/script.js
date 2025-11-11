@@ -10,6 +10,26 @@ let templateFields = [];
 // Guarda referências dos campos criados
 let createdFields = [];
 
+// Referências aos elementos do DOM
+const pdfContainer = document.getElementById('pdfContainer');
+const downloadBtn = document.getElementById('downloadBtn');
+const uploadForm = document.getElementById('uploadForm');
+const toggleModeBtn = document.getElementById('toggleModeBtn');
+const saveConfigBtn = document.getElementById('saveConfigBtn');
+const clearFieldsBtn = document.getElementById('clearFieldsBtn');
+const syncToOriginBtn = document.getElementById('syncToOriginBtn');
+const actionBar = document.getElementById('actionBar');
+const currentMode = document.getElementById('currentMode');
+const modeDescription = document.getElementById('modeDescription');
+const sidebar = document.getElementById('sidebar');
+const toggleSidebar = document.getElementById('toggleSidebar');
+const showSidebar = document.getElementById('showSidebar');
+const templatesList = document.getElementById('templatesList');
+const generatedFilesList = document.getElementById('generatedFilesList');
+
+// Configuração do templateConfig
+let templateConfig = { fields: [] };
+
 // Criação do botão "Preencher Form" e modal
 const fillFormBtn = document.createElement('button');
 fillFormBtn.textContent = 'Preencher Form';
@@ -251,6 +271,13 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
     if (!keepMode) setMode(false);
 
     toggleFieldEditButtons(isEditorMode);
+    
+    // Mostra o botão de sincronização apenas se o arquivo tiver derivedFrom
+    if (templateConfig.derivedFrom) {
+        syncToOriginBtn.classList.remove('hidden');
+    } else {
+        syncToOriginBtn.classList.add('hidden');
+    }
 }
 
 // Sidebar toggle
@@ -320,6 +347,46 @@ clearFieldsBtn.addEventListener('click', () => {
         if (currentTemplate) {
             loadTemplate(currentTemplate);
         }
+    }
+});
+
+// Sync to origin
+syncToOriginBtn.addEventListener('click', async () => {
+    if (!currentTemplate) {
+        alert('Nenhum template carregado.');
+        return;
+    }
+    
+    if (!templateConfig.derivedFrom) {
+        alert('Este arquivo não tem origem definida. Apenas arquivos gerados podem sincronizar com a origem.');
+        return;
+    }
+    
+    const confirmMsg = `Deseja sincronizar as posições (x, y, page, width, height, fontSize) deste arquivo para o template original "${templateConfig.derivedFrom}"?\n\nIsso irá atualizar apenas os campos correspondentes no arquivo original, mantendo os valores.`;
+    
+    if (!confirm(confirmMsg)) return;
+    
+    try {
+        const response = await fetch('/sync-to-origin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                currentFile: currentTemplate,
+                derivedFrom: templateConfig.derivedFrom,
+                fields: templateConfig.fields
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`✅ Sucesso!\n\n${result.message}`);
+        } else {
+            alert(`❌ Erro: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Erro ao sincronizar:', error);
+        alert('Erro ao sincronizar com origem.');
     }
 });
 

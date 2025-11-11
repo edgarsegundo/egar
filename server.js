@@ -128,5 +128,61 @@ app.post('/save-pdf', (req, res) => {
     });
 });
 
+// Sincronizar posições do arquivo derivado para o original
+app.post('/sync-to-origin', (req, res) => {
+    const { currentFile, derivedFrom, fields } = req.body;
+    
+    if (!derivedFrom) {
+        return res.status(400).json({ error: "Este arquivo não tem origem definida (derivedFrom)." });
+    }
+    
+    const configDir = path.resolve("template-configs");
+    const originConfigPath = path.join(configDir, `${derivedFrom}.json`);
+    
+    // Verifica se o arquivo original existe
+    if (!fs.existsSync(originConfigPath)) {
+        return res.status(404).json({ error: `Arquivo de origem não encontrado: ${derivedFrom}.json` });
+    }
+    
+    try {
+        // Lê a configuração original
+        const originConfig = JSON.parse(fs.readFileSync(originConfigPath, 'utf-8'));
+        
+        // Cria um mapa dos campos derivados por nome
+        const derivedFieldsMap = {};
+        fields.forEach(field => {
+            derivedFieldsMap[field.name] = field;
+        });
+        
+        // Atualiza apenas as posições dos campos correspondentes no original
+        let updatedCount = 0;
+        originConfig.fields.forEach(originField => {
+            const derivedField = derivedFieldsMap[originField.name];
+            if (derivedField) {
+                // Atualiza apenas x, y, page, width, height, fontSize
+                originField.x = derivedField.x;
+                originField.y = derivedField.y;
+                originField.page = derivedField.page;
+                if (derivedField.width !== undefined) originField.width = derivedField.width;
+                if (derivedField.height !== undefined) originField.height = derivedField.height;
+                if (derivedField.fontSize !== undefined) originField.fontSize = derivedField.fontSize;
+                updatedCount++;
+            }
+        });
+        
+        // Salva o arquivo original atualizado
+        fs.writeFileSync(originConfigPath, JSON.stringify(originConfig, null, 2));
+        
+        res.json({ 
+            success: true, 
+            message: `${updatedCount} campos sincronizados de ${currentFile} para ${derivedFrom}.json`,
+            updatedCount 
+        });
+    } catch (error) {
+        console.error('Erro ao sincronizar:', error);
+        res.status(500).json({ error: "Erro ao processar sincronização." });
+    }
+});
+
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
