@@ -247,8 +247,10 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
     }
 
     actionBar.classList.remove('hidden');
-    renderPDF(currentPdfUrl);
+    await renderPDF(currentPdfUrl);
     if (!keepMode) setMode(false);
+
+    toggleFieldEditButtons(isEditorMode);
 }
 
 // Sidebar toggle
@@ -529,12 +531,12 @@ async function renderPDF(url) {
         resizeHandle.addEventListener('mousedown', onResizeMouseDown);
         listeners.push({ target: resizeHandle, type: 'mousedown', handler: onResizeMouseDown });
 
-        // Handle de ajuste de fonte (canto superior direito com flecha vertical dupla)
+        // Handle de ajuste de fonte (canto superior esquerdo com flecha vertical dupla)
         const fontSizeHandle = document.createElement('div');
         fontSizeHandle.style.width = '18px';
         fontSizeHandle.style.height = '18px';
         fontSizeHandle.style.position = 'absolute';
-        fontSizeHandle.style.right = '-10px';
+        fontSizeHandle.style.left = '-10px';
         fontSizeHandle.style.top = '-6px';
         fontSizeHandle.style.cursor = 'ns-resize';
         fontSizeHandle.style.zIndex = '10001';
@@ -745,5 +747,3 @@ function toggleFieldEditButtons(show) {
         if (fieldObj.fontSizeHandle) fieldObj.fontSizeHandle.style.display = show ? 'block' : 'none';
     });
 }
-
-
