@@ -22,7 +22,7 @@ overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center just
 overlay.style.display = 'none';
 
 const modal = document.createElement('div');
-modal.className = 'bg-white rounded-xl shadow-2xl flex flex-col w-[1200px] h-[100vh] max-h-screen p-0 overflow-y-auto relative transition-transform duration-300 scale-95';
+modal.className = 'bg-white rounded-xl shadow-2xl flex flex-col w-[800px] h-[100vh] max-h-screen p-0 overflow-y-auto relative transition-transform duration-300 scale-95';
 modal.style.maxWidth = '100vw';
 modal.style.margin = '0 auto';
 
@@ -522,6 +522,10 @@ async function renderPDF(url) {
 downloadBtn.addEventListener("click", async () => {
     if (!currentPdfUrl) return;
 
+    // 1. Pergunta o nome do arquivo ao usuário
+    let userFileName = prompt('Digite o nome do arquivo para salvar o PDF preenchido:', 'meu-formulario');
+    if (!userFileName) return;    
+
     const existingPdfBytes = await fetch(currentPdfUrl).then(res => res.arrayBuffer());
     const { PDFDocument, rgb } = PDFLib;
 
@@ -562,9 +566,29 @@ downloadBtn.addEventListener("click", async () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `filled-${currentTemplate || 'document'}.pdf`;
+    // a.download = `filled-${currentTemplate || 'document'}.pdf`;
+    a.download = `${userFileName}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
+
+    // 2. Cria uma cópia do JSON de configuração com o novo nome
+    if (currentTemplate) {
+        try {
+            await fetch(`/template-config/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    from: currentTemplate,
+                    to: `${userFileName}.pdf.json`,
+                    fields: templateConfig.fields
+                })
+            });
+        } catch (err) {
+            // Opcional: console.error('Erro ao copiar config', err);
+        }
+    }
+
+
 });
 
 function toggleFieldEditButtons(show) {

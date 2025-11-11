@@ -58,5 +58,28 @@ app.post("/template-config/:templateName", (req, res) => {
   res.json({ success: true });
 });
 
+// Copiar configuração de template para novo nome
+app.post("/template-config/create", (req, res) => {
+    const { to, fields } = req.body;
+    const configDir = path.resolve("template-configs");
+    const destPath = path.join(configDir, to);
+
+    // Garante que o diretório existe
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir, { recursive: true });
+    }
+
+    if (fields && to) {
+        fs.writeFile(destPath, JSON.stringify({ fields }, null, 2), (err) => {
+            if (err) {
+                return res.status(500).json({ error: "Erro ao salvar novo arquivo de configuração." });
+            }
+            return res.json({ success: true, saved: true });
+        });
+    } else {
+        return res.status(400).json({ error: "Nome do arquivo e campos são obrigatórios." });
+    }
+});
+
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

@@ -1,4 +1,6 @@
 {
+  "from": "FORM_MEX_TEMPLATE.pdf",
+  "to": "test3.pdf.json",
   "fields": [
     {
       "x": 556.5,
