@@ -323,6 +323,31 @@ async function renderPDF(url) {
 
     templateConfig.fields.forEach((field, idx) => {
         createInputField(field.x, field.y, field.name, field.value, isEditorMode, idx, field.page || 1);
+        // Após criar o input, adiciona listener para salvar alterações no templateConfig e refletir no modal
+        const inputEl = document.querySelector(`#inputfield-${idx}-input`);
+        if (inputEl) {
+            inputEl.addEventListener('input', async (e) => {
+                templateConfig.fields[idx].value = inputEl.value;
+                // Atualiza o campo correspondente no modal, se estiver aberto
+                const modalInput = modalFieldsContainer.querySelector(`input[data-idx='${idx}']`);
+                if (modalInput) {
+                    modalInput.value = inputEl.value;
+                }
+                // Salva automaticamente no backend
+                if (currentTemplate) {
+                    try {
+                        await fetch(`/template-config/${currentTemplate}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ fields: templateConfig.fields })
+                        });
+                    } catch (err) {
+                        // Silencioso, mas pode logar se quiser
+                        // console.error('Erro ao salvar config automaticamente', err);
+                    }
+                }
+            });
+        }
     });
 
     function createInputField(x, y, name, value, editorMode, idx, page = 1) {
