@@ -652,12 +652,17 @@ downloadBtn.addEventListener("click", async () => {
     const yOffset = 5; // ajuste base
     const pageYOffset = 10; // offset adicional para páginas diferentes
     const firstPageExtraOffset = 15; // offset especial para página 1
-    allInputs.forEach(input => {
+    
+    console.log(`Total de inputs encontrados: ${allInputs.length}`);
+    
+    allInputs.forEach((input, idx) => {
         const x = parseFloat(input.dataset.x);
         let y = parseFloat(input.dataset.y) + yOffset;
         const value = input.value;
         const page = parseInt(input.dataset.page, 10) || 1;
         const fontSize = parseInt(input.style.fontSize) || 16;
+
+        console.log(`Input ${idx}: página=${page}, x=${x}, y=${y}, value="${value}"`);
 
         if (page === 1) {
             y += firstPageExtraOffset;
@@ -667,13 +672,25 @@ downloadBtn.addEventListener("click", async () => {
 
         // Seleciona a página correta
         const pdfPage = pages[page - 1] || firstPage;
+        const pageHeight = pdfPage.getHeight();
+        const finalY = pageHeight - y / 1.5;
+        
+        console.log(`  -> Renderizando na página ${page}: x=${x/1.5}, y=${finalY}, fontSize=${fontSize * 0.75}`);
+        
         if (value) {
-            pdfPage.drawText(value, {
-                x: x / 1.5,
-                y: pdfPage.getHeight() - y / 1.5,
-                size: fontSize * 0.75, // Ajuste de escala para o PDF
-                color: rgb(0, 0, 0)
-            });
+            try {
+                pdfPage.drawText(value, {
+                    x: x / 1.5,
+                    y: finalY,
+                    size: fontSize * 0.75, // Ajuste de escala para o PDF
+                    color: rgb(0, 0, 0)
+                });
+                console.log(`  -> ✓ Texto "${value}" desenhado com sucesso`);
+            } catch (err) {
+                console.error(`  -> ✗ Erro ao desenhar texto:`, err);
+            }
+        } else {
+            console.log(`  -> Ignorado (valor vazio)`);
         }
     });
 
