@@ -26,6 +26,8 @@ const toggleSidebar = document.getElementById('toggleSidebar');
 const showSidebar = document.getElementById('showSidebar');
 const templatesList = document.getElementById('templatesList');
 const generatedFilesList = document.getElementById('generatedFilesList');
+const currentFileLabel = document.getElementById('currentFileLabel');
+const currentFileName = document.getElementById('currentFileName');
 
 // Configuração do templateConfig
 let templateConfig = { fields: [] };
@@ -240,6 +242,11 @@ async function loadGeneratedFiles() {
 async function loadTemplate(templateName, source = 'templates', keepMode = false) {
     currentTemplate = templateName;
     inputData = [];
+    
+    // Atualiza o label do arquivo atual
+    currentFileName.textContent = templateName;
+    currentFileLabel.classList.remove('hidden');
+    
     try {
         const res = await fetch(`/template-config/${templateName}`);
         templateConfig = await res.json();
