@@ -288,7 +288,7 @@
       "x": 311.5,
       "y": 942,
       "name": "DataEntradaMexicoDD",
-      "value": "20",
+      "value": "12",
       "page": 1,
       "fontSize": 16,
       "width": 37,
@@ -423,6 +423,56 @@
       "fontSize": 16,
       "width": 65,
       "height": 21
+    },
+    {
+      "x": 115.5,
+      "y": 297,
+      "name": "DocumentosLinha1",
+      "value": "Cópia do Passaporte Vigente",
+      "page": 2,
+      "fontSize": 14,
+      "width": 694,
+      "height": 18
+    },
+    {
+      "x": 116.5,
+      "y": 318,
+      "name": "DocumentosLinha2",
+      "value": "Cópia dos Holerites dos 6 últimos meses",
+      "page": 2,
+      "fontSize": 13,
+      "width": 690,
+      "height": 18
+    },
+    {
+      "x": 115.5,
+      "y": 337,
+      "name": "DocumentosLinha3",
+      "value": "Cópia da Certidão de Casamento",
+      "page": 2,
+      "fontSize": 13,
+      "width": 692,
+      "height": 18
+    },
+    {
+      "x": 115.5,
+      "y": 356,
+      "name": "DocumentosLinha4",
+      "value": "Cópia da Carteira de Trabalho Física e Digital",
+      "page": 2,
+      "fontSize": 13,
+      "width": 692,
+      "height": 18
+    },
+    {
+      "x": 114.5,
+      "y": 376,
+      "name": "DocumentosLinha5",
+      "value": "Cópia da Documentação do Imóvel Próprio e Comprovante de Resideência",
+      "page": 2,
+      "fontSize": 13,
+      "width": 694,
+      "height": 18
     }
   ]
 }
