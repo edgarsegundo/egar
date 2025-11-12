@@ -742,7 +742,15 @@ downloadBtn.addEventListener("click", async () => {
     if (!currentPdfUrl) return;
 
     // 1. Pergunta o nome do arquivo ao usuário
-    let userFileName = prompt('Digite o nome do arquivo para salvar o PDF preenchido:', 'meu-formulario');
+    // Se é um arquivo gerado, sugere o mesmo nome (sem extensão)
+    // Se é um template, sugere 'meu-formulario'
+    let defaultName = 'meu-formulario';
+    if (currentTemplate && templateConfig.derivedFrom) {
+        // É um arquivo gerado, pega o nome sem a extensão .pdf
+        defaultName = currentTemplate.replace(/\.pdf$/i, '');
+    }
+    
+    let userFileName = prompt('Digite o nome do arquivo para salvar o PDF preenchido:', defaultName);
     if (!userFileName) return;
     
     // 2. Determina qual PDF usar como base
