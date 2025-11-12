@@ -19,8 +19,6 @@ const saveConfigBtn = document.getElementById('saveConfigBtn');
 const clearFieldsBtn = document.getElementById('clearFieldsBtn');
 const syncToOriginBtn = document.getElementById('syncToOriginBtn');
 const actionBar = document.getElementById('actionBar');
-const currentMode = document.getElementById('currentMode');
-const modeDescription = document.getElementById('modeDescription');
 const sidebar = document.getElementById('sidebar');
 const toggleSidebar = document.getElementById('toggleSidebar');
 const showSidebar = document.getElementById('showSidebar');
@@ -75,17 +73,17 @@ document.body.appendChild(overlay);
 
 function setMode(editor) {
   isEditorMode = editor;
+  console.log(`[setMode] Mudando para modo: ${isEditorMode ? 'EDIÇÃO' : 'PREENCHIMENTO'}`);
   if (isEditorMode) {
     toggleModeBtn.textContent = 'Voltar Modo Preenchimento';
     saveConfigBtn.classList.remove('hidden');
     clearFieldsBtn.classList.remove('hidden');
-    modeDescription.textContent = 'Arraste, adicione ou exclua campos';
   } else {
     toggleModeBtn.textContent = 'Ativar Modo Edição';
     saveConfigBtn.classList.add('hidden');
     clearFieldsBtn.classList.add('hidden');
-    modeDescription.textContent = 'Preencha os campos';
   }
+  toggleFieldEditButtons(isEditorMode);
 }
 
 // Função para abrir o modal e preencher campos
@@ -277,8 +275,6 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
     actionBar.classList.remove('hidden');
     await renderPDF(currentPdfUrl);
     if (!keepMode) setMode(false);
-
-    toggleFieldEditButtons(isEditorMode);
     
     // Mostra o botão de sincronização apenas se o arquivo tiver derivedFrom
     if (templateConfig.derivedFrom) {
@@ -319,10 +315,7 @@ uploadForm.addEventListener("submit", async (e) => {
 // Mode toggle
 toggleModeBtn.addEventListener('click', (event) => {
     event.preventDefault();
-    isEditorMode = !isEditorMode;
-    setMode(isEditorMode);
-    toggleFieldEditButtons(isEditorMode);
-    saveConfigBtn.classList.toggle('hidden', !isEditorMode);
+    setMode(!isEditorMode);
 });
 
 // Save configuration
@@ -506,6 +499,10 @@ async function renderPDF(url) {
             }
         }
     });
+
+    // Atualiza a visibilidade dos handles após todos os campos serem criados
+    console.log(`[renderPDF] Campos criados: ${createdFields.length}, isEditorMode: ${isEditorMode}`);
+    toggleFieldEditButtons(isEditorMode);
 
     function createInputField(x, y, name, value, editorMode, idx, page = 1) {
         const pageWrapper = pdfContainer.querySelector(`div[data-page-number='${page}']`);
@@ -738,7 +735,6 @@ async function renderPDF(url) {
         wrapper.appendChild(resizeHandle);
         wrapper.appendChild(fontSizeHandle);
 
-        toggleFieldEditButtons(isEditorMode);
         createdFields.push({ wrapper, input, dragHandle, deleteBtn, resizeHandle, fontSizeHandle, listeners });
         
         return wrapper;
@@ -888,7 +884,14 @@ downloadBtn.addEventListener("click", async () => {
 });
 
 function toggleFieldEditButtons(show) {
-    createdFields.forEach(fieldObj => {
+    console.log(`[toggleFieldEditButtons] show=${show}, createdFields.length=${createdFields.length}`);
+    createdFields.forEach((fieldObj, idx) => {
+        console.log(`  Campo ${idx}:`, {
+            hasDragHandle: !!fieldObj.dragHandle,
+            hasDeleteBtn: !!fieldObj.deleteBtn,
+            hasResizeHandle: !!fieldObj.resizeHandle,
+            hasFontSizeHandle: !!fieldObj.fontSizeHandle
+        });
         if (fieldObj.dragHandle) fieldObj.dragHandle.style.display = show ? 'block' : 'none';
         if (fieldObj.deleteBtn) fieldObj.deleteBtn.style.display = show ? 'block' : 'none';
         if (fieldObj.resizeHandle) fieldObj.resizeHandle.style.display = show ? 'block' : 'none';
