@@ -816,11 +816,15 @@ downloadBtn.addEventListener("click", async () => {
             // 2. Cria uma cópia do JSON de configuração com o novo nome
             if (currentTemplate) {
                 try {
+                    // Se o arquivo atual tem derivedFrom, usa ele como origem
+                    // Caso contrário, usa o currentTemplate
+                    const originTemplate = templateConfig.derivedFrom || currentTemplate;
+                    
                     const res = await fetch(`/create-config-file`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            from: currentTemplate,
+                            from: originTemplate,
                             to: `${userFileName}.pdf.json`,
                             fields: templateConfig.fields
                         })
