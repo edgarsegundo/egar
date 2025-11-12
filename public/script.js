@@ -259,7 +259,8 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
     } catch (error) {
         console.error('Erro ao carregar configuração:', error);
         templateConfig = { fields: [] };
-        // Fallback: se não conseguir ler o config, usa o PDF clicado
+        // Fallback: tenta ler o config mesmo com erro para pegar o derivedFrom
+        // Se não conseguir, usa o PDF clicado
         const url = source === 'generated' 
             ? `/generated-pdf-files/${templateName}` 
             : `/pdf-templates/${templateName}`;
@@ -731,9 +732,17 @@ downloadBtn.addEventListener("click", async () => {
 
     // 1. Pergunta o nome do arquivo ao usuário
     let userFileName = prompt('Digite o nome do arquivo para salvar o PDF preenchido:', 'meu-formulario');
-    if (!userFileName) return;    
+    if (!userFileName) return;
+    
+    // 2. Determina qual PDF usar como base
+    // Se o arquivo atual tem derivedFrom, SEMPRE usa o template original limpo
+    let basePdfUrl = currentPdfUrl;
+    if (templateConfig.derivedFrom) {
+        basePdfUrl = `/pdf-templates/${templateConfig.derivedFrom}`;
+        console.log(`Usando template original como base: ${templateConfig.derivedFrom}`);
+    }
 
-    const existingPdfBytes = await fetch(currentPdfUrl).then(res => res.arrayBuffer());
+    const existingPdfBytes = await fetch(basePdfUrl).then(res => res.arrayBuffer());
     const { PDFDocument, rgb } = PDFLib;
 
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
