@@ -322,7 +322,11 @@ toggleModeBtn.addEventListener('click', (event) => {
 saveConfigBtn.addEventListener('click', async () => {
     if (!currentTemplate) return;
 
+    // Preserva o derivedFrom se existir
     const config = { fields: templateConfig.fields };
+    if (templateConfig.derivedFrom) {
+        config.derivedFrom = templateConfig.derivedFrom;
+    }
 
     console.log('Salvando configuração:', config);
 
@@ -474,10 +478,16 @@ async function renderPDF(url) {
                     // Salva automaticamente no backend
                     if (currentTemplate) {
                         try {
+                            // Preserva o derivedFrom se existir
+                            const configToSave = { fields: templateConfig.fields };
+                            if (templateConfig.derivedFrom) {
+                                configToSave.derivedFrom = templateConfig.derivedFrom;
+                            }
+                            
                             await fetch(`/template-config/${currentTemplate}`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ fields: templateConfig.fields })
+                                body: JSON.stringify(configToSave)
                             });
                         } catch (err) {
                             // Silencioso, mas pode logar se quiser
