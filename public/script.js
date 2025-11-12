@@ -481,7 +481,8 @@ async function renderPDF(url) {
                             });
                         } catch (err) {
                             // Silencioso, mas pode logar se quiser
-                            // console.error('Erro ao salvar config automaticamente', err);
+                            console.error('Erro ao salvar config automaticamente', err);
+                            alert('Erro ao salvar configuração automaticamente');
                         }
                     }
                 });
