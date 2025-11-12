@@ -461,7 +461,10 @@ async function renderPDF(url) {
             const inputEl = inputWrapper.querySelector('input[type="text"]');
             if (inputEl) {
                 inputEl.addEventListener('input', async (e) => {
-                    templateConfig.fields[idx].value = inputEl.value;
+                    // Verifica se o índice ainda é válido antes de atualizar
+                    if (templateConfig.fields[idx]) {
+                        templateConfig.fields[idx].value = inputEl.value;
+                    }
                     // Atualiza o campo correspondente no modal, se estiver aberto
                     const modalInput = modalFieldsContainer.querySelector(`input[data-idx='${idx}']`);
                     if (modalInput) {
@@ -538,8 +541,11 @@ async function renderPDF(url) {
                 newY = Math.max(0, Math.min(newY, pageWrapper.offsetHeight - wrapper.offsetHeight));
                 wrapper.style.left = `${newX}px`;
                 wrapper.style.top = `${newY}px`;
-                templateConfig.fields[idx].x = newX;
-                templateConfig.fields[idx].y = newY;
+                // Verifica se o índice ainda é válido antes de atualizar
+                if (templateConfig.fields[idx]) {
+                    templateConfig.fields[idx].x = newX;
+                    templateConfig.fields[idx].y = newY;
+                }
                 // Atualiza também o dataset do input para manter sincronizado
                 const inputEl = wrapper.querySelector('input[type="text"]');
                 if (inputEl) {
@@ -593,9 +599,11 @@ async function renderPDF(url) {
                 let newHeight = Math.max(18, startHeight + (ev.clientY - startY));
                 input.style.width = newWidth + 'px';
                 input.style.height = newHeight + 'px';
-                // Salva no config
-                templateConfig.fields[idx].width = newWidth;
-                templateConfig.fields[idx].height = newHeight;
+                // Salva no config (verifica se o índice ainda é válido)
+                if (templateConfig.fields[idx]) {
+                    templateConfig.fields[idx].width = newWidth;
+                    templateConfig.fields[idx].height = newHeight;
+                }
             }
             function onResizeMouseUp() {
                 if (resizing) {
@@ -644,8 +652,10 @@ async function renderPDF(url) {
                 const deltaY = fontStartY - ev.clientY; // Invertido: arrastar pra cima aumenta
                 let newFontSize = Math.max(8, Math.min(72, fontStartSize + deltaY)); // Min 8px, Max 72px
                 input.style.fontSize = newFontSize + 'px';
-                // Salva no config
-                templateConfig.fields[idx].fontSize = newFontSize;
+                // Salva no config (verifica se o índice ainda é válido)
+                if (templateConfig.fields[idx]) {
+                    templateConfig.fields[idx].fontSize = newFontSize;
+                }
             }
             
             function onFontSizeMouseUp() {

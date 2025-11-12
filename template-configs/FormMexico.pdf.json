@@ -1,12 +1,12 @@
 {
   "fields": [
     {
-      "x": 226,
+      "x": 243,
       "y": 178,
       "name": "Consulado em",
-      "value": "                      SÃO PAULO",
+      "value": "SÃO PAULO",
       "page": 1,
-      "width": 305,
+      "width": 260,
       "height": 18,
       "fontSize": 16
     },
@@ -49,13 +49,33 @@
       "height": 20
     },
     {
-      "x": 231,
-      "y": 500,
-      "name": "DataNasc",
-      "value": "  18      08   1974",
+      "x": 241.5,
+      "y": 499,
+      "name": "DataNascDD",
+      "value": "18",
       "page": 1,
       "fontSize": 16,
-      "width": 140,
+      "width": 31,
+      "height": 20
+    },
+    {
+      "x": 283.5,
+      "y": 499,
+      "name": "DataNascMM",
+      "value": "08",
+      "page": 1,
+      "fontSize": 16,
+      "width": 41,
+      "height": 20
+    },
+    {
+      "x": 328.5,
+      "y": 499,
+      "name": "DataNascAAAA",
+      "value": "1974",
+      "page": 1,
+      "fontSize": 16,
+      "width": 46,
       "height": 18
     },
     {
@@ -115,14 +135,34 @@
       "height": 19
     },
     {
-      "x": 293,
+      "x": 297.5,
       "y": 627,
-      "name": "DataVencimento",
-      "value": "29             11            2028",
+      "name": "DataVencimentoDD",
+      "value": "29",
       "page": 1,
       "fontSize": 16,
-      "width": 250,
+      "width": 35,
       "height": 19
+    },
+    {
+      "x": 369.5,
+      "y": 627,
+      "name": "DataVencimentoMM",
+      "value": "11",
+      "page": 1,
+      "fontSize": 16,
+      "width": 37,
+      "height": 21
+    },
+    {
+      "x": 467.5,
+      "y": 628,
+      "name": "DataVencimentoAAAA",
+      "value": "2028",
+      "page": 1,
+      "fontSize": 16,
+      "width": 54,
+      "height": 18
     },
     {
       "x": 207,
@@ -245,13 +285,33 @@
       "height": 20
     },
     {
-      "x": 290,
-      "y": 940,
-      "name": "DataEntradaMexico",
-      "value": "    20                 01                 2026",
+      "x": 311.5,
+      "y": 942,
+      "name": "DataEntradaMexicoDD",
+      "value": "20",
       "page": 1,
       "fontSize": 16,
-      "width": 253,
+      "width": 37,
+      "height": 19
+    },
+    {
+      "x": 410.5,
+      "y": 941,
+      "name": "DataEntradaMexicoMM",
+      "value": "01",
+      "page": 1,
+      "fontSize": 16,
+      "width": 37,
+      "height": 20
+    },
+    {
+      "x": 498.5,
+      "y": 941,
+      "name": "DataEntradaMexicoAAAA",
+      "value": "2026",
+      "page": 1,
+      "fontSize": 16,
+      "width": 53,
       "height": 18
     },
     {
@@ -335,14 +395,34 @@
       "height": 20
     },
     {
-      "x": 492,
+      "x": 550.5,
+      "y": 658,
+      "name": "DataDD",
+      "value": "22",
+      "page": 2,
+      "fontSize": 15,
+      "width": 45,
+      "height": 22
+    },
+    {
+      "x": 648.5,
       "y": 657,
-      "name": "Data",
-      "value": "           22                12               2025",
+      "name": "DataMM",
+      "value": "12",
+      "page": 2,
+      "fontSize": 14,
+      "width": 44,
+      "height": 20
+    },
+    {
+      "x": 728.5,
+      "y": 658,
+      "name": "DataAAAA",
+      "value": "2025",
       "page": 2,
       "fontSize": 16,
-      "width": 314,
-      "height": 22
+      "width": 65,
+      "height": 21
     }
   ]
 }
