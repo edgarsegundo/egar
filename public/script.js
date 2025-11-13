@@ -891,7 +891,8 @@ async function renderPDF(url) {
                     if (modalInput) {
                         modalInput.value = inputEl.value;
                     }
-                    // Salva automaticamente no backend
+                    
+                    // Salva automaticamente no backend OU no IndexedDB
                     if (currentTemplate) {
                         try {
                             // Preserva o derivedFrom se existir
@@ -900,15 +901,22 @@ async function renderPDF(url) {
                                 configToSave.derivedFrom = templateConfig.derivedFrom;
                             }
                             
-                            await fetch(`/template-config/${currentTemplate}`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(configToSave)
-                            });
+                            // Se for do IndexedDB ou clone, salva no IndexedDB
+                            if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                                await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
+                                console.log(`Config salva no IndexedDB para: ${currentTemplate}`);
+                            } else {
+                                // Salva no servidor
+                                await fetch(`/template-config/${currentTemplate}`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(configToSave)
+                                });
+                                console.log(`Config salva no servidor para: ${currentTemplate}`);
+                            }
                         } catch (err) {
                             // Silencioso, mas pode logar se quiser
                             console.error('Erro ao salvar config automaticamente', err);
-                            alert('Erro ao salvar configuração automaticamente');
                         }
                     }
                 });
@@ -994,6 +1002,28 @@ async function renderPDF(url) {
                     dragHandle.style.cursor = 'grab';
                     document.removeEventListener('mousemove', onMouseMove);
                     document.removeEventListener('mouseup', onMouseUp);
+                    
+                    // Auto-save após mover o campo
+                    if (currentTemplate && templateConfig.fields[idx]) {
+                        const configToSave = { 
+                            fields: templateConfig.fields,
+                            derivedFrom: templateConfig.derivedFrom 
+                        };
+                        
+                        if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                            saveTemplateConfigToIndexedDB(currentTemplate, configToSave).catch(err => {
+                                console.error('Erro ao salvar posição no IndexedDB:', err);
+                            });
+                        } else {
+                            fetch(`/template-config/${currentTemplate}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(configToSave)
+                            }).catch(err => {
+                                console.error('Erro ao salvar posição no servidor:', err);
+                            });
+                        }
+                    }
                 }
             }
 
@@ -1044,6 +1074,28 @@ async function renderPDF(url) {
                     document.body.style.userSelect = '';
                     document.removeEventListener('mousemove', onResizeMouseMove);
                     document.removeEventListener('mouseup', onResizeMouseUp);
+                    
+                    // Auto-save após redimensionar o campo
+                    if (currentTemplate && templateConfig.fields[idx]) {
+                        const configToSave = { 
+                            fields: templateConfig.fields,
+                            derivedFrom: templateConfig.derivedFrom 
+                        };
+                        
+                        if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                            saveTemplateConfigToIndexedDB(currentTemplate, configToSave).catch(err => {
+                                console.error('Erro ao salvar tamanho no IndexedDB:', err);
+                            });
+                        } else {
+                            fetch(`/template-config/${currentTemplate}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(configToSave)
+                            }).catch(err => {
+                                console.error('Erro ao salvar tamanho no servidor:', err);
+                            });
+                        }
+                    }
                 }
             }
             document.addEventListener('mousemove', onResizeMouseMove);
@@ -1097,6 +1149,28 @@ async function renderPDF(url) {
                     document.body.style.userSelect = '';
                     document.removeEventListener('mousemove', onFontSizeMouseMove);
                     document.removeEventListener('mouseup', onFontSizeMouseUp);
+                    
+                    // Auto-save após ajustar fonte
+                    if (currentTemplate && templateConfig.fields[idx]) {
+                        const configToSave = { 
+                            fields: templateConfig.fields,
+                            derivedFrom: templateConfig.derivedFrom 
+                        };
+                        
+                        if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                            saveTemplateConfigToIndexedDB(currentTemplate, configToSave).catch(err => {
+                                console.error('Erro ao salvar fontSize no IndexedDB:', err);
+                            });
+                        } else {
+                            fetch(`/template-config/${currentTemplate}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(configToSave)
+                            }).catch(err => {
+                                console.error('Erro ao salvar fontSize no servidor:', err);
+                            });
+                        }
+                    }
                 }
             }
             
