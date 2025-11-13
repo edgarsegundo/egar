@@ -365,6 +365,12 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
     currentFileName.textContent = templateName;
     currentFileLabel.classList.remove('hidden');
     
+    // Mostra o toolbar de ações do arquivo
+    const fileActionsToolbar = document.getElementById('fileActionsToolbar');
+    if (fileActionsToolbar) {
+        fileActionsToolbar.classList.remove('hidden');
+    }
+    
     try {
         // Se for do IndexedDB, carrega de lá
         if (source === 'indexeddb') {
