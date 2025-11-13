@@ -15,6 +15,7 @@ if (addTemplateBtn) {
                 return;
             }
             const pdfFile = fileInput.files[0];
+            const fileSizeMB = (pdfFile.size / (1024 * 1024)).toFixed(2);
             let defaultName = pdfFile.name.replace(/\.pdf$/i, '');
             
             // Usar SweetAlert2 para pedir o nome
@@ -23,8 +24,9 @@ if (addTemplateBtn) {
                 input: 'text',
                 inputLabel: 'Digite o nome do novo template (sem .pdf):',
                 inputValue: defaultName,
+                html: `<p class="text-sm text-gray-600 mt-2">Tamanho: ${fileSizeMB}MB</p>`,
                 showCancelButton: true,
-                confirmButtonText: 'Criar',
+                confirmButtonText: 'Salvar no Navegador',
                 cancelButtonText: 'Cancelar',
                 inputValidator: (value) => {
                     if (!value || !value.trim()) {
@@ -41,36 +43,35 @@ if (addTemplateBtn) {
             // Remove .pdf se o usuário digitou, para evitar duplicação
             const cleanName = templateName.trim().replace(/\.pdf$/i, '');
             const finalName = cleanName + '.pdf';
-            const formData = new FormData();
-            formData.append('pdf', pdfFile);
-            formData.append('templateName', finalName);
+            
             try {
-                const res = await fetch('/create-template', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await res.json();
+                // Salva no IndexedDB
+                const result = await saveTemplateToIndexedDB(pdfFile, finalName);
+                
                 if (result.success) {
                     await Swal.fire({
                         icon: 'success',
-                        title: 'Sucesso!',
-                        text: 'Template criado com sucesso!',
-                        timer: 2000,
+                        title: 'Template Salvo!',
+                        html: `
+                            <p>Template salvo no seu navegador</p>
+                            <p class="text-sm text-gray-600 mt-2">
+                                <strong>${finalName}</strong><br>
+                                Tamanho: ${result.size}MB
+                            </p>
+                        `,
+                        timer: 3000,
                         showConfirmButton: false
                     });
                     await loadTemplates();
                 } else {
-                    await Swal.fire({
-                        icon: 'error',
-                        title: 'Erro',
-                        text: 'Erro ao criar template: ' + (result.error || '')
-                    });
+                    throw new Error('Erro ao salvar template');
                 }
             } catch (err) {
+                console.error('Erro ao salvar template:', err);
                 await Swal.fire({
                     icon: 'error',
-                    title: 'Erro',
-                    text: 'Erro ao criar template.'
+                    title: 'Erro ao Salvar',
+                    text: err.message || 'Erro ao salvar template no navegador.'
                 });
             }
             document.body.removeChild(fileInput);
