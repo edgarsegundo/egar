@@ -1,9 +1,10 @@
 // IndexedDB Manager para Templates PDF
-// Armazena PDFs no navegador do usuário
+// Armazena PDFs e suas configurações no navegador do usuário
 
 const DB_NAME = 'PDFTemplatesDB';
-const DB_VERSION = 1;
-const STORE_NAME = 'templates';
+const DB_VERSION = 2; // Incrementado para criar nova store
+const TEMPLATES_STORE = 'templates';
+const CONFIGS_STORE = 'configs';
 
 // Abre/cria o banco de dados
 function openDB() {
@@ -16,11 +17,17 @@ function openDB() {
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
             
-            // Cria o object store se não existir
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                const objectStore = db.createObjectStore(STORE_NAME, { keyPath: 'name' });
+            // Cria o object store de templates se não existir
+            if (!db.objectStoreNames.contains(TEMPLATES_STORE)) {
+                const objectStore = db.createObjectStore(TEMPLATES_STORE, { keyPath: 'name' });
                 objectStore.createIndex('createdAt', 'createdAt', { unique: false });
                 objectStore.createIndex('size', 'size', { unique: false });
+            }
+            
+            // Cria o object store de configs se não existir
+            if (!db.objectStoreNames.contains(CONFIGS_STORE)) {
+                const configStore = db.createObjectStore(CONFIGS_STORE, { keyPath: 'templateName' });
+                configStore.createIndex('updatedAt', 'updatedAt', { unique: false });
             }
         };
     });
@@ -47,8 +54,8 @@ async function saveTemplateToIndexedDB(pdfFile, templateName) {
         };
         
         // Salva no IndexedDB
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        const objectStore = transaction.objectStore(STORE_NAME);
+        const transaction = db.transaction([TEMPLATES_STORE], 'readwrite');
+        const objectStore = transaction.objectStore(TEMPLATES_STORE);
         const request = objectStore.put(template);
         
         return new Promise((resolve, reject) => {
@@ -71,8 +78,8 @@ async function saveTemplateToIndexedDB(pdfFile, templateName) {
 async function loadTemplateFromIndexedDB(templateName) {
     try {
         const db = await openDB();
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const objectStore = transaction.objectStore(STORE_NAME);
+        const transaction = db.transaction([TEMPLATES_STORE], 'readonly');
+        const objectStore = transaction.objectStore(TEMPLATES_STORE);
         const request = objectStore.get(templateName);
         
         return new Promise((resolve, reject) => {
@@ -98,8 +105,8 @@ async function loadTemplateFromIndexedDB(templateName) {
 async function listIndexedDBTemplates() {
     try {
         const db = await openDB();
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const objectStore = transaction.objectStore(STORE_NAME);
+        const transaction = db.transaction([TEMPLATES_STORE], 'readonly');
+        const objectStore = transaction.objectStore(TEMPLATES_STORE);
         const request = objectStore.getAll();
         
         return new Promise((resolve, reject) => {
@@ -124,8 +131,8 @@ async function listIndexedDBTemplates() {
 async function deleteTemplateFromIndexedDB(templateName) {
     try {
         const db = await openDB();
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        const objectStore = transaction.objectStore(STORE_NAME);
+        const transaction = db.transaction([TEMPLATES_STORE], 'readwrite');
+        const objectStore = transaction.objectStore(TEMPLATES_STORE);
         const request = objectStore.delete(templateName);
         
         return new Promise((resolve, reject) => {
@@ -142,8 +149,8 @@ async function deleteTemplateFromIndexedDB(templateName) {
 async function templateExistsInIndexedDB(templateName) {
     try {
         const db = await openDB();
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const objectStore = transaction.objectStore(STORE_NAME);
+        const transaction = db.transaction([TEMPLATES_STORE], 'readonly');
+        const objectStore = transaction.objectStore(TEMPLATES_STORE);
         const request = objectStore.get(templateName);
         
         return new Promise((resolve) => {
@@ -166,5 +173,102 @@ async function getIndexedDBSize() {
         };
     } catch (error) {
         return { totalMB: 0, count: 0 };
+    }
+}
+
+// ============================================
+// Funções para gerenciar CONFIGURAÇÕES (configs)
+// ============================================
+
+// Salvar configuração de template no IndexedDB
+async function saveTemplateConfigToIndexedDB(templateName, config) {
+    try {
+        const db = await openDB();
+        
+        const configData = {
+            templateName: templateName,
+            fields: config.fields || [],
+            updatedAt: new Date().toISOString()
+        };
+        
+        const transaction = db.transaction([CONFIGS_STORE], 'readwrite');
+        const objectStore = transaction.objectStore(CONFIGS_STORE);
+        const request = objectStore.put(configData);
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => {
+                console.log(`✅ Config salva no IndexedDB: ${templateName}`);
+                resolve({ success: true });
+            };
+            request.onerror = () => reject(request.error);
+        });
+    } catch (error) {
+        console.error('Erro ao salvar config no IndexedDB:', error);
+        throw error;
+    }
+}
+
+// Carregar configuração de template do IndexedDB
+async function loadTemplateConfigFromIndexedDB(templateName) {
+    try {
+        const db = await openDB();
+        const transaction = db.transaction([CONFIGS_STORE], 'readonly');
+        const objectStore = transaction.objectStore(CONFIGS_STORE);
+        const request = objectStore.get(templateName);
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => {
+                const config = request.result;
+                if (config) {
+                    console.log(`✅ Config carregada do IndexedDB: ${templateName}`, config);
+                    resolve({ fields: config.fields || [] });
+                } else {
+                    console.log(`⚠️ Nenhuma config encontrada no IndexedDB: ${templateName}`);
+                    resolve({ fields: [] });
+                }
+            };
+            request.onerror = () => reject(request.error);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar config do IndexedDB:', error);
+        return { fields: [] };
+    }
+}
+
+// Deletar configuração de template do IndexedDB
+async function deleteTemplateConfigFromIndexedDB(templateName) {
+    try {
+        const db = await openDB();
+        const transaction = db.transaction([CONFIGS_STORE], 'readwrite');
+        const objectStore = transaction.objectStore(CONFIGS_STORE);
+        const request = objectStore.delete(templateName);
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => {
+                console.log(`🗑️ Config deletada do IndexedDB: ${templateName}`);
+                resolve({ success: true });
+            };
+            request.onerror = () => reject(request.error);
+        });
+    } catch (error) {
+        console.error('Erro ao deletar config do IndexedDB:', error);
+        throw error;
+    }
+}
+
+// Verificar se configuração existe no IndexedDB
+async function templateConfigExistsInIndexedDB(templateName) {
+    try {
+        const db = await openDB();
+        const transaction = db.transaction([CONFIGS_STORE], 'readonly');
+        const objectStore = transaction.objectStore(CONFIGS_STORE);
+        const request = objectStore.get(templateName);
+        
+        return new Promise((resolve) => {
+            request.onsuccess = () => resolve(!!request.result);
+            request.onerror = () => resolve(false);
+        });
+    } catch (error) {
+        return false;
     }
 }

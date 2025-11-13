@@ -85,6 +85,7 @@ let uploadedFile = null;
 let inputData = [];
 let currentPdfUrl = null;
 let currentTemplate = null;
+let currentTemplateSource = null; // 'indexeddb', 'templates', ou 'generated'
 let isEditorMode = false;
 let templateFields = [];
 // Guarda referências dos campos criados
@@ -357,6 +358,7 @@ async function loadGeneratedFiles() {
 
 async function loadTemplate(templateName, source = 'templates', keepMode = false) {
     currentTemplate = templateName;
+    currentTemplateSource = source; // Salva a fonte atual
     inputData = [];
     
     // Atualiza o label do arquivo atual
@@ -369,15 +371,15 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
             console.log(`Carregando template '${templateName}' do IndexedDB`);
             
             // Carrega o PDF do IndexedDB
-            const pdfUrl = await loadTemplateFromIndexedDB(templateName);
-            if (!pdfUrl) {
+            const result = await loadTemplateFromIndexedDB(templateName);
+            if (!result || !result.url) {
                 throw new Error(`Template '${templateName}' não encontrado no IndexedDB`);
             }
-            currentPdfUrl = pdfUrl;
+            currentPdfUrl = result.url;
             
-            // Por enquanto, templates do IndexedDB não têm config
-            // TODO: Implementar salvamento de config no IndexedDB também
-            templateConfig = { fields: [] };
+            // Carrega a configuração do IndexedDB também
+            templateConfig = await loadTemplateConfigFromIndexedDB(templateName);
+            console.log(`Config carregada:`, templateConfig);
             
         } else {
             // Carrega do servidor (templates ou generated)
@@ -469,17 +471,42 @@ saveConfigBtn.addEventListener('click', async () => {
     console.log('Salvando configuração:', config);
 
     try {
-        const response = await fetch(`/template-config/${currentTemplate}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(config)
-        });
-        const result = await response.json();
-        console.log('Resposta do servidor:', result);
-        alert('Configuração salva com sucesso!');
+        // Se o template é do IndexedDB, salva a config no IndexedDB também
+        if (currentTemplateSource === 'indexeddb') {
+            await saveTemplateConfigToIndexedDB(currentTemplate, config);
+            
+            await Swal.fire({
+                icon: 'success',
+                title: 'Configuração Salva!',
+                text: `A configuração foi salva no seu navegador.`,
+                confirmButtonText: 'OK'
+            });
+        } else {
+            // Salva no servidor
+            const response = await fetch(`/template-config/${currentTemplate}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            });
+            const result = await response.json();
+            console.log('Resposta do servidor:', result);
+            
+            await Swal.fire({
+                icon: 'success',
+                title: 'Configuração Salva!',
+                text: 'A configuração foi salva no servidor.',
+                confirmButtonText: 'OK'
+            });
+        }
     } catch (error) {
         console.error('Error saving config:', error);
-        alert('Erro ao salvar configuração');
+        
+        await Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'Erro ao salvar configuração',
+            confirmButtonText: 'OK'
+        });
     }
 });
 
