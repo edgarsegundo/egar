@@ -617,7 +617,8 @@ cloneFileBtn.addEventListener('click', async () => {
     
     try {
         // Detecta a fonte do template atual
-        const sourceType = currentTemplateSource === 'indexeddb' ? 'indexeddb' : 'templates';
+        // Se for indexeddb ou clone, usa 'indexeddb' como fonte
+        const sourceType = (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') ? 'indexeddb' : 'templates';
         
         // Mostra loading
         Swal.fire({
