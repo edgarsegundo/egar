@@ -364,30 +364,50 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
     currentFileLabel.classList.remove('hidden');
     
     try {
-        const res = await fetch(`/template-config/${templateName}`);
-        templateConfig = await res.json();
-        
-        // Se for um arquivo gerado e tiver derivedFrom, usa o PDF original
-        if (source === 'generated' && templateConfig.derivedFrom) {
-            const url = `/pdf-templates/${templateConfig.derivedFrom}`;
-            currentPdfUrl = url;
-            console.log(`Carregando arquivo gerado '${templateName}' usando template original '${templateConfig.derivedFrom}'`);
+        // Se for do IndexedDB, carrega de lá
+        if (source === 'indexeddb') {
+            console.log(`Carregando template '${templateName}' do IndexedDB`);
+            
+            // Carrega o PDF do IndexedDB
+            const pdfUrl = await loadTemplateFromIndexedDB(templateName);
+            if (!pdfUrl) {
+                throw new Error(`Template '${templateName}' não encontrado no IndexedDB`);
+            }
+            currentPdfUrl = pdfUrl;
+            
+            // Por enquanto, templates do IndexedDB não têm config
+            // TODO: Implementar salvamento de config no IndexedDB também
+            templateConfig = { fields: [] };
+            
         } else {
-            // Se for um template normal, usa o próprio arquivo
+            // Carrega do servidor (templates ou generated)
+            const res = await fetch(`/template-config/${templateName}`);
+            templateConfig = await res.json();
+            
+            // Se for um arquivo gerado e tiver derivedFrom, usa o PDF original
+            if (source === 'generated' && templateConfig.derivedFrom) {
+                const url = `/pdf-templates/${templateConfig.derivedFrom}`;
+                currentPdfUrl = url;
+                console.log(`Carregando arquivo gerado '${templateName}' usando template original '${templateConfig.derivedFrom}'`);
+            } else {
+                // Se for um template normal, usa o próprio arquivo
+                const url = source === 'generated' 
+                    ? `/generated-pdf-files/${templateName}` 
+                    : `/pdf-templates/${templateName}`;
+                currentPdfUrl = url;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao carregar configuração:', error);
+        templateConfig = { fields: [] };
+        
+        // Fallback para templates do servidor
+        if (source !== 'indexeddb') {
             const url = source === 'generated' 
                 ? `/generated-pdf-files/${templateName}` 
                 : `/pdf-templates/${templateName}`;
             currentPdfUrl = url;
         }
-    } catch (error) {
-        console.error('Erro ao carregar configuração:', error);
-        templateConfig = { fields: [] };
-        // Fallback: tenta ler o config mesmo com erro para pegar o derivedFrom
-        // Se não conseguir, usa o PDF clicado
-        const url = source === 'generated' 
-            ? `/generated-pdf-files/${templateName}` 
-            : `/pdf-templates/${templateName}`;
-        currentPdfUrl = url;
     }
 
     actionBar.classList.remove('hidden');
