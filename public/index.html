@@ -24,14 +24,14 @@
       <!-- Toolbar de ícones -->
       <div class="flex flex-wrap gap-2 mb-3" id="templatesToolbar">
           <div class="relative group flex items-center overflow-visible">
-            <button id="addTemplateBtn" class="p-2 rounded hover:bg-blue-100 bg-blue-50 border border-blue-200 shadow transition" title="Adicionar">
+            <button id="addTemplateBtn" data-description="Adicionar novo template" class="p-2 rounded hover:bg-blue-100 bg-blue-50 border border-blue-200 shadow transition" title="Adicionar">
               <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
             </button>
-            <div class="absolute left-full top-1/2 -translate-y-1/2 ml-4 z-50 hidden group-hover:block min-w-max px-3 py-2 bg-white border border-blue-200 rounded-lg shadow-2xl text-blue-700 text-sm font-semibold whitespace-nowrap transition-all duration-200 animate-fade-in overflow-visible">
-              <span>Adicionar novo template</span>
-              <div class="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-t border-l border-blue-200 rotate-45 z-50"></div>
-            </div>
           </div>
+      </div>
+      <!-- Label display abaixo do toolbar -->
+      <div class="mb-2 min-h-[28px] flex items-center justify-center">
+        <span id="toolbarDisplay" class="text-sm text-blue-700 font-semibold opacity-0 transition-opacity duration-200"></span>
       </div>
       <div id="templatesList" class="space-y-2">
         <!-- Templates will be loaded here -->
@@ -97,6 +97,31 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>  
+  <script>
+    // Toolbar display - mostra descrição do botão em hover
+    document.addEventListener('DOMContentLoaded', () => {
+      const toolbarDisplay = document.getElementById('toolbarDisplay');
+      const toolbarButtons = document.querySelectorAll('#templatesToolbar button[data-description]');
+      
+      toolbarButtons.forEach(button => {
+        button.addEventListener('mouseenter', () => {
+          const description = button.getAttribute('data-description');
+          if (description && toolbarDisplay) {
+            toolbarDisplay.textContent = description;
+            toolbarDisplay.classList.remove('opacity-0');
+            toolbarDisplay.classList.add('opacity-100');
+          }
+        });
+        
+        button.addEventListener('mouseleave', () => {
+          if (toolbarDisplay) {
+            toolbarDisplay.classList.remove('opacity-100');
+            toolbarDisplay.classList.add('opacity-0');
+          }
+        });
+      });
+    });
+  </script>
   <script src="./script.js"></script>
 </body>
 </html>
