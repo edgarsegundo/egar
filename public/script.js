@@ -584,7 +584,24 @@ loadTemplates();
 loadGeneratedFiles();
 
 async function renderPDF(url) {
+    // Mostra o loader ANTES de limpar o container
+    const pdfLoader = document.getElementById('pdfLoader');
+    if (pdfLoader) {
+        pdfLoader.classList.remove('hidden');
+    }
+    
+    // Delay para visualizar o loader
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
     pdfContainer.innerHTML = "";
+    
+    // Re-cria o loader (já que innerHTML apagou tudo)
+    const loaderDiv = document.createElement('div');
+    loaderDiv.id = 'pdfLoader';
+    loaderDiv.className = 'absolute inset-0 flex items-center justify-center z-50';
+    loaderDiv.innerHTML = '<div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>';
+    pdfContainer.appendChild(loaderDiv);
+    
     const pdf = await pdfjsLib.getDocument(url).promise;
     const numPages = pdf.numPages;
     const scale = 1.5;
@@ -623,6 +640,9 @@ async function renderPDF(url) {
             createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
         };
     }
+    
+    // Remove o loader após renderizar todas as páginas
+    loaderDiv.remove();
 
     downloadBtn.classList.remove("hidden");
 

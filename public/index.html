@@ -113,7 +113,12 @@
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Upload PDF</button>
     </form>
 
-    <div id="pdfContainer" class="relative border shadow-lg"></div>
+    <div id="pdfContainer" class="relative border shadow-lg">
+      <!-- Loading Spinner -->
+      <div id="pdfLoader" class="absolute inset-0 flex items-center justify-center hidden">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
+      </div>
+    </div>
 
     <button id="downloadBtn" class="mt-4 bg-green-600 text-white px-4 py-2 rounded hidden hover:bg-green-700">Baixar PDF Preenchido</button>
   </main>
