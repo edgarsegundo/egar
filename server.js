@@ -1,3 +1,27 @@
+// Criar novo template (upload PDF + config vazio)
+app.post('/create-template', upload.single('pdf'), (req, res) => {
+    const { templateName } = req.body;
+    if (!req.file || !templateName) {
+        return res.status(400).json({ error: 'Arquivo PDF e nome do template são obrigatórios.' });
+    }
+    const templatesDir = path.resolve('template-files');
+    const configsDir = path.resolve('template-configs');
+    if (!fs.existsSync(templatesDir)) fs.mkdirSync(templatesDir, { recursive: true });
+    if (!fs.existsSync(configsDir)) fs.mkdirSync(configsDir, { recursive: true });
+    const pdfDest = path.join(templatesDir, templateName);
+    const configDest = path.join(configsDir, templateName + '.json');
+    try {
+        // Move o PDF
+        fs.copyFileSync(req.file.path, pdfDest);
+        fs.unlinkSync(req.file.path);
+        // Cria config vazio
+        const configData = { fields: [] };
+        fs.writeFileSync(configDest, JSON.stringify(configData, null, 2));
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: 'Erro ao salvar template.' });
+    }
+});
 import express from "express";
 import multer from "multer";
 import path from "path";

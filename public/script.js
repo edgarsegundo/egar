@@ -1,3 +1,43 @@
+// Adicionar template (upload PDF)
+const addTemplateBtn = document.getElementById('addTemplateBtn');
+if (addTemplateBtn) {
+    addTemplateBtn.addEventListener('click', async () => {
+        // Cria input file invisível
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'application/pdf';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        fileInput.addEventListener('change', async () => {
+            if (!fileInput.files.length) return;
+            const pdfFile = fileInput.files[0];
+            let defaultName = pdfFile.name.replace(/\.pdf$/i, '');
+            const templateName = prompt('Digite o nome do novo template (sem .pdf):', defaultName);
+            if (!templateName || !templateName.trim()) return;
+            const finalName = templateName.endsWith('.pdf') ? templateName : templateName + '.pdf';
+            const formData = new FormData();
+            formData.append('pdf', pdfFile);
+            formData.append('templateName', finalName);
+            try {
+                const res = await fetch('/create-template', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert('Template criado com sucesso!');
+                    await loadTemplates();
+                } else {
+                    alert('Erro ao criar template: ' + (result.error || ''));
+                }
+            } catch (err) {
+                alert('Erro ao criar template.');
+            }
+            document.body.removeChild(fileInput);
+        }, { once: true });
+    });
+}
 
 // Contador global para ids únicos sequenciais dos campos
 let inputFieldIdCount = 0;
