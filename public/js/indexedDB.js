@@ -532,3 +532,28 @@ async function migrateGeneratedFilesToIndexedDB() {
         throw error;
     }
 }
+
+// Deleta um template do IndexedDB (e sua configuração)
+async function deleteTemplateFromIndexedDB(templateName) {
+    try {
+        const db = await openDB();
+        
+        // Deleta o PDF
+        const pdfTransaction = db.transaction([TEMPLATES_STORE], 'readwrite');
+        const pdfStore = pdfTransaction.objectStore(TEMPLATES_STORE);
+        await pdfStore.delete(templateName);
+        
+        // Deleta a configuração
+        const configTransaction = db.transaction([CONFIGS_STORE], 'readwrite');
+        const configStore = configTransaction.objectStore(CONFIGS_STORE);
+        await configStore.delete(templateName);
+        
+        console.log(`✅ Template '${templateName}' deletado do IndexedDB`);
+        return { success: true };
+        
+    } catch (error) {
+        console.error('Erro ao deletar template:', error);
+        throw error;
+    }
+}
+

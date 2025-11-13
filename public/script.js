@@ -772,6 +772,100 @@ if (renameTemplateBtn) {
     });
 }
 
+// Delete template button
+const deleteTemplateBtn = document.getElementById('deleteTemplateBtn');
+if (deleteTemplateBtn) {
+    deleteTemplateBtn.addEventListener('click', async () => {
+        if (!currentTemplate) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Atenção',
+                text: 'Nenhum template carregado para excluir.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        
+        // Só permite excluir se for do IndexedDB (templates do usuário ou clones)
+        if (currentTemplateSource !== 'indexeddb' && currentTemplateSource !== 'clone') {
+            await Swal.fire({
+                icon: 'info',
+                title: 'Não Permitido',
+                text: 'Apenas templates armazenados no seu navegador podem ser excluídos. Templates do servidor não podem ser removidos.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        
+        // Confirmação
+        const result = await Swal.fire({
+            title: 'Confirmar Exclusão',
+            html: `
+                <p class="text-sm text-gray-600 mb-3">Tem certeza que deseja excluir?</p>
+                <p class="text-base font-semibold text-red-600">${currentTemplate}</p>
+                <p class="text-xs text-gray-500 mt-3">Esta ação não pode ser desfeita!</p>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sim, excluir!',
+            cancelButtonText: 'Cancelar'
+        });
+        
+        if (!result.isConfirmed) return;
+        
+        try {
+            // Mostra loading
+            Swal.fire({
+                title: 'Excluindo...',
+                text: 'Por favor aguarde',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Deleta do IndexedDB
+            await deleteTemplateFromIndexedDB(currentTemplate);
+            
+            // Limpa o estado atual
+            currentTemplate = null;
+            currentTemplateSource = null;
+            templateConfig = { fields: [] };
+            pdfContainer.innerHTML = '';
+            
+            // Esconde a toolbar e o label
+            const fileActionsToolbar = document.getElementById('fileActionsToolbar');
+            if (fileActionsToolbar) {
+                fileActionsToolbar.classList.add('hidden');
+            }
+            currentFileLabel.classList.add('hidden');
+            actionBar.classList.add('hidden');
+            
+            await Swal.fire({
+                icon: 'success',
+                title: 'Excluído!',
+                text: 'Template excluído com sucesso.',
+                confirmButtonText: 'OK'
+            });
+            
+            // Recarrega as listas
+            await loadTemplates();
+            await loadClonedFiles();
+            
+        } catch (error) {
+            console.error('Erro ao excluir template:', error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Erro ao excluir template: ' + error.message,
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+}
+
 // Load templates when page loads
 loadTemplates();
 loadClonedFiles();

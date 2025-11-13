@@ -1,4 +1,36 @@
-# Debug da Migração
+# Debug da Migração e Funcionalidades IndexedDB
+
+## ✅ Funcionalidades Implementadas
+
+### 1. Exclusão de Templates (NOVO)
+- **Botão**: Ícone de lixeira vermelho na toolbar
+- **Funciona para**:
+  - ✅ Meus Templates (IndexedDB)
+  - ✅ Arquivos Clonados (IndexedDB)
+  - ❌ Templates do Servidor (não pode excluir)
+  
+- **Comportamento**:
+  - Confirmação com SweetAlert2
+  - Remove PDF e configuração do IndexedDB
+  - Recarrega listas automaticamente
+  - Limpa o estado atual
+
+### 2. Auto-Save
+- **Digitar em campos**: Salva automaticamente
+- **Mover campos**: Salva ao soltar (drag handle)
+- **Redimensionar**: Salva ao soltar (resize handle)
+- **Ajustar fonte**: Salva ao soltar (fontSize handle)
+
+### 3. Renomear Templates
+- **Funciona para**: IndexedDB e Servidor
+- **Preserva**: Todas as configurações e campos
+
+### 4. Clonar Templates
+- **Origem**: Templates do Servidor ou IndexedDB
+- **Destino**: Sempre IndexedDB (como clone)
+- **Preserva**: PDF, configuração, derivedFrom
+
+---
 
 ## Limpar IndexedDB e LocalStorage
 
@@ -38,6 +70,17 @@ migrateGeneratedFilesToIndexedDB().then(result => {
 });
 ```
 
+## Excluir um template manualmente
+
+```javascript
+// Excluir do IndexedDB
+deleteTemplateFromIndexedDB('nome-do-arquivo.pdf').then(() => {
+    console.log('Template excluído!');
+    loadTemplates();
+    loadClonedFiles();
+});
+```
+
 ## Verificar se há duplicatas
 
 ```javascript
@@ -55,3 +98,4 @@ loadTemplateConfigFromIndexedDB('test-1.pdf').then(config => {
     console.log('Campos:', config?.fields);
 });
 ```
+
