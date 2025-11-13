@@ -19,9 +19,12 @@
       </button>
     </div>
     
-    <!-- Templates Section -->
-    <div class="flex-1 mb-4 overflow-y-auto">
-      <h3 class="text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">Templates</h3>
+    <!-- Meus Templates Section (IndexedDB) -->
+    <div class="mb-4 overflow-y-auto">
+      <h3 class="text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center gap-1">
+        <span>💾</span>
+        <span>Meus Templates</span>
+      </h3>
       <!-- Toolbar de ícones -->
       <div class="flex flex-wrap gap-2 mb-3" id="templatesToolbar">
           <div class="relative group flex items-center overflow-visible">
@@ -39,8 +42,22 @@
       <div class="mb-2 min-h-[28px] flex items-center justify-center">
         <span id="toolbarDisplay" class="text-sm text-blue-700 font-semibold opacity-0 transition-opacity duration-200"></span>
       </div>
-      <div id="templatesList" class="space-y-2">
-        <!-- Templates will be loaded here -->
+      <div id="indexedDBTemplatesList" class="space-y-2">
+        <!-- IndexedDB templates will be loaded here -->
+      </div>
+    </div>
+    
+    <!-- Divider -->
+    <div class="border-t border-gray-300 my-4"></div>
+    
+    <!-- Templates do Servidor Section -->
+    <div class="mb-4 overflow-y-auto">
+      <h3 class="text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center gap-1">
+        <span>☁️</span>
+        <span>Templates do Servidor</span>
+      </h3>
+      <div id="serverTemplatesList" class="space-y-2">
+        <!-- Server templates will be loaded here -->
       </div>
     </div>
     

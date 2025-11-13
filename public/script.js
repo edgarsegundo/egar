@@ -103,7 +103,6 @@ const actionBar = document.getElementById('actionBar');
 const sidebar = document.getElementById('sidebar');
 const toggleSidebar = document.getElementById('toggleSidebar');
 const showSidebar = document.getElementById('showSidebar');
-const templatesList = document.getElementById('templatesList');
 const generatedFilesList = document.getElementById('generatedFilesList');
 const currentFileLabel = document.getElementById('currentFileLabel');
 const currentFileName = document.getElementById('currentFileName');
@@ -247,14 +246,18 @@ updateBtn.addEventListener('click', () => {
 
 // Load templates on page load
 async function loadTemplates() {
+    const serverTemplatesList = document.getElementById('serverTemplatesList');
+    const indexedDBTemplatesList = document.getElementById('indexedDBTemplatesList');
+    
+    // Load server templates
     try {
         const res = await fetch("/pdf-templates/list");
         const templates = await res.json();
 
         if (templates.length === 0) {
-            templatesList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum template encontrado</p>';
+            serverTemplatesList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum template encontrado</p>';
         } else {
-            templatesList.innerHTML = templates.map(template => `
+            serverTemplatesList.innerHTML = templates.map(template => `
                 <button 
                     class="template-btn w-full text-left px-3 py-2 rounded hover:bg-blue-50 border border-gray-200 text-sm transition-colors"
                     data-template="${template}"
@@ -277,8 +280,42 @@ async function loadTemplates() {
             });
         }
     } catch (error) {
-        console.error("Error loading templates:", error);
-        templatesList.innerHTML = '<p class="text-red-500 text-sm">Erro ao carregar templates</p>';
+        console.error("Error loading server templates:", error);
+        serverTemplatesList.innerHTML = '<p class="text-red-500 text-sm">Erro ao carregar templates</p>';
+    }
+    
+    // Load IndexedDB templates
+    try {
+        const indexedDBTemplates = await listIndexedDBTemplates();
+        
+        if (indexedDBTemplates.length === 0) {
+            indexedDBTemplatesList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum template salvo</p>';
+        } else {
+            indexedDBTemplatesList.innerHTML = indexedDBTemplates.map(template => `
+                <button 
+                    class="template-btn w-full text-left px-3 py-2 rounded hover:bg-green-50 border border-green-200 text-sm transition-colors"
+                    data-template="${template.name}"
+                    data-source="indexeddb"
+                >
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                        </svg>
+                        <span class="truncate">${template.name}</span>
+                    </div>
+                </button>
+            `).join('');
+
+            document.querySelectorAll('.template-btn[data-source="indexeddb"]').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const templateName = btn.dataset.template;
+                    loadTemplate(templateName, 'indexeddb');
+                });
+            });
+        }
+    } catch (error) {
+        console.error("Error loading IndexedDB templates:", error);
+        indexedDBTemplatesList.innerHTML = '<p class="text-red-500 text-sm">Erro ao carregar templates</p>';
     }
 }
 
