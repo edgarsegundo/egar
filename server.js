@@ -189,5 +189,78 @@ app.post('/sync-to-origin', (req, res) => {
     }
 });
 
+// Clonar arquivo (PDF + config)
+app.post('/clone-file', async (req, res) => {
+    const { sourceFile, targetFile, sourceType } = req.body;
+    
+    if (!sourceFile || !targetFile) {
+        return res.status(400).json({ error: "Nome do arquivo de origem e destino são obrigatórios." });
+    }
+    
+    try {
+        // Define os diretórios baseado no tipo de origem
+        const sourcePdfDir = sourceType === 'generated' 
+            ? path.resolve('generated-pdf-files')
+            : path.resolve('template-files');
+        const targetPdfDir = path.resolve('generated-pdf-files');
+        const configDir = path.resolve('template-configs');
+        
+        // Paths dos arquivos
+        const sourcePdfPath = path.join(sourcePdfDir, sourceFile);
+        const targetPdfPath = path.join(targetPdfDir, targetFile);
+        const sourceConfigPath = path.join(configDir, `${sourceFile}.json`);
+        const targetConfigPath = path.join(configDir, `${targetFile}.json`);
+        
+        // Verifica se o PDF de origem existe
+        if (!fs.existsSync(sourcePdfPath)) {
+            return res.status(404).json({ error: `PDF de origem não encontrado: ${sourceFile}` });
+        }
+        
+        // Cria os diretórios se não existirem
+        if (!fs.existsSync(targetPdfDir)) {
+            fs.mkdirSync(targetPdfDir, { recursive: true });
+        }
+        if (!fs.existsSync(configDir)) {
+            fs.mkdirSync(configDir, { recursive: true });
+        }
+        
+        // Copia o PDF
+        fs.copyFileSync(sourcePdfPath, targetPdfPath);
+        console.log(`PDF copiado: ${sourcePdfPath} -> ${targetPdfPath}`);
+        
+        // Copia ou cria o config
+        if (fs.existsSync(sourceConfigPath)) {
+            const sourceConfig = JSON.parse(fs.readFileSync(sourceConfigPath, 'utf-8'));
+            
+            // Mantém o derivedFrom original se existir, senão usa o sourceFile como origem
+            const clonedConfig = {
+                derivedFrom: sourceConfig.derivedFrom || sourceFile,
+                fields: sourceConfig.fields || []
+            };
+            
+            fs.writeFileSync(targetConfigPath, JSON.stringify(clonedConfig, null, 2));
+            console.log(`Config copiado: ${sourceConfigPath} -> ${targetConfigPath}`);
+        } else {
+            // Se não tem config, cria um vazio mas com derivedFrom
+            const newConfig = {
+                derivedFrom: sourceFile,
+                fields: []
+            };
+            fs.writeFileSync(targetConfigPath, JSON.stringify(newConfig, null, 2));
+            console.log(`Config criado: ${targetConfigPath}`);
+        }
+        
+        res.json({ 
+            success: true, 
+            message: `Arquivo clonado com sucesso: ${targetFile}`,
+            sourcePdf: sourcePdfPath,
+            targetPdf: targetPdfPath
+        });
+    } catch (error) {
+        console.error('Erro ao clonar arquivo:', error);
+        res.status(500).json({ error: `Erro ao clonar arquivo: ${error.message}` });
+    }
+});
+
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

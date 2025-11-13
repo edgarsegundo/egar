@@ -17,6 +17,7 @@ const uploadForm = document.getElementById('uploadForm');
 const toggleModeBtn = document.getElementById('toggleModeBtn');
 const saveConfigBtn = document.getElementById('saveConfigBtn');
 const clearFieldsBtn = document.getElementById('clearFieldsBtn');
+const cloneFileBtn = document.getElementById('cloneFileBtn');
 const syncToOriginBtn = document.getElementById('syncToOriginBtn');
 const actionBar = document.getElementById('actionBar');
 const sidebar = document.getElementById('sidebar');
@@ -394,6 +395,50 @@ syncToOriginBtn.addEventListener('click', async () => {
     } catch (error) {
         console.error('Erro ao sincronizar:', error);
         alert('Erro ao sincronizar com origem.');
+    }
+});
+
+// Clone file
+cloneFileBtn.addEventListener('click', async () => {
+    if (!currentTemplate) {
+        alert('Nenhum arquivo carregado para clonar.');
+        return;
+    }
+    
+    // Sugere um nome baseado no arquivo atual
+    const baseName = currentTemplate.replace(/\.pdf$/i, '');
+    const defaultCloneName = `${baseName}-copia`;
+    
+    const cloneName = prompt('Digite o nome do arquivo clonado (sem .pdf):', defaultCloneName);
+    if (!cloneName || cloneName.trim() === '') return;
+    
+    const finalCloneName = cloneName.endsWith('.pdf') ? cloneName : `${cloneName}.pdf`;
+    
+    try {
+        const response = await fetch('/clone-file', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sourceFile: currentTemplate,
+                targetFile: finalCloneName,
+                sourceType: templateConfig.derivedFrom ? 'generated' : 'template'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`✅ Arquivo clonado com sucesso!\n\n${finalCloneName}`);
+            // Recarrega a lista de arquivos gerados
+            await loadGeneratedFiles();
+            // Carrega o arquivo clonado
+            await loadTemplate(finalCloneName, 'generated');
+        } else {
+            alert(`❌ Erro ao clonar: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Erro ao clonar arquivo:', error);
+        alert('Erro ao clonar arquivo.');
     }
 });
 
