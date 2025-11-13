@@ -34,7 +34,7 @@ function openDB() {
 }
 
 // Salvar template no IndexedDB
-async function saveTemplateToIndexedDB(pdfFile, templateName) {
+async function saveTemplateToIndexedDB(pdfFile, templateName, options = {}) {
     try {
         const db = await openDB();
         
@@ -50,7 +50,9 @@ async function saveTemplateToIndexedDB(pdfFile, templateName) {
             pdf: blob,
             createdAt: new Date().toISOString(),
             size: parseFloat(sizeInMB),
-            originalName: pdfFile.name
+            originalName: pdfFile.name || templateName,
+            isClone: options.isClone || false,
+            derivedFrom: options.derivedFrom || null
         };
         
         // Salva no IndexedDB
@@ -101,7 +103,7 @@ async function loadTemplateFromIndexedDB(templateName) {
     }
 }
 
-// Listar todos os templates do IndexedDB
+// Listar todos os templates do IndexedDB (apenas originais, não clones)
 async function listIndexedDBTemplates() {
     try {
         const db = await openDB();
@@ -111,18 +113,51 @@ async function listIndexedDBTemplates() {
         
         return new Promise((resolve, reject) => {
             request.onsuccess = () => {
-                const templates = request.result.map(t => ({
-                    name: t.name,
-                    size: t.size,
-                    createdAt: t.createdAt,
-                    originalName: t.originalName
-                }));
+                const templates = request.result
+                    .filter(t => !t.isClone) // Filtra apenas templates originais
+                    .map(t => ({
+                        name: t.name,
+                        size: t.size,
+                        createdAt: t.createdAt,
+                        originalName: t.originalName,
+                        isClone: false
+                    }));
                 resolve(templates);
             };
             request.onerror = () => reject(request.error);
         });
     } catch (error) {
         console.error('Erro ao listar IndexedDB:', error);
+        return [];
+    }
+}
+
+// Listar todos os clones do IndexedDB
+async function listIndexedDBClones() {
+    try {
+        const db = await openDB();
+        const transaction = db.transaction([TEMPLATES_STORE], 'readonly');
+        const objectStore = transaction.objectStore(TEMPLATES_STORE);
+        const request = objectStore.getAll();
+        
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => {
+                const clones = request.result
+                    .filter(t => t.isClone) // Filtra apenas clones
+                    .map(t => ({
+                        name: t.name,
+                        size: t.size,
+                        createdAt: t.createdAt,
+                        originalName: t.originalName,
+                        isClone: true,
+                        derivedFrom: t.derivedFrom
+                    }));
+                resolve(clones);
+            };
+            request.onerror = () => reject(request.error);
+        });
+    } catch (error) {
+        console.error('Erro ao listar clones do IndexedDB:', error);
         return [];
     }
 }
@@ -333,6 +368,167 @@ async function renameTemplateInIndexedDB(oldName, newName) {
         
     } catch (error) {
         console.error('Erro ao renomear template no IndexedDB:', error);
+        throw error;
+    }
+}
+
+// Clonar template (do servidor ou IndexedDB) para IndexedDB
+async function cloneTemplateToIndexedDB(sourceName, targetName, sourceType = 'templates') {
+    try {
+        let pdfBlob;
+        let config;
+        
+        // 1. Carregar PDF da origem
+        if (sourceType === 'indexeddb') {
+            // Carregar do IndexedDB
+            const result = await loadTemplateFromIndexedDB(sourceName);
+            if (!result || !result.template) {
+                throw new Error(`Template '${sourceName}' não encontrado no IndexedDB`);
+            }
+            pdfBlob = result.template.pdf;
+            config = await loadTemplateConfigFromIndexedDB(sourceName);
+        } else {
+            // Carregar do servidor
+            const pdfUrl = `/pdf-templates/${sourceName}`;
+            const response = await fetch(pdfUrl);
+            if (!response.ok) {
+                throw new Error(`Erro ao buscar PDF do servidor: ${response.statusText}`);
+            }
+            pdfBlob = await response.blob();
+            
+            // Carregar config do servidor
+            const configResponse = await fetch(`/template-config/${sourceName}`);
+            if (configResponse.ok) {
+                config = await configResponse.json();
+            } else {
+                config = { fields: [] };
+            }
+        }
+        
+        // 2. Criar arquivo File a partir do Blob para salvar
+        const pdfFile = new File([pdfBlob], targetName, { type: 'application/pdf' });
+        
+        // 3. Salvar clone no IndexedDB com flag isClone
+        await saveTemplateToIndexedDB(pdfFile, targetName, {
+            isClone: true,
+            derivedFrom: sourceName
+        });
+        
+        // 4. Salvar configuração do clone
+        if (config && config.fields) {
+            // Cria nova config mantendo derivedFrom original se existir
+            const cloneConfig = {
+                fields: config.fields,
+                derivedFrom: config.derivedFrom || sourceName
+            };
+            await saveTemplateConfigToIndexedDB(targetName, cloneConfig);
+        }
+        
+        console.log(`✅ Template clonado: '${sourceName}' → '${targetName}' no IndexedDB`);
+        return { success: true, name: targetName };
+        
+    } catch (error) {
+        console.error('Erro ao clonar template:', error);
+        throw error;
+    }
+}
+
+// Migra arquivos gerados do servidor para IndexedDB (executar uma vez)
+async function migrateGeneratedFilesToIndexedDB() {
+    try {
+        // Verifica se já foi migrado (flag no localStorage)
+        const migrationKey = 'indexeddb_migration_completed';
+        if (localStorage.getItem(migrationKey) === 'true') {
+            console.log('Migração já foi executada anteriormente.');
+            return { alreadyMigrated: true, count: 0 };
+        }
+        
+        console.log('🔄 Iniciando migração de arquivos gerados para IndexedDB...');
+        
+        // 1. Buscar lista de arquivos gerados no servidor
+        const response = await fetch('/generated-pdf-files/list');
+        if (!response.ok) {
+            throw new Error('Erro ao buscar lista de arquivos gerados');
+        }
+        
+        const files = await response.json();
+        
+        if (!files || files.length === 0) {
+            console.log('Nenhum arquivo para migrar.');
+            localStorage.setItem(migrationKey, 'true');
+            return { alreadyMigrated: false, count: 0 };
+        }
+        
+        console.log(`📦 Encontrados ${files.length} arquivos para migrar`);
+        
+        let migratedCount = 0;
+        const errors = [];
+        
+        // 2. Para cada arquivo, buscar PDF e config, salvar no IndexedDB
+        for (const fileName of files) {
+            try {
+                console.log(`  Migrando: ${fileName}...`);
+                
+                // Buscar o PDF
+                const pdfResponse = await fetch(`/generated-pdf-files/${fileName}`);
+                if (!pdfResponse.ok) {
+                    throw new Error(`Erro ao buscar PDF: ${fileName}`);
+                }
+                const pdfBlob = await pdfResponse.blob();
+                
+                // Buscar a configuração
+                let config = { fields: [] };
+                let derivedFrom = null;
+                try {
+                    const configResponse = await fetch(`/template-config/${fileName}`);
+                    if (configResponse.ok) {
+                        config = await configResponse.json();
+                        derivedFrom = config.derivedFrom || null;
+                    }
+                } catch (err) {
+                    console.warn(`  ⚠️ Config não encontrada para ${fileName}, usando padrão`);
+                }
+                
+                // Criar File object
+                const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                
+                // Salvar no IndexedDB como clone
+                await saveTemplateToIndexedDB(pdfFile, fileName, {
+                    isClone: true,
+                    derivedFrom: derivedFrom
+                });
+                
+                // Salvar config no IndexedDB
+                if (config.fields && config.fields.length > 0) {
+                    await saveTemplateConfigToIndexedDB(fileName, {
+                        fields: config.fields,
+                        derivedFrom: derivedFrom
+                    });
+                }
+                
+                migratedCount++;
+                console.log(`  ✅ ${fileName} migrado com sucesso`);
+                
+            } catch (error) {
+                console.error(`  ❌ Erro ao migrar ${fileName}:`, error);
+                errors.push({ file: fileName, error: error.message });
+            }
+        }
+        
+        // Marcar migração como completa
+        localStorage.setItem(migrationKey, 'true');
+        
+        console.log(`✅ Migração concluída: ${migratedCount}/${files.length} arquivos`);
+        
+        return {
+            alreadyMigrated: false,
+            count: migratedCount,
+            total: files.length,
+            errors: errors
+        };
+        
+    } catch (error) {
+        console.error('Erro na migração:', error);
         throw error;
     }
 }

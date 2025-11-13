@@ -320,39 +320,42 @@ async function loadTemplates() {
     }
 }
 
-async function loadGeneratedFiles() {
+async function loadClonedFiles() {
+    const clonedFilesList = document.getElementById('clonedFilesList');
+    if (!clonedFilesList) return;
+    
     try {
-        const res = await fetch("/generated-pdf-files/list");
-        const files = await res.json();
+        const clones = await listIndexedDBClones();
 
-        if (files.length === 0) {
-            generatedFilesList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum arquivo gerado</p>';
+        if (clones.length === 0) {
+            clonedFilesList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum clone criado</p>';
         } else {
-            generatedFilesList.innerHTML = files.map(file => `
+            clonedFilesList.innerHTML = clones.map(clone => `
                 <button 
-                    class="template-btn w-full text-left px-3 py-2 rounded hover:bg-green-50 border border-gray-200 text-sm transition-colors"
-                    data-template="${file}"
-                    data-source="generated"
+                    class="template-btn w-full text-left px-3 py-2 rounded hover:bg-amber-50 border border-gray-200 text-sm transition-colors"
+                    data-template="${clone.name}"
+                    data-source="clone"
                 >
                     <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                        <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
                         </svg>
-                        <span class="truncate">${file}</span>
+                        <span class="truncate">${clone.name}</span>
                     </div>
                 </button>
             `).join('');
 
-            document.querySelectorAll('.template-btn[data-source="generated"]').forEach(btn => {
+            document.querySelectorAll('.template-btn[data-source="clone"]').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const template = btn.dataset.template;
-                    loadTemplate(template, 'generated');
+                    loadTemplate(template, 'clone');
                 });
             });
         }
     } catch (error) {
-        console.error("Error loading generated files:", error);
-        generatedFilesList.innerHTML = '<p class="text-red-500 text-sm">Erro ao carregar arquivos</p>';
+        console.error("Error loading cloned files:", error);
+        clonedFilesList.innerHTML = '<p class="text-red-500 text-sm">Erro ao carregar clones</p>';
     }
 }
 
@@ -372,9 +375,9 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
     }
     
     try {
-        // Se for do IndexedDB, carrega de lá
-        if (source === 'indexeddb') {
-            console.log(`Carregando template '${templateName}' do IndexedDB`);
+        // Se for do IndexedDB (template original ou clone), carrega de lá
+        if (source === 'indexeddb' || source === 'clone') {
+            console.log(`Carregando '${templateName}' do IndexedDB (${source})`);
             
             // Carrega o PDF do IndexedDB
             const result = await loadTemplateFromIndexedDB(templateName);
@@ -409,8 +412,12 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
         console.error('Erro ao carregar configuração:', error);
         templateConfig = { fields: [] };
         
-        // Fallback para templates do servidor
-        if (source !== 'indexeddb') {
+        // Fallback
+        if (source === 'indexeddb' || source === 'clone') {
+            // Já tentou carregar do IndexedDB e falhou
+            throw error;
+        } else {
+            // Fallback para templates do servidor
             const url = source === 'generated' 
                 ? `/generated-pdf-files/${templateName}` 
                 : `/pdf-templates/${templateName}`;
@@ -571,7 +578,12 @@ syncToOriginBtn.addEventListener('click', async () => {
 // Clone file
 cloneFileBtn.addEventListener('click', async () => {
     if (!currentTemplate) {
-        alert('Nenhum arquivo carregado para clonar.');
+        await Swal.fire({
+            icon: 'warning',
+            title: 'Atenção',
+            text: 'Nenhum arquivo carregado para clonar.',
+            confirmButtonText: 'OK'
+        });
         return;
     }
     
@@ -579,36 +591,67 @@ cloneFileBtn.addEventListener('click', async () => {
     const baseName = currentTemplate.replace(/\.pdf$/i, '');
     const defaultCloneName = `${baseName}-copia`;
     
-    const cloneName = prompt('Digite o nome do arquivo clonado (sem .pdf):', defaultCloneName);
-    if (!cloneName || cloneName.trim() === '') return;
+    const { value: cloneName } = await Swal.fire({
+        title: 'Clonar Template',
+        html: `
+            <p class="text-sm text-gray-600 mb-3">Template origem: <strong>${currentTemplate}</strong></p>
+            <input id="swal-input-clone" class="swal2-input" placeholder="Nome do clone (sem .pdf)" value="${defaultCloneName}">
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Clonar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+            const input = document.getElementById('swal-input-clone').value;
+            if (!input || input.trim() === '') {
+                Swal.showValidationMessage('Por favor, digite um nome válido');
+                return false;
+            }
+            return input.trim();
+        }
+    });
+    
+    if (!cloneName) return;
     
     const finalCloneName = cloneName.endsWith('.pdf') ? cloneName : `${cloneName}.pdf`;
     
     try {
-        const response = await fetch('/clone-file', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sourceFile: currentTemplate,
-                targetFile: finalCloneName,
-                sourceType: templateConfig.derivedFrom ? 'generated' : 'template'
-            })
+        // Detecta a fonte do template atual
+        const sourceType = currentTemplateSource === 'indexeddb' ? 'indexeddb' : 'templates';
+        
+        // Mostra loading
+        Swal.fire({
+            title: 'Clonando...',
+            text: 'Por favor aguarde',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
         });
         
-        const result = await response.json();
+        // Clona usando IndexedDB
+        await cloneTemplateToIndexedDB(currentTemplate, finalCloneName, sourceType);
         
-        if (result.success) {
-            alert(`✅ Arquivo clonado com sucesso!\n\n${finalCloneName}`);
-            // Recarrega a lista de arquivos gerados
-            await loadGeneratedFiles();
-            // Carrega o arquivo clonado
-            await loadTemplate(finalCloneName, 'generated');
-        } else {
-            alert(`❌ Erro ao clonar: ${result.error}`);
-        }
+        // Recarrega a lista de clones
+        await loadClonedFiles();
+        
+        // Carrega o arquivo clonado
+        await loadTemplate(finalCloneName, 'clone');
+        
+        await Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: `Template clonado: ${finalCloneName}`,
+            confirmButtonText: 'OK'
+        });
     } catch (error) {
         console.error('Erro ao clonar arquivo:', error);
-        alert('Erro ao clonar arquivo.');
+        await Swal.fire({
+            icon: 'error',
+            title: 'Erro',
+            text: error.message || 'Erro ao clonar arquivo.',
+            confirmButtonText: 'OK'
+        });
     }
 });
 
@@ -731,7 +774,21 @@ if (renameTemplateBtn) {
 
 // Load templates when page loads
 loadTemplates();
-loadGeneratedFiles();
+loadClonedFiles();
+
+// Migrar arquivos gerados do servidor para IndexedDB (primeira vez)
+(async () => {
+    try {
+        const result = await migrateGeneratedFilesToIndexedDB();
+        if (result.count > 0) {
+            console.log(`🎉 ${result.count} arquivos migrados para IndexedDB`);
+            // Recarregar a lista de clones após migração
+            await loadClonedFiles();
+        }
+    } catch (error) {
+        console.error('Erro ao migrar arquivos:', error);
+    }
+})();
 
 async function renderPDF(url) {
     // Mostra o loader ANTES de limpar o container
@@ -1208,23 +1265,23 @@ downloadBtn.addEventListener("click", async () => {
                     
                     if (createResult.success) {
                         alert(`PDF salvo no servidor como '${fileName}' e configuração salva como '${userFileName}.pdf.json'!\nCaminho: ${saveResult.path}`);
-                        // Recarregar a lista de arquivos gerados
-                        loadGeneratedFiles();
+                        // Recarregar a lista de arquivos gerados - DESABILITADO (agora usa clones no IndexedDB)
+                        // loadGeneratedFiles();
                     } else {
                         alert(`PDF salvo no servidor como '${fileName}', mas houve erro ao salvar configuração.\nCaminho: ${saveResult.path}`);
-                        // Recarregar a lista de arquivos gerados
-                        loadGeneratedFiles();
+                        // Recarregar a lista de arquivos gerados - DESABILITADO (agora usa clones no IndexedDB)
+                        // loadGeneratedFiles();
                     }
                 } catch (err) {
                     console.error('Error copying config:', err);
                     alert(`PDF salvo no servidor como '${fileName}', mas houve erro ao criar configuração.\nCaminho: ${saveResult.path}`);
-                    // Recarregar a lista de arquivos gerados
-                    loadGeneratedFiles();
+                    // Recarregar a lista de arquivos gerados - DESABILITADO (agora usa clones no IndexedDB)
+                    // loadGeneratedFiles();
                 }
             } else {
                 alert(`PDF salvo no servidor como '${fileName}'!\nCaminho: ${saveResult.path}`);
-                // Recarregar a lista de arquivos gerados
-                loadGeneratedFiles();
+                // Recarregar a lista de arquivos gerados - DESABILITADO (agora usa clones no IndexedDB)
+                // loadGeneratedFiles();
             }
         } else {
             alert("Erro ao salvar PDF no servidor: " + saveResult.error);
