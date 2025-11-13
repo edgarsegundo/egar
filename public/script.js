@@ -10,11 +10,34 @@ if (addTemplateBtn) {
         document.body.appendChild(fileInput);
         fileInput.click();
         fileInput.addEventListener('change', async () => {
-            if (!fileInput.files.length) return;
+            if (!fileInput.files.length) {
+                document.body.removeChild(fileInput);
+                return;
+            }
             const pdfFile = fileInput.files[0];
             let defaultName = pdfFile.name.replace(/\.pdf$/i, '');
-            const templateName = prompt('Digite o nome do novo template (sem .pdf):', defaultName);
-            if (!templateName || !templateName.trim()) return;
+            
+            // Usar SweetAlert2 para pedir o nome
+            const { value: templateName } = await Swal.fire({
+                title: 'Nome do Template',
+                input: 'text',
+                inputLabel: 'Digite o nome do novo template (sem .pdf):',
+                inputValue: defaultName,
+                showCancelButton: true,
+                confirmButtonText: 'Criar',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value || !value.trim()) {
+                        return 'Por favor, digite um nome válido!';
+                    }
+                }
+            });
+            
+            if (!templateName || !templateName.trim()) {
+                document.body.removeChild(fileInput);
+                return;
+            }
+            
             const finalName = templateName.endsWith('.pdf') ? templateName : templateName + '.pdf';
             const formData = new FormData();
             formData.append('pdf', pdfFile);
@@ -26,13 +49,27 @@ if (addTemplateBtn) {
                 });
                 const result = await res.json();
                 if (result.success) {
-                    alert('Template criado com sucesso!');
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso!',
+                        text: 'Template criado com sucesso!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                     await loadTemplates();
                 } else {
-                    alert('Erro ao criar template: ' + (result.error || ''));
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: 'Erro ao criar template: ' + (result.error || '')
+                    });
                 }
             } catch (err) {
-                alert('Erro ao criar template.');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Erro ao criar template.'
+                });
             }
             document.body.removeChild(fileInput);
         }, { once: true });
