@@ -791,6 +791,10 @@ loadClonedFiles();
 })();
 
 async function renderPDF(url) {
+    console.log(`[renderPDF] INICIANDO - URL: ${url}`);
+    console.log(`[renderPDF] Campos existentes em createdFields: ${createdFields.length}`);
+    console.log(`[renderPDF] Campos em templateConfig.fields: ${templateConfig.fields?.length || 0}`);
+    
     // Mostra o loader ANTES de limpar o container
     const pdfLoader = document.getElementById('pdfLoader');
     if (pdfLoader) {
@@ -862,6 +866,8 @@ async function renderPDF(url) {
         }
     });
     createdFields = [];
+    
+    console.log(`[renderPDF] Campos limpos. Iniciando criação de ${templateConfig.fields?.length || 0} campos`);
 
     // Normaliza campos para garantir que todos tenham fontSize
     templateConfig.fields.forEach(field => {
@@ -869,6 +875,7 @@ async function renderPDF(url) {
     });
 
     templateConfig.fields.forEach((field, idx) => {
+        console.log(`[renderPDF] Criando campo ${idx}: ${field.name} na página ${field.page || 1}`);
         const inputWrapper = createInputField(field.x, field.y, field.name, field.value, isEditorMode, idx, field.page || 1);
         // Após criar o input, adiciona listener para salvar alterações no templateConfig e refletir no modal
         if (inputWrapper) {
@@ -910,7 +917,8 @@ async function renderPDF(url) {
     });
 
     // Atualiza a visibilidade dos handles após todos os campos serem criados
-    console.log(`[renderPDF] Campos criados: ${createdFields.length}, isEditorMode: ${isEditorMode}`);
+    console.log(`[renderPDF] FINALIZADO - Campos criados: ${createdFields.length}, isEditorMode: ${isEditorMode}`);
+    console.log(`[renderPDF] templateConfig.fields tem ${templateConfig.fields.length} campos`);
     toggleFieldEditButtons(isEditorMode);
 
     function createInputField(x, y, name, value, editorMode, idx, page = 1) {
