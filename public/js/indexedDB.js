@@ -272,3 +272,67 @@ async function templateConfigExistsInIndexedDB(templateName) {
         return false;
     }
 }
+
+// Renomear template e sua configuração no IndexedDB
+async function renameTemplateInIndexedDB(oldName, newName) {
+    try {
+        const db = await openDB();
+        
+        // 1. Carregar o template antigo
+        const templateResult = await loadTemplateFromIndexedDB(oldName);
+        if (!templateResult) {
+            throw new Error(`Template '${oldName}' não encontrado`);
+        }
+        
+        // 2. Carregar a configuração antiga (se existir)
+        const config = await loadTemplateConfigFromIndexedDB(oldName);
+        
+        // 3. Buscar dados completos do template
+        const templateTransaction = db.transaction([TEMPLATES_STORE], 'readonly');
+        const templateStore = templateTransaction.objectStore(TEMPLATES_STORE);
+        const getTemplateRequest = templateStore.get(oldName);
+        
+        const oldTemplateData = await new Promise((resolve, reject) => {
+            getTemplateRequest.onsuccess = () => resolve(getTemplateRequest.result);
+            getTemplateRequest.onerror = () => reject(getTemplateRequest.error);
+        });
+        
+        if (!oldTemplateData) {
+            throw new Error(`Dados do template '${oldName}' não encontrados`);
+        }
+        
+        // 4. Criar novo template com o novo nome
+        const newTemplateData = {
+            ...oldTemplateData,
+            name: newName
+        };
+        
+        // 5. Salvar novo template
+        const saveTransaction = db.transaction([TEMPLATES_STORE], 'readwrite');
+        const saveStore = saveTransaction.objectStore(TEMPLATES_STORE);
+        const putRequest = saveStore.put(newTemplateData);
+        
+        await new Promise((resolve, reject) => {
+            putRequest.onsuccess = () => resolve();
+            putRequest.onerror = () => reject(putRequest.error);
+        });
+        
+        // 6. Salvar configuração com novo nome (se havia configuração)
+        if (config && config.fields && config.fields.length > 0) {
+            await saveTemplateConfigToIndexedDB(newName, config);
+        }
+        
+        // 7. Deletar template antigo
+        await deleteTemplateFromIndexedDB(oldName);
+        
+        // 8. Deletar configuração antiga
+        await deleteTemplateConfigFromIndexedDB(oldName);
+        
+        console.log(`✅ Template renomeado de '${oldName}' para '${newName}' no IndexedDB`);
+        return { success: true };
+        
+    } catch (error) {
+        console.error('Erro ao renomear template no IndexedDB:', error);
+        throw error;
+    }
+}

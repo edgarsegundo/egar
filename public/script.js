@@ -612,6 +612,123 @@ cloneFileBtn.addEventListener('click', async () => {
     }
 });
 
+// Rename template
+const renameTemplateBtn = document.getElementById('renameTemplateBtn');
+if (renameTemplateBtn) {
+    renameTemplateBtn.addEventListener('click', async () => {
+        if (!currentTemplate) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Atenção',
+                text: 'Nenhum template carregado para renomear.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        
+        // Remove a extensão .pdf para sugerir o nome
+        const baseName = currentTemplate.replace(/\.pdf$/i, '');
+        
+        const { value: newName } = await Swal.fire({
+            title: 'Renomear Template',
+            html: `
+                <p class="text-sm text-gray-600 mb-3">Template atual: <strong>${currentTemplate}</strong></p>
+                <input id="swal-input-rename" class="swal2-input" placeholder="Novo nome (sem .pdf)" value="${baseName}">
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Renomear',
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                const input = document.getElementById('swal-input-rename').value;
+                if (!input || input.trim() === '') {
+                    Swal.showValidationMessage('Por favor, digite um nome válido');
+                    return false;
+                }
+                return input.trim();
+            }
+        });
+        
+        if (!newName) return;
+        
+        const finalNewName = newName.endsWith('.pdf') ? newName : `${newName}.pdf`;
+        
+        // Verifica se o nome é o mesmo
+        if (finalNewName === currentTemplate) {
+            await Swal.fire({
+                icon: 'info',
+                title: 'Mesmo Nome',
+                text: 'O novo nome é igual ao nome atual.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        
+        try {
+            // Se for do IndexedDB, renomeia no IndexedDB
+            if (currentTemplateSource === 'indexeddb') {
+                await renameTemplateInIndexedDB(currentTemplate, finalNewName);
+                
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Renomeado!',
+                    text: `Template renomeado de '${currentTemplate}' para '${finalNewName}' no seu navegador.`,
+                    confirmButtonText: 'OK'
+                });
+                
+                // Recarrega a lista de templates do IndexedDB
+                await loadTemplates();
+                
+                // Carrega o template renomeado
+                await loadTemplate(finalNewName, 'indexeddb');
+                
+            } else {
+                // Se for do servidor, chama o endpoint
+                const response = await fetch('/rename-template', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        oldName: currentTemplate,
+                        newName: finalNewName
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Renomeado!',
+                        text: `Template renomeado de '${currentTemplate}' para '${finalNewName}' no servidor.`,
+                        confirmButtonText: 'OK'
+                    });
+                    
+                    // Recarrega a lista de templates do servidor
+                    await loadTemplates();
+                    
+                    // Carrega o template renomeado
+                    await loadTemplate(finalNewName, 'templates');
+                } else {
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Erro!',
+                        text: result.error || 'Erro ao renomear template',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao renomear template:', error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Erro ao renomear template: ' + error.message,
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+}
+
 // Load templates when page loads
 loadTemplates();
 loadGeneratedFiles();

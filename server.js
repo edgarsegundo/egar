@@ -287,5 +287,52 @@ app.post('/clone-file', async (req, res) => {
     }
 });
 
+// Renomear template do servidor (PDF + config)
+app.post("/rename-template", (req, res) => {
+    try {
+        const { oldName, newName } = req.body;
+        
+        if (!oldName || !newName) {
+            return res.status(400).json({ error: "oldName e newName são obrigatórios" });
+        }
+        
+        // Paths dos arquivos antigos
+        const oldPdfPath = path.resolve('template-files', oldName);
+        const oldConfigPath = path.resolve('template-configs', `${oldName}.json`);
+        
+        // Paths dos arquivos novos
+        const newPdfPath = path.resolve('template-files', newName);
+        const newConfigPath = path.resolve('template-configs', `${newName}.json`);
+        
+        // Verifica se o arquivo antigo existe
+        if (!fs.existsSync(oldPdfPath)) {
+            return res.status(404).json({ error: `Template '${oldName}' não encontrado` });
+        }
+        
+        // Verifica se o novo nome já existe
+        if (fs.existsSync(newPdfPath)) {
+            return res.status(409).json({ error: `Template '${newName}' já existe` });
+        }
+        
+        // Renomeia o PDF
+        fs.renameSync(oldPdfPath, newPdfPath);
+        console.log(`PDF renomeado: ${oldName} -> ${newName}`);
+        
+        // Renomeia o config se existir
+        if (fs.existsSync(oldConfigPath)) {
+            fs.renameSync(oldConfigPath, newConfigPath);
+            console.log(`Config renomeado: ${oldName}.json -> ${newName}.json`);
+        }
+        
+        res.json({ 
+            success: true, 
+            message: `Template renomeado de '${oldName}' para '${newName}'`
+        });
+    } catch (error) {
+        console.error('Erro ao renomear template:', error);
+        res.status(500).json({ error: `Erro ao renomear template: ${error.message}` });
+    }
+});
+
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
