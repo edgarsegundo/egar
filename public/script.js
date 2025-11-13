@@ -38,7 +38,9 @@ if (addTemplateBtn) {
                 return;
             }
             
-            const finalName = templateName.endsWith('.pdf') ? templateName : templateName + '.pdf';
+            // Remove .pdf se o usuário digitou, para evitar duplicação
+            const cleanName = templateName.trim().replace(/\.pdf$/i, '');
+            const finalName = cleanName + '.pdf';
             const formData = new FormData();
             formData.append('pdf', pdfFile);
             formData.append('templateName', finalName);
