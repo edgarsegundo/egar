@@ -709,8 +709,8 @@ if (renameTemplateBtn) {
         }
         
         try {
-            // Se for do IndexedDB, renomeia no IndexedDB
-            if (currentTemplateSource === 'indexeddb') {
+            // Se for do IndexedDB (template ou clone), renomeia no IndexedDB
+            if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
                 await renameTemplateInIndexedDB(currentTemplate, finalNewName);
                 
                 await Swal.fire({
@@ -720,11 +720,13 @@ if (renameTemplateBtn) {
                     confirmButtonText: 'OK'
                 });
                 
-                // Recarrega a lista de templates do IndexedDB
+                // Recarrega as listas do IndexedDB
                 await loadTemplates();
+                await loadClonedFiles();
                 
-                // Carrega o template renomeado
-                await loadTemplate(finalNewName, 'indexeddb');
+                // Carrega o template renomeado mantendo o tipo original
+                const newSource = currentTemplateSource; // mantém 'clone' ou 'indexeddb'
+                await loadTemplate(finalNewName, newSource);
                 
             } else {
                 // Se for do servidor, chama o endpoint
