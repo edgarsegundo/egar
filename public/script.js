@@ -88,7 +88,33 @@ function setMode(editor) {
 }
 
 // Função para abrir o modal e preencher campos
-function openFillModal() {
+async function openFillModal() {
+    // Verifica se há um template carregado
+    if (!currentTemplate) {
+        await Swal.fire({
+            icon: 'warning',
+            title: 'Atenção',
+            text: 'Nenhum template carregado.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    
+    // Só permite preencher se for do IndexedDB (templates do usuário ou clones)
+    if (currentTemplateSource !== 'indexeddb' && currentTemplateSource !== 'clone') {
+        await Swal.fire({
+            icon: 'info',
+            title: 'Clone o Template Primeiro',
+            html: `
+                <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser preenchidos diretamente.</p>
+                <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
+                <p class="text-xs text-gray-500">Isso permite que você salve suas alterações no seu navegador.</p>
+            `,
+            confirmButtonText: 'Entendi'
+        });
+        return;
+    }
+    
     // Antes de abrir o modal, sincroniza os valores dos inputs do containerpdf para o templateConfig
     const pdfInputs = document.querySelectorAll('#pdfContainer input[type="text"]');
     pdfInputs.forEach((input, idx) => {
@@ -785,6 +811,17 @@ if (renameTemplateBtn) {
             return;
         }
         
+        // Só permite renomear se for do IndexedDB (templates do usuário ou clones)
+        if (currentTemplateSource !== 'indexeddb' && currentTemplateSource !== 'clone') {
+            await Swal.fire({
+                icon: 'info',
+                title: 'Não Permitido',
+                text: 'Apenas templates armazenados no seu navegador podem ser renomeados. Templates do servidor não podem ser renomeados.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        
         // Remove a extensão .pdf para sugerir o nome
         const baseName = currentTemplate.replace(/\.pdf$/i, '');
         
@@ -842,41 +879,6 @@ if (renameTemplateBtn) {
                     timer: 1500,
                     showConfirmButton: false
                 });
-                
-            } else {
-                // Se for do servidor, chama o endpoint
-                const response = await fetch('/rename-template', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        oldName: currentTemplate,
-                        newName: finalNewName
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    await Swal.fire({
-                        icon: 'success',
-                        title: 'Renomeado!',
-                        text: `Template renomeado de '${currentTemplate}' para '${finalNewName}' no servidor.`,
-                        confirmButtonText: 'OK'
-                    });
-                    
-                    // Recarrega a lista de templates do servidor
-                    await loadTemplates();
-                    
-                    // Carrega o template renomeado
-                    await loadTemplate(finalNewName, 'templates');
-                } else {
-                    await Swal.fire({
-                        icon: 'error',
-                        title: 'Erro!',
-                        text: result.error || 'Erro ao renomear template',
-                        confirmButtonText: 'OK'
-                    });
-                }
             }
         } catch (error) {
             console.error('Erro ao renomear template:', error);
