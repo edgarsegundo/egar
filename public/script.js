@@ -111,11 +111,8 @@ const currentFileName = document.getElementById('currentFileName');
 // Configuração do templateConfig
 let templateConfig = { fields: [] };
 
-// Criação do botão "Preencher Form" e modal
-const fillFormBtn = document.createElement('button');
-fillFormBtn.textContent = 'Preencher Form';
-fillFormBtn.className = 'fixed bottom-8 right-8 z-50 px-6 py-3 bg-blue-700 text-white rounded-lg shadow-lg hover:bg-blue-800 transition-all duration-200';
-document.body.appendChild(fillFormBtn);
+// Referência ao botão "Preencher" no toolbar
+const fillFormBtn = document.getElementById('fillFormBtn');
 
 // Modal e overlay
 const overlay = document.createElement('div');
