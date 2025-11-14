@@ -1,0 +1,15 @@
+{
+  "derivedFrom": "template2-b.pdf",
+  "fields": [
+    {
+      "x": 334.5,
+      "y": 263.5,
+      "name": "nbbb",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 164,
+      "height": 71
+    }
+  ]
+}
