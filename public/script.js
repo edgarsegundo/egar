@@ -245,6 +245,68 @@ updateBtn.addEventListener('click', () => {
     closeFillModal();
 });
 
+// Função auxiliar: Atualiza o nome de um template na lista (sem recarregar tudo)
+function updateTemplateNameInList(oldName, newName, source) {
+    let selector;
+    
+    if (source === 'indexeddb') {
+        selector = `.template-btn[data-source="indexeddb"][data-template="${oldName}"]`;
+    } else if (source === 'clone') {
+        selector = `.template-btn[data-source="clone"][data-template="${oldName}"]`;
+    } else if (source === 'templates') {
+        selector = `.template-btn[data-source="templates"][data-template="${oldName}"]`;
+    }
+    
+    const button = document.querySelector(selector);
+    if (button) {
+        // Atualiza o data-template
+        button.dataset.template = newName;
+        
+        // Atualiza o texto exibido
+        const textSpan = button.querySelector('span.truncate');
+        if (textSpan) {
+            textSpan.textContent = newName;
+        }
+        
+        // Atualiza o event listener
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        newButton.addEventListener('click', async () => {
+            loadTemplate(newName, source);
+        });
+        
+        console.log(`✅ Nome atualizado na lista: ${oldName} → ${newName}`);
+    }
+}
+
+// Função auxiliar: Remove um template da lista (sem recarregar tudo)
+function removeTemplateFromList(templateName, source) {
+    let selector;
+    
+    if (source === 'indexeddb') {
+        selector = `.template-btn[data-source="indexeddb"][data-template="${templateName}"]`;
+    } else if (source === 'clone') {
+        selector = `.template-btn[data-source="clone"][data-template="${templateName}"]`;
+    }
+    
+    const button = document.querySelector(selector);
+    if (button) {
+        button.remove();
+        console.log(`✅ Template removido da lista: ${templateName}`);
+        
+        // Verifica se a lista ficou vazia e adiciona mensagem
+        const parent = button.parentElement;
+        if (parent && parent.children.length === 0) {
+            if (source === 'indexeddb') {
+                parent.innerHTML = '<p class="text-gray-500 text-sm">Nenhum template salvo</p>';
+            } else if (source === 'clone') {
+                parent.innerHTML = '<p class="text-gray-500 text-sm">Nenhum clone criado</p>';
+            }
+        }
+    }
+}
+
 // Load templates on page load
 async function loadTemplates() {
     const serverTemplatesList = document.getElementById('serverTemplatesList');
@@ -713,20 +775,20 @@ if (renameTemplateBtn) {
             if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
                 await renameTemplateInIndexedDB(currentTemplate, finalNewName);
                 
+                // Atualização CIRÚRGICA: só atualiza o nome na lista, sem recarregar tudo!
+                updateTemplateNameInList(currentTemplate, finalNewName, currentTemplateSource);
+                
+                // Atualiza apenas as variáveis internas, SEM recarregar o PDF
+                currentTemplate = finalNewName;
+                currentFileName.textContent = finalNewName;
+                
                 await Swal.fire({
                     icon: 'success',
                     title: 'Renomeado!',
-                    text: `Template renomeado de '${currentTemplate}' para '${finalNewName}' no seu navegador.`,
-                    confirmButtonText: 'OK'
+                    text: `Template renomeado para '${finalNewName}'`,
+                    timer: 1500,
+                    showConfirmButton: false
                 });
-                
-                // Recarrega as listas do IndexedDB
-                await loadTemplates();
-                await loadClonedFiles();
-                
-                // Carrega o template renomeado mantendo o tipo original
-                const newSource = currentTemplateSource; // mantém 'clone' ou 'indexeddb'
-                await loadTemplate(finalNewName, newSource);
                 
             } else {
                 // Se for do servidor, chama o endpoint
@@ -832,6 +894,10 @@ if (deleteTemplateBtn) {
             // Deleta do IndexedDB
             await deleteTemplateFromIndexedDB(currentTemplate);
             
+            // Salva o source antes de limpar
+            const deletedSource = currentTemplateSource;
+            const deletedName = currentTemplate;
+            
             // Limpa o estado atual
             currentTemplate = null;
             currentTemplateSource = null;
@@ -853,9 +919,8 @@ if (deleteTemplateBtn) {
                 confirmButtonText: 'OK'
             });
             
-            // Recarrega as listas
-            await loadTemplates();
-            await loadClonedFiles();
+            // Atualização CIRÚRGICA: remove apenas o item da lista, sem recarregar tudo!
+            removeTemplateFromList(deletedName, deletedSource);
             
         } catch (error) {
             console.error('Erro ao excluir template:', error);
