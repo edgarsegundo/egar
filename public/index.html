@@ -103,8 +103,8 @@
   </aside>
 
   <!-- Main Content -->
-  <main class="flex-1 flex flex-col items-center overflow-y-auto">
-    <button id="showSidebar" class="hidden self-start mb-4 text-gray-500 hover:text-gray-700">
+  <main class="flex-1 flex flex-col items-center overflow-y-auto" style="position: relative;">
+    <button id="showSidebar" class="hidden self-start mb-4 text-gray-500 hover:text-gray-700" style="position: absolute; left: 1rem; top: 1rem; z-index: 10;">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
       </svg>
@@ -189,9 +189,9 @@
       <button id="saveConfigBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">
         Salvar Configuração
       </button>
-      <button id="clearFieldsBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 hidden">
+      <!-- <button id="clearFieldsBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 hidden">
         Limpar Campos
-      </button>
+      </button> -->
       <button id="syncToOriginBtn" class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 hidden" title="Sincronizar posições DO template original PARA este arquivo">
         🔄 Sincronizar da Origem
       </button>
