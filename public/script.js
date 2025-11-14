@@ -1,83 +1,5 @@
-// Adicionar template (upload PDF)
-const addTemplateBtn = document.getElementById('addTemplateBtn');
-if (addTemplateBtn) {
-    addTemplateBtn.addEventListener('click', async () => {
-        // Cria input file invisível
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = 'application/pdf';
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
-        fileInput.click();
-        fileInput.addEventListener('change', async () => {
-            if (!fileInput.files.length) {
-                document.body.removeChild(fileInput);
-                return;
-            }
-            const pdfFile = fileInput.files[0];
-            const fileSizeMB = (pdfFile.size / (1024 * 1024)).toFixed(2);
-            let defaultName = pdfFile.name.replace(/\.pdf$/i, '');
-            
-            // Usar SweetAlert2 para pedir o nome
-            const { value: templateName } = await Swal.fire({
-                title: 'Nome do Template',
-                input: 'text',
-                inputLabel: 'Digite o nome do novo template (sem .pdf):',
-                inputValue: defaultName,
-                html: `<p class="text-sm text-gray-600 mt-2">Tamanho: ${fileSizeMB}MB</p>`,
-                showCancelButton: true,
-                confirmButtonText: 'Salvar no Navegador',
-                cancelButtonText: 'Cancelar',
-                inputValidator: (value) => {
-                    if (!value || !value.trim()) {
-                        return 'Por favor, digite um nome válido!';
-                    }
-                }
-            });
-            
-            if (!templateName || !templateName.trim()) {
-                document.body.removeChild(fileInput);
-                return;
-            }
-            
-            // Remove .pdf se o usuário digitou, para evitar duplicação
-            const cleanName = templateName.trim().replace(/\.pdf$/i, '');
-            const finalName = cleanName + '.pdf';
-            
-            try {
-                // Salva no IndexedDB
-                const result = await saveTemplateToIndexedDB(pdfFile, finalName);
-                
-                if (result.success) {
-                    await Swal.fire({
-                        icon: 'success',
-                        title: 'Template Salvo!',
-                        html: `
-                            <p>Template salvo no seu navegador</p>
-                            <p class="text-sm text-gray-600 mt-2">
-                                <strong>${finalName}</strong><br>
-                                Tamanho: ${result.size}MB
-                            </p>
-                        `,
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
-                    await loadTemplates();
-                } else {
-                    throw new Error('Erro ao salvar template');
-                }
-            } catch (err) {
-                console.error('Erro ao salvar template:', err);
-                await Swal.fire({
-                    icon: 'error',
-                    title: 'Erro ao Salvar',
-                    text: err.message || 'Erro ao salvar template no navegador.'
-                });
-            }
-            document.body.removeChild(fileInput);
-        }, { once: true });
-    });
-}
+console.log('🚀 script.js carregado!');
+
 
 // Contador global para ids únicos sequenciais dos campos
 let inputFieldIdCount = 0;
@@ -591,14 +513,14 @@ saveConfigBtn.addEventListener('click', async () => {
 });
 
 // Clear fields
-clearFieldsBtn.addEventListener('click', () => {
-    if (confirm('Limpar todos os campos?')) {
-        templateConfig.fields = [];
-        if (currentTemplate) {
-            loadTemplate(currentTemplate);
-        }
-    }
-});
+// clearFieldsBtn.addEventListener('click', () => {
+//     if (confirm('Limpar todos os campos?')) {
+//         templateConfig.fields = [];
+//         if (currentTemplate) {
+//             loadTemplate(currentTemplate);
+//         }
+//     }
+// });
 
 // Sync to origin
 syncToOriginBtn.addEventListener('click', async () => {
@@ -767,6 +689,87 @@ cloneFileBtn.addEventListener('click', async () => {
         });
     }
 });
+
+// Adicionar template (upload PDF)
+const addTemplateBtn = document.getElementById('addTemplateBtn');
+if (addTemplateBtn) {
+    addTemplateBtn.addEventListener('click', async () => {
+        // Cria input file invisível
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'application/pdf';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        fileInput.addEventListener('change', async () => {
+            if (!fileInput.files.length) {
+                document.body.removeChild(fileInput);
+                return;
+            }
+            const pdfFile = fileInput.files[0];
+            const fileSizeMB = (pdfFile.size / (1024 * 1024)).toFixed(2);
+            let defaultName = pdfFile.name.replace(/\.pdf$/i, '');
+            
+            // Usar SweetAlert2 para pedir o nome
+            const { value: templateName } = await Swal.fire({
+                title: 'Nome do Template',
+                input: 'text',
+                inputLabel: 'Digite o nome do novo template (sem .pdf):',
+                inputValue: defaultName,
+                html: `<p class="text-sm text-gray-600 mt-2">Tamanho: ${fileSizeMB}MB</p>`,
+                showCancelButton: true,
+                confirmButtonText: 'Salvar no Navegador',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value || !value.trim()) {
+                        return 'Por favor, digite um nome válido!';
+                    }
+                }
+            });
+            
+            if (!templateName || !templateName.trim()) {
+                document.body.removeChild(fileInput);
+                return;
+            }
+            
+            // Remove .pdf se o usuário digitou, para evitar duplicação
+            const cleanName = templateName.trim().replace(/\.pdf$/i, '');
+            const finalName = cleanName + '.pdf';
+            
+            try {
+                // Salva no IndexedDB
+                const result = await saveTemplateToIndexedDB(pdfFile, finalName);
+                
+                if (result.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Template Salvo!',
+                        html: `
+                            <p>Template salvo no seu navegador</p>
+                            <p class="text-sm text-gray-600 mt-2">
+                                <strong>${finalName}</strong><br>
+                                Tamanho: ${result.size}MB
+                            </p>
+                        `,
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    await loadTemplates();
+                } else {
+                    throw new Error('Erro ao salvar template');
+                }
+            } catch (err) {
+                console.error('Erro ao salvar template:', err);
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Erro ao Salvar',
+                    text: err.message || 'Erro ao salvar template no navegador.'
+                });
+            }
+            document.body.removeChild(fileInput);
+        }, { once: true });
+    });
+}
 
 // Rename template
 const renameTemplateBtn = document.getElementById('renameTemplateBtn');
