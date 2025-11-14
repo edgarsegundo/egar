@@ -1394,19 +1394,34 @@ async function renderPDF(url) {
 downloadBtn.addEventListener("click", async () => {
     if (!currentPdfUrl) return;
 
-    // 1. Pergunta o nome do arquivo ao usuário
-    // Se é um arquivo gerado, sugere o mesmo nome (sem extensão)
-    // Se é um template, sugere 'meu-formulario'
+    // 1. Determina o nome padrão do arquivo atual (sem extensão .pdf)
     let defaultName = 'meu-formulario';
-    if (currentTemplate && templateConfig.derivedFrom) {
-        // É um arquivo gerado, pega o nome sem a extensão .pdf
+    if (currentTemplate) {
+        // Remove a extensão .pdf do nome atual
         defaultName = currentTemplate.replace(/\.pdf$/i, '');
     }
     
-    let userFileName = prompt('Digite o nome do arquivo para salvar o PDF preenchido:', defaultName);
+    // 2. Pergunta o nome do arquivo ao usuário usando SweetAlert2
+    const { value: userFileName } = await Swal.fire({
+        title: 'Salvar PDF Preenchido',
+        input: 'text',
+        inputLabel: 'Digite o nome do arquivo:',
+        inputValue: defaultName,
+        showCancelButton: true,
+        confirmButtonText: 'Baixar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Por favor, digite um nome para o arquivo!';
+            }
+        }
+    });
+    
     if (!userFileName) return;
     
-    // 2. Determina qual PDF usar como base
+    // 3. Determina qual PDF usar como base
     // Se o arquivo atual tem derivedFrom, SEMPRE usa o template original limpo
     let basePdfUrl = currentPdfUrl;
     if (templateConfig.derivedFrom) {
@@ -1490,11 +1505,27 @@ downloadBtn.addEventListener("click", async () => {
         URL.revokeObjectURL(link.href);
         
         console.log(`PDF "${fileName}" baixado com sucesso!`);
-        alert(`PDF "${fileName}" baixado com sucesso!\nO arquivo foi salvo na sua pasta de Downloads ou no local escolhido.`);
+        
+        // Mostrar mensagem de sucesso com SweetAlert2
+        Swal.fire({
+            icon: 'success',
+            title: 'PDF Baixado!',
+            text: `O arquivo "${fileName}" foi baixado com sucesso!`,
+            confirmButtonColor: '#3085d6',
+            timer: 3000,
+            timerProgressBar: true
+        });
         
     } catch (err) {
         console.error("Erro ao fazer download do PDF:", err);
-        alert("Erro ao fazer download do PDF.");
+        
+        // Mostrar erro com SweetAlert2
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao Baixar',
+            text: 'Ocorreu um erro ao fazer o download do PDF.',
+            confirmButtonColor: '#d33'
+        });
     }
 });
 
