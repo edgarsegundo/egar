@@ -76,13 +76,13 @@ function setMode(editor) {
   isEditorMode = editor;
   console.log(`[setMode] Mudando para modo: ${isEditorMode ? 'EDIÇÃO' : 'PREENCHIMENTO'}`);
   if (isEditorMode) {
-    toggleModeBtn.textContent = 'Voltar Modo Preenchimento';
-    saveConfigBtn.classList.remove('hidden');
-    clearFieldsBtn.classList.remove('hidden');
+    if (toggleModeBtn) toggleModeBtn.textContent = 'Voltar Modo Preenchimento';
+    if (saveConfigBtn) saveConfigBtn.classList.remove('hidden');
+    if (clearFieldsBtn) clearFieldsBtn.classList.remove('hidden');
   } else {
-    toggleModeBtn.textContent = 'Ativar Modo Edição';
-    saveConfigBtn.classList.add('hidden');
-    clearFieldsBtn.classList.add('hidden');
+    if (toggleModeBtn) toggleModeBtn.textContent = 'Ativar Modo Edição';
+    if (saveConfigBtn) saveConfigBtn.classList.add('hidden');
+    if (clearFieldsBtn) clearFieldsBtn.classList.add('hidden');
   }
   toggleFieldEditButtons(isEditorMode);
 }
