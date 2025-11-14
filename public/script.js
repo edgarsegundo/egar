@@ -100,6 +100,7 @@ const saveConfigBtn = document.getElementById('saveConfigBtn');
 const clearFieldsBtn = document.getElementById('clearFieldsBtn');
 const cloneFileBtn = document.getElementById('cloneFileBtn');
 const syncToOriginBtn = document.getElementById('syncToOriginBtn');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
 const actionBar = document.getElementById('actionBar');
 const sidebar = document.getElementById('sidebar');
 const toggleSidebar = document.getElementById('toggleSidebar');
@@ -631,6 +632,51 @@ syncToOriginBtn.addEventListener('click', async () => {
     } catch (error) {
         console.error('Erro ao sincronizar:', error);
         alert('Erro ao sincronizar com origem.');
+    }
+});
+
+// Fullscreen button
+fullscreenBtn.addEventListener('click', () => {
+    const container = pdfContainer;
+    
+    // Verifica se já está em fullscreen
+    if (!document.fullscreenElement && 
+        !document.webkitFullscreenElement && 
+        !document.mozFullScreenElement && 
+        !document.msFullscreenElement) {
+        
+        // Entrar em fullscreen
+        if (container.requestFullscreen) {
+            container.requestFullscreen();
+        } else if (container.webkitRequestFullscreen) { // Safari
+            container.webkitRequestFullscreen();
+        } else if (container.mozRequestFullScreen) { // Firefox
+            container.mozRequestFullScreen();
+        } else if (container.msRequestFullscreen) { // IE/Edge
+            container.msRequestFullscreen();
+        }
+    } else {
+        // Sair do fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) { // Safari
+            document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) { // Firefox
+            document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) { // IE/Edge
+            document.msExitFullscreen();
+        }
+    }
+});
+
+// Opcional: Atualizar o ícone/título quando entrar/sair do fullscreen
+document.addEventListener('fullscreenchange', () => {
+    if (document.fullscreenElement) {
+        fullscreenBtn.title = 'Sair da Tela Cheia';
+        console.log('Entrou em fullscreen');
+    } else {
+        fullscreenBtn.title = 'Tela Cheia';
+        console.log('Saiu do fullscreen');
     }
 });
 

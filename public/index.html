@@ -6,6 +6,40 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="./js/sweetalert2@11.js"></script>
+  <style>
+    /* Estilos para fullscreen */
+    #pdfContainer:fullscreen {
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
+    
+    #pdfContainer:-webkit-full-screen {
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
+    
+    #pdfContainer:-moz-full-screen {
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
+    
+    #pdfContainer:-ms-fullscreen {
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
   <!-- Sidebar -->
@@ -133,19 +167,20 @@
 
 
         <div class="flex flex-col items-center">
-          <button class="p-2 rounded hover:bg-indigo-100 bg-indigo-50 border border-indigo-200 transition" title="Tela Cheia">
+          <button id="fullscreenBtn" class="p-2 rounded hover:bg-indigo-100 bg-indigo-50 border border-indigo-200 transition" title="Tela Cheia">
             <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
           </button>
 
           <span class="text-[9px] text-gray-500 mt-0.5">Expandir</span>
         </div>
 
-        <div class="flex flex-col items-center">
-        <button class="p-2 rounded hover:bg-pink-100 bg-pink-50 border border-pink-200 transition" title="Configurações">
-          <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        </button>
+        <!-- <div class="flex flex-col items-center">
+          <button class="p-2 rounded hover:bg-pink-100 bg-pink-50 border border-pink-200 transition" title="Configurações">
+            <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </button>
           <span class="text-[9px] text-gray-500 mt-0.5">Configurar</span>
-        </div>
+        </div> -->
+        
       </div>
     </div>
 
