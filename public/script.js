@@ -310,10 +310,15 @@ async function loadTemplates() {
     const serverTemplatesList = document.getElementById('serverTemplatesList');
     const indexedDBTemplatesList = document.getElementById('indexedDBTemplatesList');
     
+    console.log('[loadTemplates] Iniciando carregamento de templates...');
+    
     // Load server templates
     try {
+        console.log('[loadTemplates] Buscando templates do servidor...');
         const res = await fetch("/pdf-templates/list");
         const templates = await res.json();
+        
+        console.log('[loadTemplates] Templates do servidor recebidos:', templates);
 
         if (templates.length === 0) {
             serverTemplatesList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum template encontrado</p>';
@@ -332,6 +337,8 @@ async function loadTemplates() {
                     </div>
                 </button>
             `).join('');
+            
+            console.log('[loadTemplates] Templates do servidor renderizados:', templates.length);
 
             document.querySelectorAll('.template-btn[data-source="templates"]').forEach(btn => {
                 btn.addEventListener('click', async () => {
@@ -341,7 +348,7 @@ async function loadTemplates() {
             });
         }
     } catch (error) {
-        console.error("Error loading server templates:", error);
+        console.error("[loadTemplates] Erro ao carregar templates do servidor:", error);
         serverTemplatesList.innerHTML = '<p class="text-red-500 text-sm">Erro ao carregar templates</p>';
     }
     

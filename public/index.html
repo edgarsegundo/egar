@@ -215,10 +215,21 @@
   <script src="./js/sweetalert2@11.js"></script>
   <script src="./js/indexedDB.js"></script>
   <script>
+    // Debug: Verificar se os elementos existem
+    console.log('[HTML] DOM carregado');
+    console.log('[HTML] serverTemplatesList existe?', !!document.getElementById('serverTemplatesList'));
+    console.log('[HTML] indexedDBTemplatesList existe?', !!document.getElementById('indexedDBTemplatesList'));
+    console.log('[HTML] clonedFilesList existe?', !!document.getElementById('clonedFilesList'));
+    
     // Toolbar display - mostra descrição do botão em hover
     document.addEventListener('DOMContentLoaded', () => {
       const toolbarDisplay = document.getElementById('toolbarDisplay');
       const addTemplateBtn = document.getElementById('addTemplateBtn');
+      
+      console.log('[DOMContentLoaded] Elementos encontrados:', {
+        toolbarDisplay: !!toolbarDisplay,
+        addTemplateBtn: !!addTemplateBtn
+      });
       
       if (addTemplateBtn && toolbarDisplay) {
         addTemplateBtn.addEventListener('mouseenter', () => {
