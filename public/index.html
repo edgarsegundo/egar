@@ -53,32 +53,6 @@
       </button>
     </div>
     
-    <!-- Meus Templates Section (IndexedDB) -->
-    <div class="mb-4 overflow-y-auto">
-      <h3 class="text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center gap-1">
-        <span>💾</span>
-        <span>Meus Templates</span>
-      </h3>
-      <!-- Toolbar de ícones -->
-      <div class="flex flex-wrap gap-2 mb-3" id="templatesToolbar">
-          <div class="relative group flex items-center overflow-visible">
-            <button id="addTemplateBtn" data-description="Adicionar novo template" class="p-2 rounded hover:bg-blue-100 bg-blue-50 border border-blue-200 shadow transition" title="Adicionar">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-            </button>
-          </div>
-      </div>
-      <!-- Label display abaixo do toolbar -->
-      <div class="mb-2 min-h-[28px] flex items-center justify-center">
-        <span id="toolbarDisplay" class="text-sm text-blue-700 font-semibold opacity-0 transition-opacity duration-200"></span>
-      </div>
-      <div id="indexedDBTemplatesList" class="space-y-2">
-        <!-- IndexedDB templates will be loaded here -->
-      </div>
-    </div>
-    
-    <!-- Divider -->
-    <div class="border-t border-gray-300 my-4"></div>
-    
     <!-- Templates do Servidor Section -->
     <div class="mb-4 overflow-y-auto">
       <h3 class="text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center gap-1">
@@ -87,6 +61,29 @@
       </h3>
       <div id="serverTemplatesList" class="space-y-2">
         <!-- Server templates will be loaded here -->
+      </div>
+    </div>
+    
+    <!-- Divider -->
+    <div class="border-t border-gray-300 my-4"></div>
+    
+    <!-- Meus Templates Section (IndexedDB) -->
+    <div class="mb-4 overflow-y-auto">
+      <h3 class="text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide flex items-center justify-between gap-2">
+        <div class="flex items-center gap-1">
+          <span>💾</span>
+          <span>Meus Templates</span>
+        </div>
+        <button id="addTemplateBtn" data-description="Adicionar novo template" class="p-1 rounded hover:bg-blue-100 bg-blue-50 border border-blue-200 shadow transition" title="Adicionar novo template">
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        </button>
+      </h3>
+      <!-- Label display abaixo do título -->
+      <!-- <div class="mb-2 min-h-[20px] flex items-center justify-center">
+        <span id="toolbarDisplay" class="text-xs text-blue-700 font-semibold opacity-0 transition-opacity duration-200"></span>
+      </div> -->
+      <div id="indexedDBTemplatesList" class="space-y-2">
+        <!-- IndexedDB templates will be loaded here -->
       </div>
     </div>
     
@@ -221,25 +218,23 @@
     // Toolbar display - mostra descrição do botão em hover
     document.addEventListener('DOMContentLoaded', () => {
       const toolbarDisplay = document.getElementById('toolbarDisplay');
-      const toolbarButtons = document.querySelectorAll('#templatesToolbar button[data-description]');
+      const addTemplateBtn = document.getElementById('addTemplateBtn');
       
-      toolbarButtons.forEach(button => {
-        button.addEventListener('mouseenter', () => {
-          const description = button.getAttribute('data-description');
-          if (description && toolbarDisplay) {
+      if (addTemplateBtn && toolbarDisplay) {
+        addTemplateBtn.addEventListener('mouseenter', () => {
+          const description = addTemplateBtn.getAttribute('data-description');
+          if (description) {
             toolbarDisplay.textContent = description;
             toolbarDisplay.classList.remove('opacity-0');
             toolbarDisplay.classList.add('opacity-100');
           }
         });
         
-        button.addEventListener('mouseleave', () => {
-          if (toolbarDisplay) {
-            toolbarDisplay.classList.remove('opacity-100');
-            toolbarDisplay.classList.add('opacity-0');
-          }
+        addTemplateBtn.addEventListener('mouseleave', () => {
+          toolbarDisplay.classList.remove('opacity-100');
+          toolbarDisplay.classList.add('opacity-0');
         });
-      });
+      }
     });
   </script>
   <script src="./script.js"></script>
