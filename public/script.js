@@ -1469,67 +1469,32 @@ downloadBtn.addEventListener("click", async () => {
 
     const pdfBytes = await pdfDoc.save();
     
-    // Enviar PDF para o servidor em vez de fazer download
+    // Download direto no navegador (client-side)
     try {
-        const pdfDataArray = Array.from(new Uint8Array(pdfBytes));
         const fileName = `${userFileName}.pdf`;
         
-        const saveResponse = await fetch("/save-pdf", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                filename: fileName,
-                pdfData: pdfDataArray
-            })
-        });
-        const saveResult = await saveResponse.json();
+        // Criar um Blob com os bytes do PDF
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         
-        if (saveResult.success) {
-            // 2. Cria uma cópia do JSON de configuração com o novo nome
-            if (currentTemplate) {
-                try {
-                    // Se o arquivo atual tem derivedFrom, usa ele como origem
-                    // Caso contrário, usa o currentTemplate
-                    const originTemplate = templateConfig.derivedFrom || currentTemplate;
-                    
-                    const res = await fetch(`/create-config-file`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            from: originTemplate,
-                            to: `${userFileName}.pdf.json`,
-                            fields: templateConfig.fields
-                        })
-                    });
-                    const createResult = await res.json();
-                    console.log('Resposta:', createResult);
-                    
-                    if (createResult.success) {
-                        alert(`PDF salvo no servidor como '${fileName}' e configuração salva como '${userFileName}.pdf.json'!\nCaminho: ${saveResult.path}`);
-                        // Recarregar a lista de arquivos gerados - DESABILITADO (agora usa clones no IndexedDB)
-                        // loadGeneratedFiles();
-                    } else {
-                        alert(`PDF salvo no servidor como '${fileName}', mas houve erro ao salvar configuração.\nCaminho: ${saveResult.path}`);
-                        // Recarregar a lista de arquivos gerados - DESABILITADO (agora usa clones no IndexedDB)
-                        // loadGeneratedFiles();
-                    }
-                } catch (err) {
-                    console.error('Error copying config:', err);
-                    alert(`PDF salvo no servidor como '${fileName}', mas houve erro ao criar configuração.\nCaminho: ${saveResult.path}`);
-                    // Recarregar a lista de arquivos gerados - DESABILITADO (agora usa clones no IndexedDB)
-                    // loadGeneratedFiles();
-                }
-            } else {
-                alert(`PDF salvo no servidor como '${fileName}'!\nCaminho: ${saveResult.path}`);
-                // Recarregar a lista de arquivos gerados - DESABILITADO (agora usa clones no IndexedDB)
-                // loadGeneratedFiles();
-            }
-        } else {
-            alert("Erro ao salvar PDF no servidor: " + saveResult.error);
-        }
+        // Criar um link temporário para download
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        
+        // Adicionar ao DOM, clicar e remover
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Liberar o objeto URL
+        URL.revokeObjectURL(link.href);
+        
+        console.log(`PDF "${fileName}" baixado com sucesso!`);
+        alert(`PDF "${fileName}" baixado com sucesso!\nO arquivo foi salvo na sua pasta de Downloads ou no local escolhido.`);
+        
     } catch (err) {
-        console.error("Erro ao salvar PDF:", err);
-        alert("Erro ao salvar PDF no servidor.");
+        console.error("Erro ao fazer download do PDF:", err);
+        alert("Erro ao fazer download do PDF.");
     }
 });
 
