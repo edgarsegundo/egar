@@ -75,12 +75,15 @@ document.body.appendChild(overlay);
 function setMode(editor) {
   isEditorMode = editor;
   console.log(`[setMode] Mudando para modo: ${isEditorMode ? 'EDIÇÃO' : 'PREENCHIMENTO'}`);
+  
+  const currentModeSpan = document.getElementById('currentMode');
+  
   if (isEditorMode) {
-    if (toggleModeBtn) toggleModeBtn.textContent = 'Voltar Modo Preenchimento';
+    if (currentModeSpan) currentModeSpan.textContent = 'Voltar Modo Preenchimento';
     if (saveConfigBtn) saveConfigBtn.classList.remove('hidden');
     if (clearFieldsBtn) clearFieldsBtn.classList.remove('hidden');
   } else {
-    if (toggleModeBtn) toggleModeBtn.textContent = 'Ativar Modo Edição';
+    if (currentModeSpan) currentModeSpan.textContent = 'Ativar Modo Edição';
     if (saveConfigBtn) saveConfigBtn.classList.add('hidden');
     if (clearFieldsBtn) clearFieldsBtn.classList.add('hidden');
   }
@@ -441,6 +444,12 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
     }
 
     actionBar.classList.remove('hidden');
+    
+    // Mostra o botão de modo edição no canto superior direito
+    if (toggleModeBtn) {
+        toggleModeBtn.classList.remove('hidden');
+    }
+    
     await renderPDF(currentPdfUrl);
     if (!keepMode) setMode(false);
     
@@ -968,6 +977,11 @@ if (deleteTemplateBtn) {
             }
             currentFileLabel.classList.add('hidden');
             actionBar.classList.add('hidden');
+            
+            // Esconde o botão de modo edição
+            if (toggleModeBtn) {
+                toggleModeBtn.classList.add('hidden');
+            }
             
             await Swal.fire({
                 icon: 'success',

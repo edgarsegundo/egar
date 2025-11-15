@@ -110,6 +110,13 @@
       </svg>
     </button>
 
+    <!-- Botão Modo Edição - Canto Superior Direito -->
+    <div style="position: absolute; right: 1rem; top: 1rem; z-index: 10;">
+      <button id="toggleModeBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 font-medium shadow-lg transition-all hidden">
+        <span id="currentMode">Ativar Modo Edição</span>
+      </button>
+    </div>
+
     <!-- <h1 class="text-2xl font-bold mb-4">Editar e Salvar PDF</h1> -->
 
     <!-- Label do arquivo atual -->
@@ -183,9 +190,9 @@
 
     <!-- Mode Toggle & Actions -->
     <div id="actionBar" class="mb-4 flex gap-2 items-center hidden">
-      <button id="toggleModeBtn" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 font-medium">
+      <!-- <button id="toggleModeBtn" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 font-medium">
         Modo: <span id="currentMode">Preenchimento</span>
-      </button>
+      </button> -->
       <!-- <button id="saveConfigBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden">
         Salvar Configuração
       </button> -->
