@@ -509,6 +509,16 @@
       "value": "",
       "page": 1,
       "fontSize": 16
+    },
+    {
+      "x": 576.5,
+      "y": 453.5,
+      "name": "xs",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 202,
+      "height": 62
     }
   ]
 }

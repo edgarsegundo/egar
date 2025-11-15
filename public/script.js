@@ -81,6 +81,8 @@ function setMode(editor) {
   const toggleBtn = document.getElementById('toggleModeBtn');
   const editModeOverlay = document.getElementById('editModeOverlay');
   const pdfContainer = document.getElementById('pdfContainer');
+  const editModeToast = document.getElementById('editModeToast');
+  const pdfClickHint = document.getElementById('pdfClickHint');
   
   if (isEditorMode) {
     // Modo EDIÇÃO - Visual Verde sem ícone
@@ -104,6 +106,32 @@ function setMode(editor) {
     // Adiciona borda verde no PDF
     if (pdfContainer) {
       pdfContainer.classList.add('edit-mode');
+    }
+    
+    // Mostra toast de instrução
+    if (editModeToast) {
+      editModeToast.classList.remove('hide');
+      editModeToast.classList.add('show');
+      
+      // Auto-hide após 8 segundos
+      setTimeout(() => {
+        if (editModeToast.classList.contains('show')) {
+          editModeToast.classList.remove('show');
+          editModeToast.classList.add('hide');
+        }
+      }, 8000);
+    }
+    
+    // Mostra dica flutuante no PDF se não houver campos ainda
+    if (pdfClickHint && templateConfig.fields.length === 0) {
+      setTimeout(() => {
+        pdfClickHint.classList.add('show');
+        
+        // Remove após 5 segundos ou ao clicar
+        setTimeout(() => {
+          pdfClickHint.classList.remove('show');
+        }, 5000);
+      }, 1000);
     }
     
     if (saveConfigBtn) saveConfigBtn.classList.remove('hidden');
@@ -134,6 +162,17 @@ function setMode(editor) {
     // Remove borda verde do PDF
     if (pdfContainer) {
       pdfContainer.classList.remove('edit-mode');
+    }
+    
+    // Esconde toast
+    if (editModeToast) {
+      editModeToast.classList.remove('show');
+      editModeToast.classList.add('hide');
+    }
+    
+    // Esconde dica do PDF
+    if (pdfClickHint) {
+      pdfClickHint.classList.remove('show');
     }
     
     if (saveConfigBtn) saveConfigBtn.classList.add('hidden');
@@ -1172,6 +1211,12 @@ async function renderPDF(url) {
             // Sempre salva a página do campo
             templateConfig.fields.push({ x, y, name: fieldName.trim(), value: '', page: pageNum, fontSize: 16 });
             createInputField(x, y, fieldName.trim(), '', isEditorMode, templateConfig.fields.length - 1, pageNum);
+            
+            // Esconde a dica flutuante após criar o primeiro campo
+            const pdfClickHint = document.getElementById('pdfClickHint');
+            if (pdfClickHint) {
+                pdfClickHint.classList.remove('show');
+            }
             
             // Auto-save após criar o campo
             if (currentTemplate) {
