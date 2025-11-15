@@ -2,6 +2,14 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import dotenv from "dotenv";
+
+// 🔧 Carrega variáveis de ambiente do arquivo .env
+dotenv.config();
+
+// 🔒 Verifica se está em modo PRODUÇÃO
+const IS_PRODUCTION = process.env.PROD === 'true';
+console.log(`🔒 Modo de proteção: ${IS_PRODUCTION ? 'PRODUÇÃO (proteções ATIVAS)' : 'DESENVOLVIMENTO (proteções DESATIVADAS)'}`);
 
 const app = express();
 const upload = multer({ dest: "uploads/" });
@@ -19,6 +27,15 @@ const PROTECTED_SERVER_TEMPLATES = [
 
 // 🔒 Middleware para verificar se um template do servidor está protegido
 function isServerTemplateProtected(filename) {
+    // 🔓 BYPASS: Se não estiver em produção, permite tudo
+    if (!IS_PRODUCTION) {
+        return {
+            isProtected: false,
+            existsInServer: false,
+            isInBlacklist: false
+        };
+    }
+    
     // Verifica se o arquivo existe na pasta template-files (servidor)
     const serverTemplatePath = path.resolve('template-files', filename);
     const existsInServer = fs.existsSync(serverTemplatePath);
