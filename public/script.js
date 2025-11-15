@@ -83,6 +83,7 @@ function setMode(editor) {
   const pdfContainer = document.getElementById('pdfContainer');
   const editModeToast = document.getElementById('editModeToast');
   const pdfClickHint = document.getElementById('pdfClickHint');
+  const editModeHelpBtn = document.getElementById('editModeHelpBtn');
   
   if (isEditorMode) {
     // Modo EDIÇÃO - Visual Verde sem ícone
@@ -108,14 +109,20 @@ function setMode(editor) {
       pdfContainer.classList.add('edit-mode');
     }
     
-    // Mostra toast de instrução
+    // Mostra botão de ajuda
+    if (editModeHelpBtn) {
+      editModeHelpBtn.classList.remove('hidden');
+    }
+    
+    // Mostra toast de instrução com auto-hide
     if (editModeToast) {
       editModeToast.classList.remove('hide');
       editModeToast.classList.add('show');
+      editModeToast.setAttribute('data-auto-hide', 'true');
       
-      // Auto-hide após 8 segundos
+      // Auto-hide após 8 segundos (apenas se for auto-hide)
       setTimeout(() => {
-        if (editModeToast.classList.contains('show')) {
+        if (editModeToast.classList.contains('show') && editModeToast.hasAttribute('data-auto-hide')) {
           editModeToast.classList.remove('show');
           editModeToast.classList.add('hide');
         }
@@ -164,10 +171,16 @@ function setMode(editor) {
       pdfContainer.classList.remove('edit-mode');
     }
     
+    // Esconde botão de ajuda
+    if (editModeHelpBtn) {
+      editModeHelpBtn.classList.add('hidden');
+    }
+    
     // Esconde toast
     if (editModeToast) {
       editModeToast.classList.remove('show');
       editModeToast.classList.add('hide');
+      editModeToast.removeAttribute('data-auto-hide');
     }
     
     // Esconde dica do PDF
@@ -607,6 +620,27 @@ toggleModeBtn.addEventListener('click', (event) => {
     // Alterna o modo
     setMode(!isEditorMode);
 });
+
+// Botão de Ajuda do Modo Edição
+const editModeHelpBtn = document.getElementById('editModeHelpBtn');
+if (editModeHelpBtn) {
+    editModeHelpBtn.addEventListener('click', () => {
+        const editModeToast = document.getElementById('editModeToast');
+        if (editModeToast) {
+            // Remove classes anteriores
+            editModeToast.classList.remove('hide');
+            
+            // Força reflow para reiniciar animação
+            void editModeToast.offsetWidth;
+            
+            // Mostra o toast SEM timeout (usuário deve fechar manualmente)
+            editModeToast.classList.add('show');
+            
+            // Remove o atributo data-auto-hide se existir
+            editModeToast.removeAttribute('data-auto-hide');
+        }
+    });
+}
 
 // Save configuration
 if (saveConfigBtn) {

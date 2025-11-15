@@ -371,7 +371,16 @@
     </button>
 
     <!-- Botão Modo Edição - Canto Superior Direito - Design Incrível -->
-    <div style="position: absolute; right: 1.5rem; top: 1.5rem; z-index: 50;">
+    <div style="position: absolute; right: 1.5rem; top: 1.5rem; z-index: 50; display: flex; gap: 0.75rem; align-items: center;">
+      <!-- Botão de Ajuda (Help) -->
+      <button id="editModeHelpBtn" class="hidden group relative bg-white text-green-600 p-3 rounded-full shadow-lg transition-all duration-300 hover:shadow-green-500/30 hover:scale-110 border-2 border-green-400/50 hover:bg-green-50" title="Ajuda do Modo Edição">
+        <svg class="w-5 h-5 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <!-- Efeito de pulso -->
+        <div class="absolute inset-0 rounded-full bg-green-400 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+      </button>
+      
       <button id="toggleModeBtn" class="group relative hidden overflow-hidden bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-2xl transition-all duration-500 hover:shadow-purple-500/50 hover:scale-105 hover:rotate-1 border-2 border-purple-400/30">
         <!-- Efeito de brilho animado -->
         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
