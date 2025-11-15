@@ -150,6 +150,15 @@ app.post("/create-config-file", (req, res) => {
 
 // Criar novo template (upload PDF + config vazio)
 app.post('/create-template', upload.single('pdf'), (req, res) => {
+    // 🔒 PROTEÇÃO: Não permite criar templates no servidor se estiver em produção
+    if (IS_PRODUCTION) {
+        return res.status(403).json({ 
+            success: false,
+            error: 'Operação não permitida em produção',
+            message: 'Não é permitido adicionar novos templates ao servidor em modo produção.'
+        });
+    }
+    
     const { templateName } = req.body;
     if (!req.file || !templateName) {
         return res.status(400).json({ error: 'Arquivo PDF e nome do template são obrigatórios.' });

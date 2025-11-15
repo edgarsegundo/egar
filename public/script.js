@@ -1038,6 +1038,119 @@ if (addTemplateBtn) {
     });
 }
 
+// 🔒 Adicionar template ao servidor
+const addServerTemplateBtn = document.getElementById('addServerTemplateBtn');
+if (addServerTemplateBtn) {
+    addServerTemplateBtn.addEventListener('click', async () => {
+        // Cria input file invisível
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'application/pdf';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        
+        fileInput.addEventListener('change', async () => {
+            if (!fileInput.files.length) {
+                document.body.removeChild(fileInput);
+                return;
+            }
+            
+            const pdfFile = fileInput.files[0];
+            const fileSizeMB = (pdfFile.size / (1024 * 1024)).toFixed(2);
+            let defaultName = pdfFile.name.replace(/\.pdf$/i, '');
+            
+            // Pedir o nome do template
+            const { value: templateName } = await Swal.fire({
+                title: 'Nome do Template',
+                input: 'text',
+                inputLabel: 'Digite o nome do template (sem .pdf):',
+                inputValue: defaultName,
+                html: `<p class="text-sm text-gray-600 mt-2">Tamanho: ${fileSizeMB}MB</p>`,
+                showCancelButton: true,
+                confirmButtonText: 'Salvar no Servidor',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value || !value.trim()) {
+                        return 'Por favor, digite um nome válido!';
+                    }
+                }
+            });
+            
+            if (!templateName || !templateName.trim()) {
+                document.body.removeChild(fileInput);
+                return;
+            }
+            
+            // Remove .pdf se o usuário digitou
+            const cleanName = templateName.trim().replace(/\.pdf$/i, '');
+            const finalName = cleanName + '.pdf';
+            
+            // Mostra loading
+            Swal.fire({
+                title: 'Enviando...',
+                text: 'Aguarde enquanto o template é enviado ao servidor',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            try {
+                // Envia para o servidor
+                const formData = new FormData();
+                formData.append('pdf', pdfFile);
+                formData.append('templateName', finalName);
+                
+                const response = await fetch('/create-template', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.status === 403) {
+                    // Modo produção - não permitido
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Operação não permitida',
+                        text: result.message || 'Não é permitido adicionar templates ao servidor em modo produção.',
+                        confirmButtonText: 'Entendi'
+                    });
+                } else if (result.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Template Salvo no Servidor!',
+                        html: `
+                            <p>Template salvo em <strong>template-files/</strong></p>
+                            <p class="text-sm text-gray-600 mt-2">
+                                <strong>${finalName}</strong><br>
+                                Tamanho: ${fileSizeMB}MB
+                            </p>
+                        `,
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    
+                    // Recarrega a lista de templates do servidor
+                    await loadTemplates();
+                } else {
+                    throw new Error(result.error || 'Erro ao salvar template');
+                }
+            } catch (err) {
+                console.error('Erro ao salvar template no servidor:', err);
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Erro ao Salvar',
+                    text: err.message || 'Erro ao salvar template no servidor.'
+                });
+            }
+            
+            document.body.removeChild(fileInput);
+        }, { once: true });
+    });
+}
+
 // Rename template
 const renameTemplateBtn = document.getElementById('renameTemplateBtn');
 if (renameTemplateBtn) {
