@@ -485,11 +485,17 @@ function updateTemplateNameInList(oldName, newName, source) {
 // Função auxiliar: Remove um template da lista (sem recarregar tudo)
 function removeTemplateFromList(templateName, source) {
     let selector;
+    let parentListId;
     
     if (source === 'indexeddb') {
         selector = `.template-btn[data-source="indexeddb"][data-template="${templateName}"]`;
+        parentListId = 'indexedDBTemplatesList';
     } else if (source === 'clone') {
         selector = `.template-btn[data-source="clone"][data-template="${templateName}"]`;
+        parentListId = 'clonedFilesList';
+    } else if (source === 'templates') {
+        selector = `.template-btn[data-source="templates"][data-template="${templateName}"]`;
+        parentListId = 'serverTemplatesList';
     }
     
     const button = document.querySelector(selector);
@@ -498,12 +504,14 @@ function removeTemplateFromList(templateName, source) {
         console.log(`✅ Template removido da lista: ${templateName}`);
         
         // Verifica se a lista ficou vazia e adiciona mensagem
-        const parent = button.parentElement;
-        if (parent && parent.children.length === 0) {
+        const parentList = document.getElementById(parentListId);
+        if (parentList && parentList.children.length === 0) {
             if (source === 'indexeddb') {
-                parent.innerHTML = '<p class="text-gray-500 text-sm">Nenhum template salvo</p>';
+                parentList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum template salvo</p>';
             } else if (source === 'clone') {
-                parent.innerHTML = '<p class="text-gray-500 text-sm">Nenhum clone criado</p>';
+                parentList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum clone criado</p>';
+            } else if (source === 'templates') {
+                parentList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum template encontrado</p>';
             }
         }
     }
