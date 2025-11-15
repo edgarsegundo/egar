@@ -495,12 +495,13 @@
     {
       "x": 576.5,
       "y": 453.5,
-      "name": "xs",
+      "name": "xsxxxxx",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 202,
-      "height": 62
+      "height": 62,
+      "hint": "aaaaa"
     },
     {
       "x": 322,
@@ -509,6 +510,15 @@
       "value": "",
       "page": 1,
       "fontSize": 16
+    },
+    {
+      "x": 629,
+      "y": 289.5,
+      "name": "dddd",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "hint": "aaaa"
     }
   ]
 }

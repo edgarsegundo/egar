@@ -224,9 +224,14 @@ async function openFillModal() {
     
     // Antes de abrir o modal, sincroniza os valores dos inputs do containerpdf para o templateConfig
     const pdfInputs = document.querySelectorAll('#pdfContainer input[type="text"]');
-    pdfInputs.forEach((input, idx) => {
-        if (templateConfig.fields[idx]) {
-            templateConfig.fields[idx].value = input.value;
+    pdfInputs.forEach((input) => {
+        const fieldName = input.dataset.fieldName;
+        if (fieldName) {
+            // Encontra o campo correspondente pelo nome
+            const fieldIndex = templateConfig.fields.findIndex(f => f.name === fieldName);
+            if (fieldIndex !== -1) {
+                templateConfig.fields[fieldIndex].value = input.value;
+            }
         }
     });
 
@@ -287,12 +292,18 @@ updateBtn.addEventListener('click', () => {
     const inputs = modalFieldsContainer.querySelectorAll('input');
     inputs.forEach(input => {
         const idx = parseInt(input.dataset.idx, 10);
-        templateConfig.fields[idx].value = input.value;
-    });
-    // Atualiza os inputs visuais do PDF
-    document.querySelectorAll('#pdfContainer input[type="text"]').forEach((input, idx) => {
         if (templateConfig.fields[idx]) {
-            input.value = templateConfig.fields[idx].value;
+            templateConfig.fields[idx].value = input.value;
+        }
+    });
+    // Atualiza os inputs visuais do PDF usando correspondência por nome
+    document.querySelectorAll('#pdfContainer input[type="text"]').forEach((input) => {
+        const fieldName = input.dataset.fieldName;
+        if (fieldName) {
+            const field = templateConfig.fields.find(f => f.name === fieldName);
+            if (field) {
+                input.value = field.value || '';
+            }
         }
     });
     closeFillModal();
@@ -1665,7 +1676,7 @@ async function renderPDF(url) {
         input.value = value;
         input.className = 'border p-1 rounded text-sm bg-blue-100 border-blue-400 opacity-80';
         input.dataset.fieldName = name;
-        input.placeholder = name;
+        input.placeholder = templateConfig.fields[idx]?.hint || name;
         input.dataset.x = x;
         input.dataset.y = y;
         input.dataset.page = page;
@@ -1673,6 +1684,91 @@ async function renderPDF(url) {
         input.style.height = (templateConfig.fields[idx]?.height || 20) + 'px';
         input.style.width = (templateConfig.fields[idx]?.width || 120) + 'px';
         input.style.fontSize = (templateConfig.fields[idx]?.fontSize || 16) + 'px';
+
+        // Evento de clique para editar propriedades do campo (apenas em modo edição)
+        const onInputClick = async (e) => {
+            if (!isEditorMode) return; // Só permite edição em modo editor
+            
+            e.stopPropagation();
+            
+            // Pega valores atuais
+            const currentName = input.dataset.fieldName || name;
+            const currentHint = templateConfig.fields[idx]?.hint || '';
+            
+            const result = await Swal.fire({
+                title: 'Configurar Campo',
+                html: `
+                    <div style="text-align: left;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                            Nome do campo:
+                        </label>
+                        <input id="fieldNameInput" class="swal2-input" placeholder="Ex: Nome completo" value="${currentName}" style="margin: 0 0 1rem 0; width: 100%;">
+                        
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                            Dica de formato:
+                        </label>
+                        <input id="fieldHintInput" class="swal2-input" placeholder="Ex: dd/mm/yyyy" value="${currentHint}" style="margin: 0; width: 100%;">
+                        <small style="color: #6b7280; display: block; margin-top: 0.25rem;">Esta dica aparecerá como placeholder do campo</small>
+                    </div>
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Salvar',
+                cancelButtonText: 'Cancelar',
+                preConfirm: () => {
+                    const newName = document.getElementById('fieldNameInput').value.trim();
+                    const newHint = document.getElementById('fieldHintInput').value.trim();
+                    
+                    if (!newName) {
+                        Swal.showValidationMessage('O nome do campo é obrigatório');
+                        return false;
+                    }
+                    
+                    return { name: newName, hint: newHint };
+                }
+            });
+            
+            if (result.isConfirmed && result.value) {
+                const { name: newName, hint: newHint } = result.value;
+                
+                // Atualiza o campo
+                input.dataset.fieldName = newName;
+                input.placeholder = newHint || newName;
+                
+                // Atualiza no config
+                if (templateConfig.fields[idx]) {
+                    templateConfig.fields[idx].name = newName;
+                    templateConfig.fields[idx].hint = newHint;
+                }
+                
+                // Auto-save
+                if (currentTemplate) {
+                    const configToSave = { 
+                        fields: templateConfig.fields,
+                        derivedFrom: templateConfig.derivedFrom 
+                    };
+                    
+                    if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                        await saveTemplateConfigToIndexedDB(currentTemplate, configToSave).catch(err => {
+                            console.error('Erro ao salvar propriedades do campo no IndexedDB:', err);
+                        });
+                    } else {
+                        fetch(`/template-config/${currentTemplate}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(configToSave)
+                        }).catch(err => {
+                            console.error('Erro ao salvar propriedades do campo no servidor:', err);
+                        });
+                    }
+                }
+            }
+        };
+        
+        input.addEventListener('click', onInputClick);
+        listeners.push({ target: input, type: 'click', handler: onInputClick });
 
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "×";
