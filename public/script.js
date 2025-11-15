@@ -1364,6 +1364,45 @@ async function renderPDF(url) {
     console.log(`[renderPDF] templateConfig.fields tem ${templateConfig.fields.length} campos`);
     toggleFieldEditButtons(isEditorMode);
 
+    // Função para recalcular e atribuir tabindex baseado na posição dos campos
+    function recalculateTabIndex() {
+        // Coletar todos os inputs com suas posições
+        const allInputs = [];
+        createdFields.forEach(field => {
+            if (field.input && field.wrapper) {
+                const page = parseInt(field.input.dataset.page) || 1;
+                const x = parseFloat(field.wrapper.style.left) || 0;
+                const y = parseFloat(field.wrapper.style.top) || 0;
+                allInputs.push({ input: field.input, page, x, y });
+            }
+        });
+
+        // Ordenar: primeiro por página, depois por Y (com tolerância), depois por X
+        const LINE_TOLERANCE = 15; // pixels de tolerância para considerar "mesma linha"
+        
+        allInputs.sort((a, b) => {
+            // 1. Ordenar por página
+            if (a.page !== b.page) return a.page - b.page;
+            
+            // 2. Verificar se estão na mesma linha (tolerância de Y)
+            const yDiff = Math.abs(a.y - b.y);
+            if (yDiff <= LINE_TOLERANCE) {
+                // Mesma linha: ordenar por X (esquerda para direita)
+                return a.x - b.x;
+            }
+            
+            // 3. Linhas diferentes: ordenar por Y (cima para baixo)
+            return a.y - b.y;
+        });
+
+        // Atribuir tabindex sequencial começando do 1
+        allInputs.forEach((item, index) => {
+            item.input.tabIndex = index + 1;
+        });
+
+        console.log(`[TabIndex] Recalculado para ${allInputs.length} campos`);
+    }
+
     function createInputField(x, y, name, value, editorMode, idx, page = 1) {
         const pageWrapper = pdfContainer.querySelector(`div[data-page-number='${page}']`);
         if (!pageWrapper) return;
@@ -1459,6 +1498,9 @@ async function renderPDF(url) {
                             });
                         }
                     }
+                    
+                    // Recalcula tabindex após mover campo
+                    recalculateTabIndex();
                 }
             }
 
@@ -1644,13 +1686,59 @@ async function renderPDF(url) {
         deleteBtn.style.right = '-8px';
         deleteBtn.style.display = 'block';
         deleteBtn.style.zIndex = '9999';
-        const onDelete = (e) => {
+        const onDelete = async (e) => {
             e.stopPropagation();
-            templateConfig.fields.splice(idx, 1);
-            listeners.forEach(({ target, type, handler }) => {
-                target.removeEventListener(type, handler);
+            
+            // Confirmação antes de excluir
+            const result = await Swal.fire({
+                title: 'Excluir campo?',
+                text: `Deseja realmente excluir o campo "${name}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sim, excluir',
+                cancelButtonText: 'Cancelar'
             });
-            if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+            
+            if (result.isConfirmed) {
+                templateConfig.fields.splice(idx, 1);
+                listeners.forEach(({ target, type, handler }) => {
+                    target.removeEventListener(type, handler);
+                });
+                if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+                
+                // Remove o campo do array createdFields
+                const fieldIndex = createdFields.findIndex(f => f.wrapper === wrapper);
+                if (fieldIndex !== -1) {
+                    createdFields.splice(fieldIndex, 1);
+                }
+                
+                // Auto-save após excluir o campo
+                if (currentTemplate) {
+                    const configToSave = { 
+                        fields: templateConfig.fields,
+                        derivedFrom: templateConfig.derivedFrom 
+                    };
+                    
+                    if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                        await saveTemplateConfigToIndexedDB(currentTemplate, configToSave).catch(err => {
+                            console.error('Erro ao salvar após exclusão no IndexedDB:', err);
+                        });
+                    } else {
+                        fetch(`/template-config/${currentTemplate}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(configToSave)
+                        }).catch(err => {
+                            console.error('Erro ao salvar após exclusão no servidor:', err);
+                        });
+                    }
+                }
+                
+                // Recalcula tabindex após excluir campo
+                recalculateTabIndex();
+            }
         };
         deleteBtn.addEventListener('click', onDelete);
         listeners.push({ target: deleteBtn, type: 'click', handler: onDelete });
@@ -1662,6 +1750,9 @@ async function renderPDF(url) {
         wrapper.appendChild(fontSizeHandle);
 
         createdFields.push({ wrapper, input, dragHandle, deleteBtn, resizeHandle, fontSizeHandle, listeners });
+        
+        // Recalcula tabindex após adicionar novo campo
+        recalculateTabIndex();
         
         return wrapper;
     }

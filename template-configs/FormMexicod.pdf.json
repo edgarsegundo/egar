@@ -485,16 +485,6 @@
       "fontSize": 16
     },
     {
-      "x": 315.5,
-      "y": 289.5,
-      "name": "xxxx",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 128,
-      "height": 33
-    },
-    {
       "x": 660.5,
       "y": 408.5,
       "name": "xxxx",
@@ -513,12 +503,12 @@
       "height": 62
     },
     {
-      "x": 618.5,
-      "y": 260.5,
-      "name": "xxxx",
+      "x": 322,
+      "y": 883.5,
+      "name": "XXXXXX",
       "value": "",
       "page": 1,
-      "fontSize": 25
+      "fontSize": 16
     }
   ]
 }
