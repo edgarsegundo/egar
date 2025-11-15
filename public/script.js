@@ -1385,14 +1385,14 @@ async function renderPDF(url) {
 
         // Drag handle (círculo maior e mais próximo do input)
         const dragHandle = document.createElement('div');
-        dragHandle.style.width = '18px';
-        dragHandle.style.height = '18px';
+        dragHandle.style.width = '14px';
+        dragHandle.style.height = '14px';
         dragHandle.style.background = '#fff';
         dragHandle.style.border = '2px solid #888';
         dragHandle.style.borderRadius = '50%';
         dragHandle.style.position = 'absolute';
         dragHandle.style.left = '50%';
-        dragHandle.style.top = '-6px';
+        dragHandle.style.top = '-5px';
         dragHandle.style.transform = 'translate(-50%, 0)';
         dragHandle.style.cursor = 'grab';
         dragHandle.style.zIndex = '10000';
@@ -1473,15 +1473,15 @@ async function renderPDF(url) {
 
         // Handle de redimensionamento (canto inferior direito)
         const resizeHandle = document.createElement('div');
-        resizeHandle.style.width = '16px';
-        resizeHandle.style.height = '16px';
+        resizeHandle.style.width = '12px';
+        resizeHandle.style.height = '12px';
         resizeHandle.style.position = 'absolute';
-        resizeHandle.style.right = '-10px';
-        resizeHandle.style.bottom = '-10px';
+        resizeHandle.style.right = '-8px';
+        resizeHandle.style.bottom = '-8px';
         resizeHandle.style.cursor = 'nwse-resize';
         resizeHandle.style.zIndex = '10001';
         resizeHandle.title = 'Arraste para redimensionar';
-        resizeHandle.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 14L14 2M10 2h4v4" stroke="#1e40af" stroke-width="2" fill="none"/></svg>`;
+        resizeHandle.innerHTML = `<svg width="12" height="12" viewBox="0 0 16 16"><path d="M2 14L14 2M10 2h4v4" stroke="#1e40af" stroke-width="2" fill="none"/></svg>`;
         let resizing = false, startX, startY, startWidth, startHeight;
         const onResizeMouseDown = function (e) {
             e.stopPropagation();
@@ -1543,11 +1543,11 @@ async function renderPDF(url) {
 
         // Handle de ajuste de fonte (canto superior esquerdo com flecha vertical dupla)
         const fontSizeHandle = document.createElement('div');
-        fontSizeHandle.style.width = '18px';
-        fontSizeHandle.style.height = '18px';
+        fontSizeHandle.style.width = '14px';
+        fontSizeHandle.style.height = '14px';
         fontSizeHandle.style.position = 'absolute';
-        fontSizeHandle.style.left = '-10px';
-        fontSizeHandle.style.top = '-6px';
+        fontSizeHandle.style.left = '-8px';
+        fontSizeHandle.style.top = '-5px';
         fontSizeHandle.style.cursor = 'ns-resize';
         fontSizeHandle.style.zIndex = '10001';
         fontSizeHandle.style.background = '#fff';
@@ -1557,7 +1557,7 @@ async function renderPDF(url) {
         fontSizeHandle.style.alignItems = 'center';
         fontSizeHandle.style.justifyContent = 'center';
         fontSizeHandle.title = 'Arraste para ajustar tamanho da fonte';
-        fontSizeHandle.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1L6 11M3 3L6 1L9 3M3 9L6 11L9 9" stroke="#16a34a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        fontSizeHandle.innerHTML = `<svg width="10" height="10" viewBox="0 0 12 12"><path d="M6 1L6 11M3 3L6 1L9 3M3 9L6 11L9 9" stroke="#16a34a" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         
         let fontSizing = false, fontStartY, fontStartSize;
         const onFontSizeMouseDown = function (e) {
@@ -1635,13 +1635,13 @@ async function renderPDF(url) {
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "×";
         deleteBtn.className = "text-red-600 hover:text-red-800 font-bold absolute bg-white rounded-full border border-red-200 shadow group-hover:block flex items-center justify-center";
-        deleteBtn.style.width = '16px';
-        deleteBtn.style.height = '16px';
-        deleteBtn.style.fontSize = '12px';
-        deleteBtn.style.lineHeight = '14px';
+        deleteBtn.style.width = '12px';
+        deleteBtn.style.height = '12px';
+        deleteBtn.style.fontSize = '10px';
+        deleteBtn.style.lineHeight = '12px';
         deleteBtn.style.padding = '0';
-        deleteBtn.style.top = '-4px';
-        deleteBtn.style.right = '-10px';
+        deleteBtn.style.top = '-3px';
+        deleteBtn.style.right = '-8px';
         deleteBtn.style.display = 'block';
         deleteBtn.style.zIndex = '9999';
         const onDelete = (e) => {

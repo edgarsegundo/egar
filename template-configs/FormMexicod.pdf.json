@@ -1,16 +1,6 @@
 {
   "fields": [
     {
-      "x": 243,
-      "y": 178,
-      "name": "Consulado em",
-      "value": "                SÃ PAULOx",
-      "page": 1,
-      "width": 259,
-      "height": 18,
-      "fontSize": 16
-    },
-    {
       "x": 171,
       "y": 384,
       "name": "Nome",
@@ -71,8 +61,8 @@
       "height": 20
     },
     {
-      "x": 283.5,
-      "y": 499,
+      "x": 242.5,
+      "y": 500,
       "name": "DataNascMM",
       "value": "09",
       "page": 1,
@@ -521,12 +511,12 @@
       "height": 62
     },
     {
-      "x": 615.5,
-      "y": 269.5,
+      "x": 618.5,
+      "y": 260.5,
       "name": "xxxx",
       "value": "",
       "page": 1,
-      "fontSize": 16
+      "fontSize": 25
     }
   ]
 }
