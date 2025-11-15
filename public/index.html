@@ -108,9 +108,35 @@
       height: 20px;
       animation: ripple 0.6s ease-out;
     }
+
+    /* Overlay de Modo Edição */
+    #editModeOverlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+      z-index: 5;
+      background: radial-gradient(circle at center, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.12) 50%, rgba(4, 120, 87, 0.15) 100%);
+    }
+
+    #editModeOverlay.active {
+      opacity: 1;
+    }
+
+    /* Efeito de borda verde no pdfContainer */
+    #pdfContainer.edit-mode {
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3), 
+                  0 0 30px rgba(16, 185, 129, 0.2),
+                  0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.5s ease-in-out;
+    }
   </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
+  <!-- Overlay de Modo Edição -->
+  <div id="editModeOverlay"></div>
+
   <!-- Sidebar -->
   <aside id="sidebar" class="w-64 bg-white shadow-md p-4 overflow-y-auto transition-all duration-300 flex flex-col overflow-visible">
     <div class="flex items-center justify-between mb-4">

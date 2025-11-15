@@ -79,6 +79,8 @@ function setMode(editor) {
   const currentModeSpan = document.getElementById('currentMode');
   const modeIcon = document.getElementById('modeIcon');
   const toggleBtn = document.getElementById('toggleModeBtn');
+  const editModeOverlay = document.getElementById('editModeOverlay');
+  const pdfContainer = document.getElementById('pdfContainer');
   
   if (isEditorMode) {
     // Modo EDIÇÃO - Visual Verde sem ícone
@@ -92,6 +94,16 @@ function setMode(editor) {
     // Adiciona classe de modo ativo
     if (toggleBtn) {
       toggleBtn.classList.add('edit-mode-active');
+    }
+    
+    // Ativa overlay verde
+    if (editModeOverlay) {
+      editModeOverlay.classList.add('active');
+    }
+    
+    // Adiciona borda verde no PDF
+    if (pdfContainer) {
+      pdfContainer.classList.add('edit-mode');
     }
     
     if (saveConfigBtn) saveConfigBtn.classList.remove('hidden');
@@ -112,6 +124,16 @@ function setMode(editor) {
     // Remove classe de modo ativo
     if (toggleBtn) {
       toggleBtn.classList.remove('edit-mode-active');
+    }
+    
+    // Desativa overlay
+    if (editModeOverlay) {
+      editModeOverlay.classList.remove('active');
+    }
+    
+    // Remove borda verde do PDF
+    if (pdfContainer) {
+      pdfContainer.classList.remove('edit-mode');
     }
     
     if (saveConfigBtn) saveConfigBtn.classList.add('hidden');
