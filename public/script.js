@@ -1331,8 +1331,48 @@ if (renameTemplateBtn) {
         }
         
         try {
-            // Se for do IndexedDB (template ou clone), renomeia no IndexedDB
-            if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+            // Se for do servidor, renomeia no servidor
+            if (currentTemplateSource === 'templates') {
+                const renameResponse = await fetch('/rename-template', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        oldName: currentTemplate,
+                        newName: finalNewName
+                    })
+                });
+                
+                const renameResult = await renameResponse.json();
+                
+                if (!renameResult.success) {
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Erro ao Renomear',
+                        text: renameResult.message || renameResult.error || 'Não foi possível renomear o template do servidor.',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+                
+                console.log('✅ Template renomeado no servidor:', currentTemplate, '→', finalNewName);
+                
+                // Atualização CIRÚRGICA: só atualiza o nome na lista, sem recarregar tudo!
+                updateTemplateNameInList(currentTemplate, finalNewName, currentTemplateSource);
+                
+                // Atualiza apenas as variáveis internas, SEM recarregar o PDF
+                currentTemplate = finalNewName;
+                currentFileName.textContent = finalNewName;
+                
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Renomeado!',
+                    text: `Template renomeado para '${finalNewName}'`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                
+            } else if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                // Se for do IndexedDB (template ou clone), renomeia no IndexedDB
                 await renameTemplateInIndexedDB(currentTemplate, finalNewName);
                 
                 // Atualização CIRÚRGICA: só atualiza o nome na lista, sem recarregar tudo!
@@ -1433,8 +1473,30 @@ if (deleteTemplateBtn) {
                 }
             });
             
-            // Deleta do IndexedDB
-            await deleteTemplateFromIndexedDB(currentTemplate);
+            // Se for template do servidor, exclui no servidor
+            if (currentTemplateSource === 'templates') {
+                const deleteResponse = await fetch(`/template/${currentTemplate}`, {
+                    method: 'DELETE'
+                });
+                
+                const deleteResult = await deleteResponse.json();
+                
+                if (!deleteResult.success) {
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Erro ao Excluir',
+                        text: deleteResult.message || 'Não foi possível excluir o template do servidor.',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+                
+                console.log('✅ Template excluído do servidor:', currentTemplate);
+            } else {
+                // Se for do IndexedDB ou clone, deleta do IndexedDB
+                await deleteTemplateFromIndexedDB(currentTemplate);
+                console.log('✅ Template excluído do IndexedDB:', currentTemplate);
+            }
             
             // Salva o source antes de limpar
             const deletedSource = currentTemplateSource;

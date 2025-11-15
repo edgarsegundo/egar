@@ -398,6 +398,7 @@ app.post("/rename-template", (req, res) => {
 });
 
 // 🔒 Endpoint para validar exclusão de template
+// 🔒 Endpoint para validar e executar exclusão de template
 app.delete("/template/:filename", (req, res) => {
     const filename = req.params.filename;
     
@@ -415,11 +416,43 @@ app.delete("/template/:filename", (req, res) => {
         });
     }
     
+    // Se o arquivo existe no servidor (mas não está protegido), exclui
+    const pdfPath = path.resolve('template-files', filename);
+    const configPath = path.resolve('template-configs', `${filename}.json`);
+    
+    if (fs.existsSync(pdfPath)) {
+        try {
+            // Exclui o PDF
+            fs.unlinkSync(pdfPath);
+            console.log(`✅ PDF excluído: ${filename}`);
+            
+            // Exclui o config se existir
+            if (fs.existsSync(configPath)) {
+                fs.unlinkSync(configPath);
+                console.log(`✅ Config excluído: ${filename}.json`);
+            }
+            
+            return res.json({ 
+                success: true,
+                message: `Template '${filename}' excluído com sucesso do servidor.`,
+                deletedFromServer: true
+            });
+        } catch (error) {
+            console.error('Erro ao excluir template do servidor:', error);
+            return res.status(500).json({
+                success: false,
+                error: 'Erro ao excluir arquivo',
+                message: `Erro ao excluir template: ${error.message}`
+            });
+        }
+    }
+    
     // Se chegou aqui, é um template do usuário (IndexedDB)
     // O servidor não precisa fazer nada, pois está no IndexedDB do navegador
     res.json({ 
         success: true, 
-        message: 'Exclusão autorizada (arquivo do navegador)' 
+        message: 'Exclusão autorizada (arquivo do navegador)',
+        deletedFromServer: false
     });
 });
 
