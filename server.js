@@ -419,5 +419,27 @@ app.post("/validate-fill/:filename", (req, res) => {
     });
 });
 
+// 🔒 Endpoint para validar ativação do modo de edição
+app.post("/validate-edit-mode/:filename", (req, res) => {
+    const filename = req.params.filename;
+    
+    // 🔒 PROTEÇÃO: Verifica se o template do servidor está protegido
+    const protection = isServerTemplateProtected(filename);
+    if (protection.existsInServer) {
+        return res.status(403).json({ 
+            success: false,
+            error: 'Edição não permitida',
+            message: `Templates do servidor não podem ser editados diretamente. Por favor, clone o template primeiro para poder editá-lo.`,
+            existsInServer: true
+        });
+    }
+    
+    // Se chegou aqui, pode editar
+    res.json({ 
+        success: true, 
+        message: 'Edição autorizada' 
+    });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

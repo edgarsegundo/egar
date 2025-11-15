@@ -649,8 +649,36 @@ uploadForm.addEventListener("submit", async (e) => {
 });
 
 // Mode toggle
-toggleModeBtn.addEventListener('click', (event) => {
+toggleModeBtn.addEventListener('click', async (event) => {
     event.preventDefault();
+    
+    // 🔒 VALIDAÇÃO BACKEND: Verifica se pode ativar modo de edição
+    if (!isEditorMode && currentTemplate) {
+        try {
+            const response = await fetch(`/validate-edit-mode/${currentTemplate}`, {
+                method: 'POST'
+            });
+            
+            const validation = await response.json();
+            
+            if (!validation.success) {
+                await Swal.fire({
+                    icon: 'info',
+                    title: 'Clone o Template Primeiro',
+                    html: `
+                        <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser editados diretamente.</p>
+                        <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
+                        <p class="text-xs text-gray-500">Isso permite que você edite e salve suas alterações no seu navegador.</p>
+                    `,
+                    confirmButtonText: 'Entendi'
+                });
+                return; // Cancela ativação do modo edição
+            }
+        } catch (error) {
+            console.error('Erro ao validar modo de edição:', error);
+            // Se der erro, continua (pode ser template do IndexedDB)
+        }
+    }
     
     // Efeito ripple ao clicar
     const ripple = document.createElement('span');
