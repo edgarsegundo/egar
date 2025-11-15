@@ -237,15 +237,36 @@ async function openFillModal() {
 
     // Limpa campos antigos
     modalFieldsContainer.innerHTML = '';
-    // Cria um input para cada campo do templateConfig
-    templateConfig.fields.forEach((field, idx) => {
+    
+    // Coleta todos os inputs do PDF com seus tabindex
+    const pdfInputsWithTabIndex = [];
+    document.querySelectorAll('#pdfContainer input[type="text"]').forEach((input) => {
+        const fieldName = input.dataset.fieldName;
+        const tabIndex = parseInt(input.tabIndex) || 999;
+        if (fieldName) {
+            const fieldIndex = templateConfig.fields.findIndex(f => f.name === fieldName);
+            if (fieldIndex !== -1) {
+                pdfInputsWithTabIndex.push({
+                    field: templateConfig.fields[fieldIndex],
+                    fieldIndex: fieldIndex,
+                    tabIndex: tabIndex
+                });
+            }
+        }
+    });
+    
+    // Ordena pelos tabindex
+    pdfInputsWithTabIndex.sort((a, b) => a.tabIndex - b.tabIndex);
+    
+    // Cria um input para cada campo na ordem do tabindex
+    pdfInputsWithTabIndex.forEach(({ field, fieldIndex }) => {
         // Wrapper para label animada
         const wrapper = document.createElement('div');
         wrapper.className = 'relative flex flex-col';
 
         // Label (sempre visível)
         const label = document.createElement('span');
-        label.textContent = field.name || `Campo ${idx+1}`;
+        label.textContent = field.name || `Campo ${fieldIndex+1}`;
         label.className = 'absolute left-2 top-2 text-xs text-blue-700 font-semibold pointer-events-none';
         label.style.transform = 'translateY(-70%)';
         wrapper.appendChild(label);
@@ -255,7 +276,8 @@ async function openFillModal() {
         input.type = 'text';
         input.value = field.value || '';
         input.className = 'w-full border border-blue-300 rounded px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition';
-        input.dataset.idx = idx;
+        input.dataset.idx = fieldIndex;
+        input.placeholder = field.hint || '';
 
         wrapper.appendChild(input);
         modalFieldsContainer.appendChild(wrapper);
