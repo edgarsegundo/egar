@@ -532,6 +532,7 @@ async function loadTemplates() {
                     class="template-btn w-full text-left px-3 py-2 rounded hover:bg-blue-50 border border-gray-200 text-sm transition-colors"
                     data-template="${template}"
                     data-source="templates"
+                    title="Template do servidor: ${template}"
                 >
                     <div class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -568,6 +569,7 @@ async function loadTemplates() {
                     class="template-btn w-full text-left px-3 py-2 rounded hover:bg-green-50 border border-green-200 text-sm transition-colors"
                     data-template="${template.name}"
                     data-source="indexeddb"
+                    title="Meu template: ${template.name} (${template.size}MB)"
                 >
                     <div class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -606,6 +608,7 @@ async function loadClonedFiles() {
                     class="template-btn w-full text-left px-3 py-2 rounded hover:bg-amber-50 border border-gray-200 text-sm transition-colors"
                     data-template="${clone.name}"
                     data-source="clone"
+                    title="Clone: ${clone.name} (${clone.size}MB)"
                 >
                     <div class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
