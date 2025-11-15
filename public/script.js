@@ -218,19 +218,30 @@ async function openFillModal() {
         return;
     }
     
-    // Só permite preencher se for do IndexedDB (templates do usuário ou clones)
-    if (currentTemplateSource !== 'indexeddb' && currentTemplateSource !== 'clone') {
-        await Swal.fire({
-            icon: 'info',
-            title: 'Clone o Template Primeiro',
-            html: `
-                <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser preenchidos diretamente.</p>
-                <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
-                <p class="text-xs text-gray-500">Isso permite que você salve suas alterações no seu navegador.</p>
-            `,
-            confirmButtonText: 'Entendi'
+    // 🔒 VALIDAÇÃO BACKEND: Verifica se pode preencher
+    try {
+        const response = await fetch(`/validate-fill/${currentTemplate}`, {
+            method: 'POST'
         });
-        return;
+        
+        const validation = await response.json();
+        
+        if (!validation.success) {
+            await Swal.fire({
+                icon: 'info',
+                title: 'Clone o Template Primeiro',
+                html: `
+                    <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser preenchidos diretamente.</p>
+                    <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
+                    <p class="text-xs text-gray-500">Isso permite que você salve suas alterações no seu navegador.</p>
+                `,
+                confirmButtonText: 'Entendi'
+            });
+            return;
+        }
+    } catch (error) {
+        console.error('Erro ao validar preenchimento:', error);
+        // Se der erro, continua (pode ser template do IndexedDB)
     }
     
     // Antes de abrir o modal, sincroniza os valores dos inputs do containerpdf para o templateConfig
@@ -1013,15 +1024,31 @@ if (renameTemplateBtn) {
             return;
         }
         
-        // Só permite renomear se for do IndexedDB (templates do usuário ou clones)
-        if (currentTemplateSource !== 'indexeddb' && currentTemplateSource !== 'clone') {
-            await Swal.fire({
-                icon: 'info',
-                title: 'Não Permitido',
-                text: 'Apenas templates armazenados no seu navegador podem ser renomeados. Templates do servidor não podem ser renomeados.',
-                confirmButtonText: 'OK'
+        // 🔒 VALIDAÇÃO BACKEND: Verifica se pode renomear
+        try {
+            const response = await fetch('/rename-template', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    oldName: currentTemplate,
+                    newName: currentTemplate // Só para validação
+                })
             });
-            return;
+            
+            const validation = await response.json();
+            
+            if (response.status === 403) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Renomeação não permitida',
+                    text: validation.message,
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+        } catch (error) {
+            // Se deu erro de rede ou validação, continua (pode ser template do IndexedDB)
+            console.log('Validação de renomeação:', error);
         }
         
         // Remove a extensão .pdf para sugerir o nome
@@ -1108,18 +1135,35 @@ if (deleteTemplateBtn) {
             return;
         }
         
-        // Só permite excluir se for do IndexedDB (templates do usuário ou clones)
-        if (currentTemplateSource !== 'indexeddb' && currentTemplateSource !== 'clone') {
+        // 🔒 VALIDAÇÃO BACKEND: Verifica se pode excluir
+        try {
+            const response = await fetch(`/template/${currentTemplate}`, {
+                method: 'DELETE'
+            });
+            
+            const result = await response.json();
+            
+            if (!result.success) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Exclusão não permitida',
+                    text: result.message,
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+        } catch (error) {
+            console.error('Erro ao validar exclusão:', error);
             await Swal.fire({
-                icon: 'info',
-                title: 'Não Permitido',
-                text: 'Apenas templates armazenados no seu navegador podem ser excluídos. Templates do servidor não podem ser removidos.',
+                icon: 'error',
+                title: 'Erro de validação',
+                text: 'Não foi possível validar a exclusão do template.',
                 confirmButtonText: 'OK'
             });
             return;
         }
         
-        // Confirmação
+        // Se passou na validação, pede confirmação
         const result = await Swal.fire({
             title: 'Confirmar Exclusão',
             html: `

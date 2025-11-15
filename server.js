@@ -10,6 +10,29 @@ app.use(express.static("public"));
 app.use(express.json({ limit: '50mb' })); // Aumenta limite para aceitar PDFs grandes
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// 🔒 LISTA NEGRA - Templates protegidos do servidor que não podem ser excluídos ou renomeados
+const PROTECTED_SERVER_TEMPLATES = [
+    'FormMexico.pdf',
+    'FormMexicod.pdf',
+    // Adicione aqui outros templates críticos que devem ser protegidos
+];
+
+// 🔒 Middleware para verificar se um template do servidor está protegido
+function isServerTemplateProtected(filename) {
+    // Verifica se o arquivo existe na pasta template-files (servidor)
+    const serverTemplatePath = path.resolve('template-files', filename);
+    const existsInServer = fs.existsSync(serverTemplatePath);
+    
+    // Verifica se está na lista negra
+    const isInBlacklist = PROTECTED_SERVER_TEMPLATES.includes(filename);
+    
+    return {
+        isProtected: existsInServer || isInBlacklist,
+        existsInServer,
+        isInBlacklist
+    };
+}
+
 app.post("/upload", upload.single("pdf"), (req, res) => {
   if (!req.file) return res.status(400).send("No file uploaded");
   res.json({ filename: req.file.filename, original: req.file.originalname });
@@ -296,6 +319,20 @@ app.post("/rename-template", (req, res) => {
             return res.status(400).json({ error: "oldName e newName são obrigatórios" });
         }
         
+        // 🔒 PROTEÇÃO: Verifica se o template do servidor está protegido
+        const protection = isServerTemplateProtected(oldName);
+        if (protection.isProtected) {
+            return res.status(403).json({ 
+                success: false,
+                error: 'Template protegido',
+                message: protection.isInBlacklist 
+                    ? `O template '${oldName}' está na lista de proteção e não pode ser renomeado.`
+                    : `Templates do servidor não podem ser renomeados.`,
+                isInBlacklist: protection.isInBlacklist,
+                existsInServer: protection.existsInServer
+            });
+        }
+        
         // Paths dos arquivos antigos
         const oldPdfPath = path.resolve('template-files', oldName);
         const oldConfigPath = path.resolve('template-configs', `${oldName}.json`);
@@ -332,6 +369,54 @@ app.post("/rename-template", (req, res) => {
         console.error('Erro ao renomear template:', error);
         res.status(500).json({ error: `Erro ao renomear template: ${error.message}` });
     }
+});
+
+// 🔒 Endpoint para validar exclusão de template
+app.delete("/template/:filename", (req, res) => {
+    const filename = req.params.filename;
+    
+    // 🔒 PROTEÇÃO: Verifica se o template do servidor está protegido
+    const protection = isServerTemplateProtected(filename);
+    if (protection.isProtected) {
+        return res.status(403).json({ 
+            success: false,
+            error: 'Template protegido',
+            message: protection.isInBlacklist 
+                ? `O template '${filename}' está na lista de proteção e não pode ser excluído.`
+                : `Templates do servidor não podem ser excluídos. Apenas templates armazenados no navegador podem ser removidos.`,
+            isInBlacklist: protection.isInBlacklist,
+            existsInServer: protection.existsInServer
+        });
+    }
+    
+    // Se chegou aqui, é um template do usuário (IndexedDB)
+    // O servidor não precisa fazer nada, pois está no IndexedDB do navegador
+    res.json({ 
+        success: true, 
+        message: 'Exclusão autorizada (arquivo do navegador)' 
+    });
+});
+
+// 🔒 Endpoint para validar preenchimento de template
+app.post("/validate-fill/:filename", (req, res) => {
+    const filename = req.params.filename;
+    
+    // 🔒 PROTEÇÃO: Verifica se o template do servidor está protegido
+    const protection = isServerTemplateProtected(filename);
+    if (protection.existsInServer) {
+        return res.status(403).json({ 
+            success: false,
+            error: 'Preenchimento não permitido',
+            message: `Templates do servidor não podem ser preenchidos diretamente. Por favor, clone o template primeiro.`,
+            existsInServer: true
+        });
+    }
+    
+    // Se chegou aqui, pode preencher
+    res.json({ 
+        success: true, 
+        message: 'Preenchimento autorizado' 
+    });
 });
 
 const PORT = 3000;
