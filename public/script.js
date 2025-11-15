@@ -13,6 +13,9 @@ let templateFields = [];
 // Guarda referências dos campos criados
 let createdFields = [];
 
+// 🔒 Variável global para armazenar se está em modo produção
+let isProductionMode = false;
+
 // Referências aos elementos do DOM
 const pdfContainer = document.getElementById('pdfContainer');
 const downloadBtn = document.getElementById('downloadBtn');
@@ -353,6 +356,97 @@ updateBtn.addEventListener('click', () => {
     closeFillModal();
 });
 
+// 🔒 Função para verificar se está em modo produção no servidor
+async function checkProductionMode() {
+    try {
+        const response = await fetch('/is-production');
+        const result = await response.json();
+        isProductionMode = result.isProduction;
+        console.log(`🔒 Modo produção: ${isProductionMode ? 'ATIVO' : 'INATIVO'}`);
+        return isProductionMode;
+    } catch (error) {
+        console.error('Erro ao verificar modo produção:', error);
+        isProductionMode = false;
+        return false;
+    }
+}
+
+// 🔒 Função para gerenciar estado dos botões baseado no modo produção e fonte do template
+function updateButtonsState() {
+    const addServerTemplateBtn = document.getElementById('addServerTemplateBtn');
+    const deleteTemplateBtn = document.getElementById('deleteTemplateBtn');
+    const renameTemplateBtn = document.getElementById('renameTemplateBtn');
+    const fillFormBtn = document.getElementById('fillFormBtn');
+    
+    // Se está em modo produção E o template é do servidor
+    const isServerTemplate = currentTemplateSource === 'templates';
+    const shouldDisable = isProductionMode && isServerTemplate;
+    
+    console.log(`🔒 Atualizando botões - Produção: ${isProductionMode}, Template servidor: ${isServerTemplate}, Disable: ${shouldDisable}`);
+    
+    // Botão "+" de adicionar template ao servidor
+    if (addServerTemplateBtn) {
+        if (isProductionMode) {
+            addServerTemplateBtn.disabled = true;
+            addServerTemplateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            addServerTemplateBtn.classList.remove('hover:bg-green-100');
+            addServerTemplateBtn.title = 'Desabilitado em modo produção';
+        } else {
+            addServerTemplateBtn.disabled = false;
+            addServerTemplateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            addServerTemplateBtn.classList.add('hover:bg-green-100');
+            addServerTemplateBtn.title = 'Adicionar template ao servidor';
+        }
+    }
+    
+    // Botões de ação do template
+    if (shouldDisable) {
+        // Desabilita botões
+        if (deleteTemplateBtn) {
+            deleteTemplateBtn.disabled = true;
+            deleteTemplateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            deleteTemplateBtn.classList.remove('hover:bg-red-100');
+            deleteTemplateBtn.title = 'Desabilitado para templates do servidor em produção';
+        }
+        
+        if (renameTemplateBtn) {
+            renameTemplateBtn.disabled = true;
+            renameTemplateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            renameTemplateBtn.classList.remove('hover:bg-blue-100');
+            renameTemplateBtn.title = 'Desabilitado para templates do servidor em produção';
+        }
+        
+        if (fillFormBtn) {
+            fillFormBtn.disabled = true;
+            fillFormBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            fillFormBtn.classList.remove('hover:bg-blue-100');
+            fillFormBtn.title = 'Desabilitado para templates do servidor em produção';
+        }
+    } else {
+        // Habilita botões
+        if (deleteTemplateBtn) {
+            deleteTemplateBtn.disabled = false;
+            deleteTemplateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            deleteTemplateBtn.classList.add('hover:bg-red-100');
+            deleteTemplateBtn.title = 'Excluir';
+        }
+        
+        if (renameTemplateBtn) {
+            renameTemplateBtn.disabled = false;
+            renameTemplateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            renameTemplateBtn.classList.add('hover:bg-blue-100');
+            renameTemplateBtn.title = 'Renomear';
+        }
+        
+        if (fillFormBtn) {
+            fillFormBtn.disabled = false;
+            fillFormBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            fillFormBtn.classList.add('hover:bg-blue-100');
+            fillFormBtn.title = 'Preencher formulário';
+        }
+    }
+}
+
 // Função auxiliar: Atualiza o nome de um template na lista (sem recarregar tudo)
 function updateTemplateNameInList(oldName, newName, source) {
     let selector;
@@ -618,6 +712,9 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
     } else {
         syncToOriginBtn.classList.add('hidden');
     }
+    
+    // 🔒 Atualiza o estado dos botões baseado no modo produção e fonte do template
+    updateButtonsState();
 }
 
 // Sidebar toggle
@@ -1381,9 +1478,15 @@ if (deleteTemplateBtn) {
     });
 }
 
-// Load templates when page loads
-loadTemplates();
-loadClonedFiles();
+// 🔒 Verificar modo produção e carregar templates quando a página carrega
+(async () => {
+    await checkProductionMode();
+    await loadTemplates();
+    loadClonedFiles();
+    
+    // Atualiza o estado inicial dos botões
+    updateButtonsState();
+})();
 
 // Migrar arquivos gerados do servidor para IndexedDB (primeira vez)
 (async () => {

@@ -467,5 +467,13 @@ app.post("/validate-edit-mode/:filename", (req, res) => {
     });
 });
 
+// 🔒 Endpoint para verificar se está em modo produção
+app.get("/is-production", (req, res) => {
+    res.json({ 
+        isProduction: IS_PRODUCTION,
+        message: IS_PRODUCTION ? 'Modo PRODUÇÃO ativo' : 'Modo DESENVOLVIMENTO ativo'
+    });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
