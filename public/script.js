@@ -1220,6 +1220,15 @@ async function renderPDF(url) {
 
         canvas.onclick = async (e) => {
             if (!isEditorMode) return;
+            
+            // Remove o toast imediatamente ao clicar no PDF
+            const editModeToast = document.getElementById('editModeToast');
+            if (editModeToast && editModeToast.classList.contains('show')) {
+                editModeToast.classList.remove('show');
+                editModeToast.classList.add('hide');
+                editModeToast.removeAttribute('data-auto-hide');
+            }
+            
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
