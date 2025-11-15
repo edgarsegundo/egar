@@ -1694,6 +1694,7 @@ async function renderPDF(url) {
             // Pega valores atuais
             const currentName = input.dataset.fieldName || name;
             const currentHint = templateConfig.fields[idx]?.hint || '';
+            const currentValue = input.value || '';
             
             const result = await Swal.fire({
                 title: 'Configurar Campo',
@@ -1707,8 +1708,13 @@ async function renderPDF(url) {
                         <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
                             Dica de formato:
                         </label>
-                        <input id="fieldHintInput" class="swal2-input" placeholder="Ex: dd/mm/yyyy" value="${currentHint}" style="margin: 0; width: 100%;">
-                        <small style="color: #6b7280; display: block; margin-top: 0.25rem;">Esta dica aparecerá como placeholder do campo</small>
+                        <input id="fieldHintInput" class="swal2-input" placeholder="Ex: dd/mm/yyyy" value="${currentHint}" style="margin: 0 0 0.25rem 0; width: 100%;">
+                        <small style="color: #6b7280; display: block; margin-bottom: 1rem;">Esta dica aparecerá como placeholder do campo</small>
+                        
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+                            Conteúdo:
+                        </label>
+                        <input id="fieldValueInput" class="swal2-input" value="${currentValue}" style="margin: 0; width: 100%;">
                     </div>
                 `,
                 focusConfirm: false,
@@ -1720,27 +1726,30 @@ async function renderPDF(url) {
                 preConfirm: () => {
                     const newName = document.getElementById('fieldNameInput').value.trim();
                     const newHint = document.getElementById('fieldHintInput').value.trim();
+                    const newValue = document.getElementById('fieldValueInput').value.trim();
                     
                     if (!newName) {
                         Swal.showValidationMessage('O nome do campo é obrigatório');
                         return false;
                     }
                     
-                    return { name: newName, hint: newHint };
+                    return { name: newName, hint: newHint, value: newValue };
                 }
             });
             
             if (result.isConfirmed && result.value) {
-                const { name: newName, hint: newHint } = result.value;
+                const { name: newName, hint: newHint, value: newValue } = result.value;
                 
                 // Atualiza o campo
                 input.dataset.fieldName = newName;
                 input.placeholder = newHint || newName;
+                input.value = newValue;
                 
                 // Atualiza no config
                 if (templateConfig.fields[idx]) {
                     templateConfig.fields[idx].name = newName;
                     templateConfig.fields[idx].hint = newHint;
+                    templateConfig.fields[idx].value = newValue;
                 }
                 
                 // Auto-save
