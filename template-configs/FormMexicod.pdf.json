@@ -485,12 +485,14 @@
       "fontSize": 16
     },
     {
-      "x": 624.5,
-      "y": 309.5,
+      "x": 315.5,
+      "y": 289.5,
       "name": "xxxx",
       "value": "",
       "page": 1,
-      "fontSize": 16
+      "fontSize": 16,
+      "width": 128,
+      "height": 33
     },
     {
       "x": 660.5,
