@@ -487,56 +487,58 @@ toggleModeBtn.addEventListener('click', (event) => {
 });
 
 // Save configuration
-saveConfigBtn.addEventListener('click', async () => {
-    if (!currentTemplate) return;
+if (saveConfigBtn) {
+    saveConfigBtn.addEventListener('click', async () => {
+        if (!currentTemplate) return;
 
-    // Preserva o derivedFrom se existir
-    const config = { fields: templateConfig.fields };
-    if (templateConfig.derivedFrom) {
-        config.derivedFrom = templateConfig.derivedFrom;
-    }
+        // Preserva o derivedFrom se existir
+        const config = { fields: templateConfig.fields };
+        if (templateConfig.derivedFrom) {
+            config.derivedFrom = templateConfig.derivedFrom;
+        }
 
-    console.log('Salvando configuração:', config);
+        console.log('Salvando configuração:', config);
 
-    try {
-        // Se o template é do IndexedDB, salva a config no IndexedDB também
-        if (currentTemplateSource === 'indexeddb') {
-            await saveTemplateConfigToIndexedDB(currentTemplate, config);
+        try {
+            // Se o template é do IndexedDB, salva a config no IndexedDB também
+            if (currentTemplateSource === 'indexeddb') {
+                await saveTemplateConfigToIndexedDB(currentTemplate, config);
+                
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Configuração Salva!',
+                    text: `A configuração foi salva no seu navegador.`,
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                // Salva no servidor
+                const response = await fetch(`/template-config/${currentTemplate}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                const result = await response.json();
+                console.log('Resposta do servidor:', result);
+                
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Configuração Salva!',
+                    text: 'A configuração foi salva no servidor.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        } catch (error) {
+            console.error('Error saving config:', error);
             
             await Swal.fire({
-                icon: 'success',
-                title: 'Configuração Salva!',
-                text: `A configuração foi salva no seu navegador.`,
-                confirmButtonText: 'OK'
-            });
-        } else {
-            // Salva no servidor
-            const response = await fetch(`/template-config/${currentTemplate}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(config)
-            });
-            const result = await response.json();
-            console.log('Resposta do servidor:', result);
-            
-            await Swal.fire({
-                icon: 'success',
-                title: 'Configuração Salva!',
-                text: 'A configuração foi salva no servidor.',
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Erro ao salvar configuração',
                 confirmButtonText: 'OK'
             });
         }
-    } catch (error) {
-        console.error('Error saving config:', error);
-        
-        await Swal.fire({
-            icon: 'error',
-            title: 'Erro!',
-            text: 'Erro ao salvar configuração',
-            confirmButtonText: 'OK'
-        });
-    }
-});
+    });
+}
 
 // Clear fields
 // clearFieldsBtn.addEventListener('click', () => {
@@ -1055,17 +1057,57 @@ async function renderPDF(url) {
         pageWrapper.appendChild(canvas);
         await page.render({ canvasContext: ctx, viewport }).promise;
 
-        canvas.onclick = (e) => {
+        canvas.onclick = async (e) => {
             if (!isEditorMode) return;
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            let fieldName = prompt("Digite o nome do campo:", "");
+            
+            const { value: fieldName } = await Swal.fire({
+                title: 'Novo Campo',
+                input: 'text',
+                inputLabel: 'Digite o nome do campo:',
+                inputPlaceholder: 'Nome do campo',
+                showCancelButton: true,
+                confirmButtonText: 'Criar',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value || !value.trim()) {
+                        return 'Por favor, digite um nome válido!';
+                    }
+                }
+            });
+            
             // Se o usuário cancelar ou não digitar nada, não cria o campo
             if (!fieldName || fieldName.trim() === '') return;
+            
             // Sempre salva a página do campo
-            templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum, fontSize: 16 });
-            createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
+            templateConfig.fields.push({ x, y, name: fieldName.trim(), value: '', page: pageNum, fontSize: 16 });
+            createInputField(x, y, fieldName.trim(), '', isEditorMode, templateConfig.fields.length - 1, pageNum);
+            
+            // Auto-save após criar o campo
+            if (currentTemplate) {
+                try {
+                    const configToSave = { 
+                        fields: templateConfig.fields,
+                        derivedFrom: templateConfig.derivedFrom 
+                    };
+                    
+                    if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                        await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
+                        console.log(`Campo criado e salvo no IndexedDB: ${fieldName.trim()}`);
+                    } else {
+                        await fetch(`/template-config/${currentTemplate}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(configToSave)
+                        });
+                        console.log(`Campo criado e salvo no servidor: ${fieldName.trim()}`);
+                    }
+                } catch (err) {
+                    console.error('Erro ao salvar novo campo:', err);
+                }
+            }
         };
     }
     
