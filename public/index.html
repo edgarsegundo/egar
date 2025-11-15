@@ -51,11 +51,6 @@
       100% { background-position: 200% center; }
     }
 
-    @keyframes rotate-gradient {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
     @keyframes pulse-glow {
       0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.2); }
       50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.6), 0 0 60px rgba(168, 85, 247, 0.3); }
@@ -75,15 +70,11 @@
       animation: float 2s ease-in-out infinite;
     }
 
-    /* Ícone rotativo no modo edição */
+    /* Ícone com display flex */
     #modeIcon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-    }
-
-    #toggleModeBtn.edit-mode-active #modeIcon {
-      animation: rotate-gradient 3s linear infinite;
     }
 
     /* Transição suave entre estados */

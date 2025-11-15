@@ -81,16 +81,12 @@ function setMode(editor) {
   const toggleBtn = document.getElementById('toggleModeBtn');
   
   if (isEditorMode) {
-    // Modo EDIÇÃO - Visual Verde com ícone de check/voltar
+    // Modo EDIÇÃO - Visual Verde sem ícone
     if (currentModeSpan) currentModeSpan.textContent = '✓ Modo Edição Ativo';
     
-    // Muda o ícone para "voltar" (seta circular)
+    // Remove o ícone no modo edição
     if (modeIcon) {
-      modeIcon.innerHTML = `
-        <svg class="w-5 h-5 edit-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/>
-        </svg>
-      `;
+      modeIcon.innerHTML = '';
     }
     
     // Adiciona classe de modo ativo
