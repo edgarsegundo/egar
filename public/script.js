@@ -51,25 +51,26 @@ modal.style.margin = '0 auto';
 const modalHeader = document.createElement('div');
 modalHeader.className = 'flex items-center justify-between px-8 py-6 border-b border-gray-200 bg-white sticky top-0 z-10';
 
-const modalTitle = document.createElement('h2');
-modalTitle.textContent = 'Preencher Formulário';
-modalTitle.className = 'text-2xl font-bold text-gray-800';
-
 const buttonsContainer = document.createElement('div');
 buttonsContainer.className = 'flex gap-3';
-
-const cancelBtn = document.createElement('button');
-cancelBtn.textContent = 'Cancelar';
-cancelBtn.className = 'px-5 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 font-semibold transition';
 
 const updateBtn = document.createElement('button');
 updateBtn.textContent = 'Atualizar';
 updateBtn.className = 'px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold transition';
 
-buttonsContainer.appendChild(cancelBtn);
+const cancelBtn = document.createElement('button');
+cancelBtn.textContent = 'Cancelar';
+cancelBtn.className = 'px-5 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 font-semibold transition';
+
 buttonsContainer.appendChild(updateBtn);
-modalHeader.appendChild(modalTitle);
+buttonsContainer.appendChild(cancelBtn);
+
+const modalTitle = document.createElement('h2');
+modalTitle.textContent = 'Preencher Formulário';
+modalTitle.className = 'text-2xl font-bold text-gray-800';
+
 modalHeader.appendChild(buttonsContainer);
+modalHeader.appendChild(modalTitle);
 modal.appendChild(modalHeader);
 
 // Container para os campos
