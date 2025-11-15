@@ -41,9 +41,10 @@ const fillFormBtn = document.getElementById('fillFormBtn');
 const overlay = document.createElement('div');
 overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 opacity-0 pointer-events-none backdrop-blur-sm';
 overlay.style.display = 'none';
+overlay.style.padding = '2rem 0';
 
 const modal = document.createElement('div');
-modal.className = 'bg-white rounded-xl shadow-2xl flex flex-col w-[800px] h-[100vh] max-h-screen p-0 overflow-y-auto relative transition-transform duration-300 scale-95';
+modal.className = 'bg-white rounded-xl shadow-2xl flex flex-col w-[800px] max-h-full p-0 overflow-y-auto relative transition-transform duration-300 scale-95';
 modal.style.maxWidth = '100vw';
 modal.style.margin = '0 auto';
 
