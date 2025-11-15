@@ -39,6 +39,78 @@
       justify-content: center;
       overflow: auto;
     }
+
+    /* Animações customizadas para o botão de modo */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @keyframes rotate-gradient {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.2); }
+      50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.6), 0 0 60px rgba(168, 85, 247, 0.3); }
+    }
+
+    .animation-delay-150 {
+      animation-delay: 150ms;
+    }
+
+    /* Modo Edição Ativo - Efeitos especiais */
+    #toggleModeBtn.edit-mode-active {
+      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    #toggleModeBtn.edit-mode-active .edit-icon {
+      animation: float 2s ease-in-out infinite;
+    }
+
+    /* Ícone rotativo no modo edição */
+    #modeIcon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #toggleModeBtn.edit-mode-active #modeIcon {
+      animation: rotate-gradient 3s linear infinite;
+    }
+
+    /* Transição suave entre estados */
+    #toggleModeBtn {
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Efeito de ripple ao clicar */
+    @keyframes ripple {
+      0% {
+        transform: scale(0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    .ripple-effect {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.6);
+      width: 20px;
+      height: 20px;
+      animation: ripple 0.6s ease-out;
+    }
   </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
@@ -110,10 +182,33 @@
       </svg>
     </button>
 
-    <!-- Botão Modo Edição - Canto Superior Direito -->
-    <div style="position: absolute; right: 1rem; top: 1rem; z-index: 10;">
-      <button id="toggleModeBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 font-medium shadow-lg transition-all hidden">
-        <span id="currentMode">Ativar Modo Edição</span>
+    <!-- Botão Modo Edição - Canto Superior Direito - Design Incrível -->
+    <div style="position: absolute; right: 1.5rem; top: 1.5rem; z-index: 50;">
+      <button id="toggleModeBtn" class="group relative hidden overflow-hidden bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-2xl transition-all duration-500 hover:shadow-purple-500/50 hover:scale-105 hover:rotate-1 border-2 border-purple-400/30">
+        <!-- Efeito de brilho animado -->
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+        
+        <!-- Container do conteúdo -->
+        <div class="relative flex items-center gap-3">
+          <!-- Ícone que muda de acordo com o modo -->
+          <div id="modeIcon" class="transition-all duration-500">
+            <!-- Ícone de edição (caneta) -->
+            <svg class="w-5 h-5 edit-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+          </div>
+          
+          <!-- Texto do modo -->
+          <span id="currentMode" class="text-sm font-extrabold tracking-wide">Ativar Modo Edição</span>
+          
+          <!-- Indicador visual pulsante -->
+          <div class="absolute -right-1 -top-1 w-3 h-3 bg-green-400 rounded-full animate-ping opacity-75"></div>
+          <div class="absolute -right-1 -top-1 w-3 h-3 bg-green-400 rounded-full"></div>
+        </div>
+        
+        <!-- Partículas decorativas -->
+        <div class="absolute top-0 left-0 w-2 h-2 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce"></div>
+        <div class="absolute bottom-0 right-0 w-2 h-2 bg-pink-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce animation-delay-150"></div>
       </button>
     </div>
 
@@ -253,7 +348,54 @@
           toolbarDisplay.classList.add('opacity-0');
         });
       }
+      
+      // Efeito de partículas ao passar mouse no botão de modo
+      const toggleModeBtn = document.getElementById('toggleModeBtn');
+      if (toggleModeBtn) {
+        toggleModeBtn.addEventListener('mouseenter', () => {
+          // Cria estrelinhas ao redor do botão
+          for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+              createSparkle(toggleModeBtn);
+            }, i * 100);
+          }
+        });
+      }
     });
+    
+    // Função para criar efeito de brilho/estrelas
+    function createSparkle(element) {
+      const sparkle = document.createElement('div');
+      sparkle.innerHTML = '✨';
+      sparkle.style.position = 'absolute';
+      sparkle.style.fontSize = '20px';
+      sparkle.style.pointerEvents = 'none';
+      sparkle.style.zIndex = '100';
+      
+      const rect = element.getBoundingClientRect();
+      const x = rect.left + Math.random() * rect.width;
+      const y = rect.top + Math.random() * rect.height;
+      
+      sparkle.style.left = x + 'px';
+      sparkle.style.top = y + 'px';
+      
+      document.body.appendChild(sparkle);
+      
+      // Animação de subida e fade
+      let opacity = 1;
+      let yPos = y;
+      const interval = setInterval(() => {
+        opacity -= 0.05;
+        yPos -= 2;
+        sparkle.style.opacity = opacity;
+        sparkle.style.top = yPos + 'px';
+        
+        if (opacity <= 0) {
+          clearInterval(interval);
+          sparkle.remove();
+        }
+      }, 30);
+    }
   </script>
   <script src="./script.js"></script>
 </body>

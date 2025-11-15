@@ -77,13 +77,47 @@ function setMode(editor) {
   console.log(`[setMode] Mudando para modo: ${isEditorMode ? 'EDIÇÃO' : 'PREENCHIMENTO'}`);
   
   const currentModeSpan = document.getElementById('currentMode');
+  const modeIcon = document.getElementById('modeIcon');
+  const toggleBtn = document.getElementById('toggleModeBtn');
   
   if (isEditorMode) {
-    if (currentModeSpan) currentModeSpan.textContent = 'Voltar Modo Preenchimento';
+    // Modo EDIÇÃO - Visual Verde com ícone de check/voltar
+    if (currentModeSpan) currentModeSpan.textContent = '✓ Modo Edição Ativo';
+    
+    // Muda o ícone para "voltar" (seta circular)
+    if (modeIcon) {
+      modeIcon.innerHTML = `
+        <svg class="w-5 h-5 edit-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/>
+        </svg>
+      `;
+    }
+    
+    // Adiciona classe de modo ativo
+    if (toggleBtn) {
+      toggleBtn.classList.add('edit-mode-active');
+    }
+    
     if (saveConfigBtn) saveConfigBtn.classList.remove('hidden');
     if (clearFieldsBtn) clearFieldsBtn.classList.remove('hidden');
   } else {
+    // Modo PREENCHIMENTO - Visual Roxo com ícone de editar
     if (currentModeSpan) currentModeSpan.textContent = 'Ativar Modo Edição';
+    
+    // Muda o ícone para "editar" (caneta)
+    if (modeIcon) {
+      modeIcon.innerHTML = `
+        <svg class="w-5 h-5 edit-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+        </svg>
+      `;
+    }
+    
+    // Remove classe de modo ativo
+    if (toggleBtn) {
+      toggleBtn.classList.remove('edit-mode-active');
+    }
+    
     if (saveConfigBtn) saveConfigBtn.classList.add('hidden');
     if (clearFieldsBtn) clearFieldsBtn.classList.add('hidden');
   }
@@ -492,6 +526,28 @@ uploadForm.addEventListener("submit", async (e) => {
 // Mode toggle
 toggleModeBtn.addEventListener('click', (event) => {
     event.preventDefault();
+    
+    // Efeito ripple ao clicar
+    const ripple = document.createElement('span');
+    ripple.classList.add('ripple-effect');
+    
+    const rect = toggleModeBtn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
+    
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    
+    toggleModeBtn.appendChild(ripple);
+    
+    // Remove o ripple após a animação
+    setTimeout(() => {
+        ripple.remove();
+    }, 600);
+    
+    // Alterna o modo
     setMode(!isEditorMode);
 });
 
