@@ -1630,19 +1630,19 @@ if (deleteTemplateBtn) {
     updateButtonsState();
 })();
 
-// Migrar arquivos gerados do servidor para IndexedDB (primeira vez)
-(async () => {
-    try {
-        const result = await migrateGeneratedFilesToIndexedDB();
-        if (result.count > 0) {
-            console.log(`🎉 ${result.count} arquivos migrados para IndexedDB`);
-            // Recarregar a lista de clones após migração
-            await loadClonedFiles();
-        }
-    } catch (error) {
-        console.error('Erro ao migrar arquivos:', error);
-    }
-})();
+// // Migrar arquivos gerados do servidor para IndexedDB (primeira vez)
+// (async () => {
+//     try {
+//         const result = await migrateGeneratedFilesToIndexedDB();
+//         if (result.count > 0) {
+//             console.log(`🎉 ${result.count} arquivos migrados para IndexedDB`);
+//             // Recarregar a lista de clones após migração
+//             await loadClonedFiles();
+//         }
+//     } catch (error) {
+//         console.error('Erro ao migrar arquivos:', error);
+//     }
+// })();
 
 async function renderPDF(url) {
     console.log(`[renderPDF] INICIANDO - URL: ${url}`);
