@@ -334,15 +334,30 @@ fillFormBtn.addEventListener('click', openFillModal);
 cancelBtn.addEventListener('click', closeFillModal);
 
 // Botão atualizar
-updateBtn.addEventListener('click', () => {
-    // Atualiza os valores dos campos no templateConfig e no containerpdf
+updateBtn.addEventListener('click', async () => {
+    console.log('🔄 [ATUALIZAR] Iniciando atualização dos campos...');
+    console.log('🔄 [ATUALIZAR] currentTemplate:', currentTemplate);
+    console.log('🔄 [ATUALIZAR] currentTemplateSource:', currentTemplateSource);
+    console.log('🔄 [ATUALIZAR] templateConfig antes:', JSON.parse(JSON.stringify(templateConfig)));
+    
+    // Atualiza os valores dos campos no templateConfig
     const inputs = modalFieldsContainer.querySelectorAll('input');
-    inputs.forEach(input => {
+    console.log('🔄 [ATUALIZAR] Total de inputs no modal:', inputs.length);
+    
+    inputs.forEach((input, i) => {
         const idx = parseInt(input.dataset.idx, 10);
+        const newValue = input.value;
+        console.log(`  Input ${i}: idx=${idx}, valor="${newValue}"`);
+        
         if (templateConfig.fields[idx]) {
-            templateConfig.fields[idx].value = input.value;
+            const oldValue = templateConfig.fields[idx].value;
+            templateConfig.fields[idx].value = newValue;
+            console.log(`  ✓ Campo "${templateConfig.fields[idx].name}": "${oldValue}" → "${newValue}"`);
         }
     });
+    
+    console.log('🔄 [ATUALIZAR] templateConfig depois:', JSON.parse(JSON.stringify(templateConfig)));
+    
     // Atualiza os inputs visuais do PDF usando correspondência por nome
     document.querySelectorAll('#pdfContainer input[type="text"]').forEach((input) => {
         const fieldName = input.dataset.fieldName;
@@ -350,9 +365,62 @@ updateBtn.addEventListener('click', () => {
             const field = templateConfig.fields.find(f => f.name === fieldName);
             if (field) {
                 input.value = field.value || '';
+                console.log(`  ✓ Input visual "${fieldName}" atualizado: "${field.value}"`);
             }
         }
     });
+    
+    // 💾 SALVA AS ALTERAÇÕES automaticamente após atualizar
+    if (currentTemplate) {
+        try {
+            console.log('💾 [SALVAR] Iniciando salvamento...');
+            
+            // Preserva o derivedFrom se existir
+            const config = { 
+                fields: templateConfig.fields.map(f => ({
+                    name: f.name,
+                    value: f.value,
+                    x: f.x,
+                    y: f.y,
+                    page: f.page,
+                    width: f.width,
+                    height: f.height,
+                    fontSize: f.fontSize,
+                    hint: f.hint
+                }))
+            };
+            
+            if (templateConfig.derivedFrom) {
+                config.derivedFrom = templateConfig.derivedFrom;
+            }
+            
+            console.log('💾 [SALVAR] Config a salvar:', config);
+            
+            // Se o template é do IndexedDB ou clone, salva a config no IndexedDB
+            if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                console.log(`💾 [SALVAR] Salvando no IndexedDB (source: ${currentTemplateSource})`);
+                await saveTemplateConfigToIndexedDB(currentTemplate, config);
+                console.log('✅ Configuração salva no IndexedDB');
+            } else {
+                // Se for template do servidor, salva no servidor
+                console.log('💾 [SALVAR] Salvando no servidor');
+                const response = await fetch('/save-template-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ templateName: currentTemplate, config })
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Configuração salva no servidor');
+                } else {
+                    console.error('❌ Erro ao salvar no servidor:', response.status);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Erro ao salvar configuração:', error);
+        }
+    }
+    
     closeFillModal();
 });
 

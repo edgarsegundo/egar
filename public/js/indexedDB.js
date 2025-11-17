@@ -223,8 +223,11 @@ async function saveTemplateConfigToIndexedDB(templateName, config) {
         const configData = {
             templateName: templateName,
             fields: config.fields || [],
+            derivedFrom: config.derivedFrom || null, // Preserva derivedFrom
             updatedAt: new Date().toISOString()
         };
+        
+        console.log(`💾 [IndexedDB] Salvando config para "${templateName}":`, configData);
         
         const transaction = db.transaction([CONFIGS_STORE], 'readwrite');
         const objectStore = transaction.objectStore(CONFIGS_STORE);
@@ -235,7 +238,10 @@ async function saveTemplateConfigToIndexedDB(templateName, config) {
                 console.log(`✅ Config salva no IndexedDB: ${templateName}`);
                 resolve({ success: true });
             };
-            request.onerror = () => reject(request.error);
+            request.onerror = () => {
+                console.error(`❌ Erro ao salvar config no IndexedDB:`, request.error);
+                reject(request.error);
+            };
         });
     } catch (error) {
         console.error('Erro ao salvar config no IndexedDB:', error);
@@ -256,13 +262,20 @@ async function loadTemplateConfigFromIndexedDB(templateName) {
                 const config = request.result;
                 if (config) {
                     console.log(`✅ Config carregada do IndexedDB: ${templateName}`, config);
-                    resolve({ fields: config.fields || [] });
+                    const result = { fields: config.fields || [] };
+                    if (config.derivedFrom) {
+                        result.derivedFrom = config.derivedFrom;
+                    }
+                    resolve(result);
                 } else {
                     console.log(`⚠️ Nenhuma config encontrada no IndexedDB: ${templateName}`);
                     resolve({ fields: [] });
                 }
             };
-            request.onerror = () => reject(request.error);
+            request.onerror = () => {
+                console.error(`❌ Erro ao carregar config do IndexedDB:`, request.error);
+                reject(request.error);
+            };
         });
     } catch (error) {
         console.error('Erro ao carregar config do IndexedDB:', error);
