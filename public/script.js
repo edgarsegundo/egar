@@ -966,46 +966,47 @@ if (saveConfigBtn) {
 // });
 
 // Sync to origin
-syncToOriginBtn.addEventListener('click', async () => {
-    if (!currentTemplate) {
-        alert('Nenhum template carregado.');
-        return;
-    }
-    
-    if (!templateConfig.derivedFrom) {
-        alert('Este arquivo não tem origem definida. Apenas arquivos gerados podem sincronizar com a origem.');
-        return;
-    }
-    
-    const confirmMsg = `Deseja sincronizar as posições (x, y, page, width, height, fontSize) do template original "${templateConfig.derivedFrom}" para este arquivo?\n\nIsso irá SUBSTITUIR as posições atuais pelas posições do arquivo original, mantendo os valores preenchidos.`;
-    
-    if (!confirm(confirmMsg)) return;
-    
-    try {
-        const response = await fetch('/sync-to-origin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                currentFile: currentTemplate,
-                derivedFrom: templateConfig.derivedFrom,
-                fields: templateConfig.fields
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            alert(`✅ Sucesso!\n\n${result.message}\n\nRecarregando o arquivo...`);
-            // Recarrega o template para mostrar as novas posições
-            await loadTemplate(currentTemplate, 'generated', true);
-        } else {
-            alert(`❌ Erro: ${result.error}`);
+if (syncToOriginBtn)
+    syncToOriginBtn.addEventListener('click', async () => {
+        if (!currentTemplate) {
+            alert('Nenhum template carregado.');
+            return;
         }
-    } catch (error) {
-        console.error('Erro ao sincronizar:', error);
-        alert('Erro ao sincronizar com origem.');
-    }
-});
+        
+        if (!templateConfig.derivedFrom) {
+            alert('Este arquivo não tem origem definida. Apenas arquivos gerados podem sincronizar com a origem.');
+            return;
+        }
+        
+        const confirmMsg = `Deseja sincronizar as posições (x, y, page, width, height, fontSize) do template original "${templateConfig.derivedFrom}" para este arquivo?\n\nIsso irá SUBSTITUIR as posições atuais pelas posições do arquivo original, mantendo os valores preenchidos.`;
+        
+        if (!confirm(confirmMsg)) return;
+        
+        try {
+            const response = await fetch('/sync-to-origin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    currentFile: currentTemplate,
+                    derivedFrom: templateConfig.derivedFrom,
+                    fields: templateConfig.fields
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert(`✅ Sucesso!\n\n${result.message}\n\nRecarregando o arquivo...`);
+                // Recarrega o template para mostrar as novas posições
+                await loadTemplate(currentTemplate, 'generated', true);
+            } else {
+                alert(`❌ Erro: ${result.error}`);
+            }
+        } catch (error) {
+            console.error('Erro ao sincronizar:', error);
+            alert('Erro ao sincronizar com origem.');
+        }
+    });
 
 // Fullscreen button
 fullscreenBtn.addEventListener('click', () => {

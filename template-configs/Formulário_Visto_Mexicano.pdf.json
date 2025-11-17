@@ -222,7 +222,7 @@
       "name": "Endereco Atual",
       "value": "",
       "page": 1,
-      "fontSize": 11,
+      "fontSize": 10,
       "width": 341,
       "height": 18,
       "hint": "Ex: Rua Maringá, 45 - Lote 1300 Jd Brasil, Itupeva/SP"
@@ -244,7 +244,7 @@
       "name": "Email",
       "value": "",
       "page": 1,
-      "fontSize": 9,
+      "fontSize": 10,
       "width": 182,
       "height": 18,
       "hint": "Ex: ana.maria@gmail.com"
@@ -318,7 +318,7 @@
     {
       "x": 311.5,
       "y": 942,
-      "name": "Data Entrada Mexico",
+      "name": "Dia Data Entrada Mexico",
       "value": "",
       "page": 1,
       "fontSize": 16,
@@ -329,7 +329,7 @@
     {
       "x": 410.5,
       "y": 941,
-      "name": "Data Entrada Mexico",
+      "name": "Mês Data Entrada Mexico",
       "value": "",
       "page": 1,
       "fontSize": 16,
@@ -340,7 +340,7 @@
     {
       "x": 498.5,
       "y": 941,
-      "name": "Data Entrada Mexico",
+      "name": "Ano Data Entrada Mexico",
       "value": "",
       "page": 1,
       "fontSize": 16,
