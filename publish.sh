@@ -1,0 +1,1 @@
+sudo cp -rv /home/edgar/Repos/egar/public/* /var/www/egar/public/
