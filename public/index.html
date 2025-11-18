@@ -1,12 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>PDF Form Filler</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <script src="./js/sweetalert2@11.js"></script>
-  <style>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-59SRNCQD');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700&display=swap" rel="stylesheet" />
+
+    <title>Editor de Formulários: Preencha PDFs Online</title>
+    <meta
+        name="description"
+        content="Edite e preencha PDFs de formulários de forma online e rápida. Personalize documentos de viagem, vistos e outros tipos de formulários sem complicações."
+    />
+    <link rel="canonical" href="https://fastvistos.com.br/formularios/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fastvistos.com.br/formularios/" />
+    <meta property="og:title" content="Editor de Formulários: Preencha PDFs Online" />
+    <meta property="og:description" content="Edite e preencha PDFs de formulários de forma online e rápida. Personalize documentos de viagem, vistos e outros tipos de formulários sem complicações." />
+    <meta property="og:image" content="https://fastvistos.com.br/assets/images/blog/fastvistos__122095.jpg" />
+    <meta property="og:site_name" content="Fast Vistos" />
+    <meta property="og:locale" content="pt-BR" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://fastvistos.com.br/formularios/" />
+    <meta name="twitter:title" content="Editor de Formulários: Preencha PDFs Online" />
+    <meta name="twitter:description" content="Edite e preencha PDFs de formulários de forma online e rápida. Personalize documentos de viagem, vistos e outros tipos de formulários sem complicações." />
+    <meta name="twitter:image" content="https://fastvistos.com.br/assets/images/blog/fastvistos__122095.jpg" />
+    <meta name="twitter:site" content="@fastvistos" />
+
+    <meta name="theme-color" content="#0070f3" />
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "url": "https://fastvistos.com.br/formularios/",
+        "name": "Editor de Formulários: Preencha PDFs Online",
+        "description": "Edite e preencha PDFs de formulários de forma online e rápida. Personalize documentos de viagem, vistos e outros tipos de formulários sem complicações.",
+        "inLanguage": "pt-BR",
+        "publisher": {
+            "@type": "Organization",
+            "name": "Fast Vistos",
+            "url": "https://fastvistos.com.br/",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://fastvistos.com.br/assets/images/logo/logo-fast-orange.png"
+            }
+        },
+        "mainEntity": [
+            {
+              "@type": "SoftwareApplication",
+              "name": "Editor de Formulários PDF Online",
+              "url": "https://fastvistos.com.br/formularios/",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web",
+              "browserRequirements": "Navegadores modernos: Chrome, Edge, Firefox, Brave",
+              "description": "Ferramenta online que permite preencher e editar PDFs de formulários de viagem, vistos e outros documentos."
+            },
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {"@type":"Question","name":"A ferramenta altera a formatação original do formulário?","acceptedAnswer":{"@type":"Answer","text":"Não. O editor mantém a estrutura original do PDF intacta, incluindo margens, espaçamentos, campos e layout do documento."}},
+                    {"@type":"Question","name":"Preciso criar uma conta para usar a ferramenta?","acceptedAnswer":{"@type":"Answer","text":"Não é necessário criar conta ou informar dados pessoais para editar ou baixar o PDF."}},
+                    {"@type":"Question","name":"É seguro preencher meus dados pessoais no formulário?","acceptedAnswer":{"@type":"Answer","text":"Sim. Todo o processamento do PDF ocorre diretamente no seu navegador, sem envio de informações para servidores externos."}},
+                    {"@type":"Question","name":"Posso preencher o formulário em vários momentos diferentes?","acceptedAnswer":{"@type":"Answer","text":"Sim. Você pode salvar o template clonado no navegador e voltar a editá-lo mais tarde, sem perder o progresso."}},
+                    {"@type":"Question","name":"Consigo editar o formulário depois de baixado?","acceptedAnswer":{"@type":"Answer","text":"O arquivo baixado já estará preenchido. Caso precise alterar algo, basta reabrir sua cópia salva no navegador e gerar um novo PDF."}},
+                    {"@type":"Question","name":"Posso apagar um template clonado?","acceptedAnswer":{"@type":"Answer","text":"Sim. Você pode excluir qualquer template salvo no navegador sempre que desejar, liberando espaço e mantendo apenas os arquivos necessários."}},
+                    {"@type":"Question","name":"A ferramenta funciona em todos os navegadores?","acceptedAnswer":{"@type":"Answer","text":"Ela funciona na maioria dos navegadores modernos, como Chrome, Edge, Firefox e Brave. Navegadores muito antigos podem ter limitações."}},
+                    {"@type":"Question","name":"Posso fazer upload de um outro PDF diferente do modelo padrão?","acceptedAnswer":{"@type":"Answer","text":"Sim. Você pode enviar qualquer PDF para editar, desde que o arquivo não esteja corrompido e seja compatível com leitura em navegadores."}},
+                    {"@type":"Question","name":"O editor permite assinar o formulário digitalmente?","acceptedAnswer":{"@type":"Answer","text":"Sim. É possível inserir uma assinatura usando texto, desenho manual ou upload de imagem da assinatura."}},
+                    {"@type":"Question","name":"Posso adicionar novas caixas de texto ou campos no PDF?","acceptedAnswer":{"@type":"Answer","text":"Sim. Além dos campos existentes, você pode inserir novos textos, marcar opções e acrescentar informações onde necessário."}},
+                    {"@type":"Question","name":"O documento preenchido é aceito oficialmente?","acceptedAnswer":{"@type":"Answer","text":"Sim. O PDF gerado mantém o formato original do documento, podendo ser usado conforme exigido pelo tipo de formulário."}},
+                    {"@type":"Question","name":"Consigo usar o editor pelo celular?","acceptedAnswer":{"@type":"Answer","text":"Embora funcione, a experiência pode ser limitada pela tela pequena. Para melhor uso, é recomendado computador ou notebook."}},
+                    {"@type":"Question","name":"Posso imprimir direto da ferramenta sem baixar?","acceptedAnswer":{"@type":"Answer","text":"Sim. A maioria dos navegadores permite imprimir o arquivo diretamente da pré-visualização, mas baixar antes garante maior qualidade."}},
+                    {"@type":"Question","name":"A ferramenta insere marcas d’água no PDF?","acceptedAnswer":{"@type":"Answer","text":"Não. O documento gerado é totalmente limpo, sem logos adicionais ou marcas d’água."}},
+                    {"@type":"Question","name":"O que fazer se o PDF não abrir ou aparecer corrompido?","acceptedAnswer":{"@type":"Answer","text":"Isso geralmente ocorre por falha no upload. Basta tentar enviar o arquivo novamente ou utilizar outro navegador para confirmar se o problema persiste."}},
+                    {"@type":"Question","name":"Posso mudar a fonte ou o tamanho do texto?","acceptedAnswer":{"@type":"Answer","text":"Sim. O editor permite ajustar estilo, fonte e tamanho dos textos que você inserir manualmente."}},
+                    {"@type":"Question","name":"A ferramenta detecta automaticamente os campos do PDF?","acceptedAnswer":{"@type":"Answer","text":"Sim. Nos formulários estruturados, os campos são reconhecidos e ficam clicáveis para preenchimento direto."}},
+                    {"@type":"Question","name":"Há limite de quantos formulários posso criar?","acceptedAnswer":{"@type":"Answer","text":"Não. Você pode clonar, editar e salvar quantos modelos desejar enquanto houver espaço disponível no seu navegador."}},
+                    {"@type":"Question","name":"O editor aceita caracteres especiais como acentos, ç e letras estrangeiras?","acceptedAnswer":{"@type":"Answer","text":"Sim. O preenchimento é totalmente compatível com português e outros idiomas, incluindo acentos e caracteres latinos."}},
+                    {"@type":"Question","name":"Posso usar o mesmo formulário para mais de um integrante da família?","acceptedAnswer":{"@type":"Answer","text":"Sim. Basta clonar o template novamente para criar versões separadas para cada pessoa."}}
+                ]
+            }
+        ]
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  
+    <script src="./js/sweetalert2@11.js"></script>
+    <style>
     /* Estilos para fullscreen */
     #pdfContainer:fullscreen {
       background: #1a1a1a;
@@ -286,9 +384,14 @@
       margin-bottom: 0.5rem;
       animation: pulse-scale 1.5s ease-in-out infinite;
     }
-  </style>
+    </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-59SRNCQD"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
   <!-- Overlay de Modo Edição -->
   <div id="editModeOverlay"></div>
 
