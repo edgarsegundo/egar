@@ -50,18 +50,18 @@ function isServerTemplateProtected(filename) {
     };
 }
 
-app.post("/upload", upload.single("pdf"), (req, res) => {
+app.post("/api/upload", upload.single("pdf"), (req, res) => {
   if (!req.file) return res.status(400).send("No file uploaded");
   res.json({ filename: req.file.filename, original: req.file.originalname });
 });
 
-app.get("/pdf/:filename", (req, res) => {
+app.get("/api/pdf/:filename", (req, res) => {
     const filePath = path.resolve("uploads", req.params.filename);
     if (fs.existsSync(filePath)) res.sendFile(filePath);
     else res.status(404).send("File not found");
 });
 
-app.get("/pdf-templates/list", (req, res) => {
+app.get("/api/pdf-templates/list", (req, res) => {
     const templatesDir = path.resolve("template-files");
     if (!fs.existsSync(templatesDir)) {
         return res.json([]);
@@ -70,13 +70,13 @@ app.get("/pdf-templates/list", (req, res) => {
     res.json(files);
 });
 
-app.get("/pdf-templates/:filename", (req, res) => {
+app.get("/api/pdf-templates/:filename", (req, res) => {
     const filePath = path.resolve("template-files", req.params.filename);
     if (fs.existsSync(filePath)) res.sendFile(filePath);
     else res.status(404).send("Template not found");
 });
 
-app.get("/generated-pdf-files/list", (req, res) => {
+app.get("/api/generated-pdf-files/list", (req, res) => {
     const templatesDir = path.resolve("generated-pdf-files");
     if (!fs.existsSync(templatesDir)) {
         return res.json([]);
@@ -85,14 +85,14 @@ app.get("/generated-pdf-files/list", (req, res) => {
     res.json(files);
 });
 
-app.get("/generated-pdf-files/:filename", (req, res) => {
+app.get("/api/generated-pdf-files/:filename", (req, res) => {
     const filePath = path.resolve("generated-pdf-files", req.params.filename);
     if (fs.existsSync(filePath)) res.sendFile(filePath);
     else res.status(404).send("Generated file not found");
 });
 
 // Get template configuration
-app.get("/template-config/:templateName", (req, res) => {
+app.get("/api/template-config/:templateName", (req, res) => {
     const configPath = path.resolve("template-configs", `${req.params.templateName}.json`);
     if (fs.existsSync(configPath)) {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
@@ -103,7 +103,7 @@ app.get("/template-config/:templateName", (req, res) => {
 });
 
 // Save template configuration
-app.post("/template-config/:templateName", (req, res) => {
+app.post("/api/template-config/:templateName", (req, res) => {
     const configDir = path.resolve("template-configs");
     if (!fs.existsSync(configDir)) {
         fs.mkdirSync(configDir, { recursive: true });
@@ -115,7 +115,7 @@ app.post("/template-config/:templateName", (req, res) => {
 });
 
 // Copiar configuração de template para novo nome
-app.post("/create-config-file", (req, res) => {
+app.post("/api/create-config-file", (req, res) => {
     const { to, fields, from } = req.body;
     console.log('REQ BODY /create-config-file:', req.body);
     const configDir = path.resolve("template-configs");
@@ -149,7 +149,7 @@ app.post("/create-config-file", (req, res) => {
 });
 
 // Criar novo template (upload PDF + config vazio)
-app.post('/create-template', upload.single('pdf'), (req, res) => {
+app.post('/api/create-template', upload.single('pdf'), (req, res) => {
     // 🔒 PROTEÇÃO: Não permite criar templates no servidor se estiver em produção
     if (IS_PRODUCTION) {
         return res.status(403).json({ 
@@ -183,7 +183,7 @@ app.post('/create-template', upload.single('pdf'), (req, res) => {
 });
 
 // Salvar PDF preenchido no servidor
-app.post('/save-pdf', (req, res) => {
+app.post('/api/save-pdf', (req, res) => {
     const { filename, pdfData } = req.body;
     if (!filename || !pdfData) {
         return res.status(400).json({ error: "Nome do arquivo e dados do PDF são obrigatórios." });
@@ -203,7 +203,7 @@ app.post('/save-pdf', (req, res) => {
 });
 
 // Sincronizar posições do arquivo original para o arquivo derivado atual
-app.post('/sync-to-origin', (req, res) => {
+app.post('/api/sync-to-origin', (req, res) => {
     const { currentFile, derivedFrom, fields } = req.body;
     
     if (!derivedFrom) {
@@ -264,7 +264,7 @@ app.post('/sync-to-origin', (req, res) => {
 });
 
 // Clonar arquivo (PDF + config)
-app.post('/clone-file', async (req, res) => {
+app.post('/api/clone-file', async (req, res) => {
     const { sourceFile, targetFile, sourceType } = req.body;
     
     if (!sourceFile || !targetFile) {
@@ -337,7 +337,7 @@ app.post('/clone-file', async (req, res) => {
 });
 
 // Renomear template do servidor (PDF + config)
-app.post("/rename-template", (req, res) => {
+app.post("/api/rename-template", (req, res) => {
     try {
         const { oldName, newName } = req.body;
         
@@ -399,7 +399,7 @@ app.post("/rename-template", (req, res) => {
 
 // 🔒 Endpoint para validar exclusão de template
 // 🔒 Endpoint para validar e executar exclusão de template
-app.delete("/template/:filename", (req, res) => {
+app.delete("/api/template/:filename", (req, res) => {
     const filename = req.params.filename;
     
     // 🔒 PROTEÇÃO: Verifica se o template do servidor está protegido
@@ -457,7 +457,7 @@ app.delete("/template/:filename", (req, res) => {
 });
 
 // 🔒 Endpoint para validar preenchimento de template
-app.post("/validate-fill/:filename", (req, res) => {
+app.post("/api/validate-fill/:filename", (req, res) => {
     const filename = req.params.filename;
     
     // 🔒 PROTEÇÃO: Verifica se o template do servidor está protegido
@@ -479,7 +479,7 @@ app.post("/validate-fill/:filename", (req, res) => {
 });
 
 // 🔒 Endpoint para validar ativação do modo de edição
-app.post("/validate-edit-mode/:filename", (req, res) => {
+app.post("/api/validate-edit-mode/:filename", (req, res) => {
     const filename = req.params.filename;
     
     // 🔒 PROTEÇÃO: Verifica se o template do servidor está protegido
@@ -501,7 +501,7 @@ app.post("/validate-edit-mode/:filename", (req, res) => {
 });
 
 // 🔒 Endpoint para verificar se está em modo produção
-app.get("/is-production", (req, res) => {
+app.get("/api/is-production", (req, res) => {
     res.json({ 
         isProduction: IS_PRODUCTION,
         message: IS_PRODUCTION ? 'Modo PRODUÇÃO ativo' : 'Modo DESENVOLVIMENTO ativo'

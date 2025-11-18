@@ -595,7 +595,7 @@ async function loadTemplates() {
     // Load server templates
     try {
         console.log('[loadTemplates] Buscando templates do servidor...');
-        const res = await fetch("/pdf-templates/list");
+        const res = await fetch("/api/pdf-templates/list");
         const templates = await res.json();
         
         console.log('[loadTemplates] Templates do servidor recebidos:', templates);
@@ -815,11 +815,11 @@ uploadForm.addEventListener("submit", async (e) => {
     const formData = new FormData();
     formData.append("pdf", fileInput.files[0]);
 
-    const res = await fetch("/upload", { method: "POST", body: formData });
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
     const data = await res.json();
 
     uploadedFile = data.filename;
-    currentPdfUrl = `/pdf/${uploadedFile}`;
+    currentPdfUrl = `/api/pdf/${uploadedFile}`;
     inputData = [];
     renderPDF(currentPdfUrl);
 });
