@@ -402,7 +402,7 @@ async function cloneTemplateToIndexedDB(sourceName, targetName, sourceType = 'te
             config = await loadTemplateConfigFromIndexedDB(sourceName);
         } else {
             // Carregar do servidor
-            const pdfUrl = `/pdf-templates/${sourceName}`;
+            const pdfUrl = `/api/pdf-templates/${sourceName}`;
             const response = await fetch(pdfUrl);
             if (!response.ok) {
                 throw new Error(`Erro ao buscar PDF do servidor: ${response.statusText}`);
@@ -410,7 +410,7 @@ async function cloneTemplateToIndexedDB(sourceName, targetName, sourceType = 'te
             pdfBlob = await response.blob();
             
             // Carregar config do servidor
-            const configResponse = await fetch(`/template-config/${sourceName}`);
+            const configResponse = await fetch(`/api/template-config/${sourceName}`);
             if (configResponse.ok) {
                 config = await configResponse.json();
             } else {
@@ -459,7 +459,7 @@ async function migrateGeneratedFilesToIndexedDB() {
         console.log('🔄 Iniciando migração de arquivos gerados para IndexedDB...');
         
         // 1. Buscar lista de arquivos gerados no servidor
-        const response = await fetch('/generated-pdf-files/list');
+        const response = await fetch('/api/generated-pdf-files/list');
         if (!response.ok) {
             throw new Error('Erro ao buscar lista de arquivos gerados');
         }
@@ -483,7 +483,7 @@ async function migrateGeneratedFilesToIndexedDB() {
                 console.log(`  Migrando: ${fileName}...`);
                 
                 // Buscar o PDF
-                const pdfResponse = await fetch(`/generated-pdf-files/${fileName}`);
+                const pdfResponse = await fetch(`/api/generated-pdf-files/${fileName}`);
                 if (!pdfResponse.ok) {
                     throw new Error(`Erro ao buscar PDF: ${fileName}`);
                 }
@@ -493,7 +493,7 @@ async function migrateGeneratedFilesToIndexedDB() {
                 let config = { fields: [] };
                 let derivedFrom = null;
                 try {
-                    const configResponse = await fetch(`/template-config/${fileName}`);
+                    const configResponse = await fetch(`/api/template-config/${fileName}`);
                     if (configResponse.ok) {
                         config = await configResponse.json();
                         derivedFrom = config.derivedFrom || null;

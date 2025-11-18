@@ -223,7 +223,7 @@ async function openFillModal() {
     
     // 🔒 VALIDAÇÃO BACKEND: Verifica se pode preencher
     try {
-        const response = await fetch(`/validate-fill/${currentTemplate}`, {
+        const response = await fetch(`/api/validate-fill/${currentTemplate}`, {
             method: 'POST'
         });
         
@@ -404,7 +404,7 @@ updateBtn.addEventListener('click', async () => {
             } else {
                 // Se for template do servidor, salva no servidor
                 console.log('💾 [SALVAR] Salvando no servidor');
-                const response = await fetch('/save-template-config', {
+                const response = await fetch('/api/save-template-config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ templateName: currentTemplate, config })
@@ -427,7 +427,7 @@ updateBtn.addEventListener('click', async () => {
 // 🔒 Função para verificar se está em modo produção no servidor
 async function checkProductionMode() {
     try {
-        const response = await fetch('/is-production');
+        const response = await fetch('/api/is-production');
         const result = await response.json();
         isProductionMode = result.isProduction;
         console.log(`🔒 Modo produção: ${isProductionMode ? 'ATIVO' : 'INATIVO'}`);
@@ -742,19 +742,19 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
             
         } else {
             // Carrega do servidor (templates ou generated)
-            const res = await fetch(`/template-config/${templateName}`);
+            const res = await fetch(`/api/template-config/${templateName}`);
             templateConfig = await res.json();
             
             // Se for um arquivo gerado e tiver derivedFrom, usa o PDF original
             if (source === 'generated' && templateConfig.derivedFrom) {
-                const url = `/pdf-templates/${templateConfig.derivedFrom}`;
+                const url = `/api/pdf-templates/${templateConfig.derivedFrom}`;
                 currentPdfUrl = url;
                 console.log(`Carregando arquivo gerado '${templateName}' usando template original '${templateConfig.derivedFrom}'`);
             } else {
                 // Se for um template normal, usa o próprio arquivo
                 const url = source === 'generated' 
-                    ? `/generated-pdf-files/${templateName}` 
-                    : `/pdf-templates/${templateName}`;
+                    ? `/api/generated-pdf-files/${templateName}` 
+                    : `/api/pdf-templates/${templateName}`;
                 currentPdfUrl = url;
             }
         }
@@ -769,29 +769,33 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
         } else {
             // Fallback para templates do servidor
             const url = source === 'generated' 
-                ? `/generated-pdf-files/${templateName}` 
-                : `/pdf-templates/${templateName}`;
+                ? `/api/generated-pdf-files/${templateName}` 
+                : `/api/pdf-templates/${templateName}`;
             currentPdfUrl = url;
         }
     }
 
-    actionBar.classList.remove('hidden');
-    
+    if (actionBar) {
+        actionBar.classList.remove('hidden');
+    }
+
     // Mostra o botão de modo edição no canto superior direito
     if (toggleModeBtn) {
         toggleModeBtn.classList.remove('hidden');
     }
-    
+
     await renderPDF(currentPdfUrl);
     if (!keepMode) setMode(false);
     
     // Mostra o botão de sincronização apenas se o arquivo tiver derivedFrom
-    if (templateConfig.derivedFrom) {
-        syncToOriginBtn.classList.remove('hidden');
-    } else {
-        syncToOriginBtn.classList.add('hidden');
+    if (syncToOriginBtn) {
+        if (templateConfig.derivedFrom) {
+            syncToOriginBtn.classList.remove('hidden');
+        } else {
+            syncToOriginBtn.classList.add('hidden');
+        }
     }
-    
+
     // 🔒 Atualiza o estado dos botões baseado no modo produção e fonte do template
     updateButtonsState();
 }
@@ -831,7 +835,7 @@ toggleModeBtn.addEventListener('click', async (event) => {
     // 🔒 VALIDAÇÃO BACKEND: Verifica se pode ativar modo de edição
     if (!isEditorMode && currentTemplate) {
         try {
-            const response = await fetch(`/validate-edit-mode/${currentTemplate}`, {
+            const response = await fetch(`/api/validate-edit-mode/${currentTemplate}`, {
                 method: 'POST'
             });
             
@@ -927,7 +931,7 @@ if (saveConfigBtn) {
                 });
             } else {
                 // Salva no servidor
-                const response = await fetch(`/template-config/${currentTemplate}`, {
+                const response = await fetch(`/api/template-config/${currentTemplate}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(config)
@@ -983,7 +987,7 @@ if (syncToOriginBtn)
         if (!confirm(confirmMsg)) return;
         
         try {
-            const response = await fetch('/sync-to-origin', {
+            const response = await fetch('/api/sync-to-origin', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1279,7 +1283,7 @@ if (addServerTemplateBtn) {
                 formData.append('pdf', pdfFile);
                 formData.append('templateName', finalName);
                 
-                const response = await fetch('/create-template', {
+                const response = await fetch('/api/create-template', {
                     method: 'POST',
                     body: formData
                 });
@@ -1344,7 +1348,7 @@ if (renameTemplateBtn) {
         
         // 🔒 VALIDAÇÃO BACKEND: Verifica se pode renomear
         try {
-            const response = await fetch('/rename-template', {
+            const response = await fetch('/api/rename-template', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1410,7 +1414,7 @@ if (renameTemplateBtn) {
         try {
             // Se for do servidor, renomeia no servidor
             if (currentTemplateSource === 'templates') {
-                const renameResponse = await fetch('/rename-template', {
+                const renameResponse = await fetch('/api/rename-template', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1495,7 +1499,7 @@ if (deleteTemplateBtn) {
         
         // 🔒 VALIDAÇÃO BACKEND: Verifica se pode excluir
         try {
-            const response = await fetch(`/template/${currentTemplate}`, {
+            const response = await fetch(`/api/template/${currentTemplate}`, {
                 method: 'DELETE'
             });
             
@@ -1552,7 +1556,7 @@ if (deleteTemplateBtn) {
             
             // Se for template do servidor, exclui no servidor
             if (currentTemplateSource === 'templates') {
-                const deleteResponse = await fetch(`/template/${currentTemplate}`, {
+                const deleteResponse = await fetch(`/api/template/${currentTemplate}`, {
                     method: 'DELETE'
                 });
                 
@@ -1591,8 +1595,11 @@ if (deleteTemplateBtn) {
                 fileActionsToolbar.classList.add('hidden');
             }
             currentFileLabel.classList.add('hidden');
-            actionBar.classList.add('hidden');
-            
+
+            if (actionBar) {
+                actionBar.classList.add('hidden');
+            }
+
             // Esconde o botão de modo edição
             if (toggleModeBtn) {
                 toggleModeBtn.classList.add('hidden');
@@ -1747,7 +1754,7 @@ async function renderPDF(url) {
                         await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
                         console.log(`Campo criado e salvo no IndexedDB: ${fieldName.trim()}`);
                     } else {
-                        await fetch(`/template-config/${currentTemplate}`, {
+                        await fetch(`/api/template-config/${currentTemplate}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(configToSave)
@@ -1816,7 +1823,7 @@ async function renderPDF(url) {
                                 console.log(`Config salva no IndexedDB para: ${currentTemplate}`);
                             } else {
                                 // Salva no servidor
-                                await fetch(`/template-config/${currentTemplate}`, {
+                                await fetch(`/api/template-config/${currentTemplate}`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify(configToSave)
@@ -1963,7 +1970,7 @@ async function renderPDF(url) {
                                 console.error('Erro ao salvar posição no IndexedDB:', err);
                             });
                         } else {
-                            fetch(`/template-config/${currentTemplate}`, {
+                            fetch(`/api/template-config/${currentTemplate}`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(configToSave)
@@ -2038,7 +2045,7 @@ async function renderPDF(url) {
                                 console.error('Erro ao salvar tamanho no IndexedDB:', err);
                             });
                         } else {
-                            fetch(`/template-config/${currentTemplate}`, {
+                            fetch(`/api/template-config/${currentTemplate}`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(configToSave)
@@ -2113,7 +2120,7 @@ async function renderPDF(url) {
                                 console.error('Erro ao salvar fontSize no IndexedDB:', err);
                             });
                         } else {
-                            fetch(`/template-config/${currentTemplate}`, {
+                            fetch(`/api/template-config/${currentTemplate}`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(configToSave)
@@ -2227,7 +2234,7 @@ async function renderPDF(url) {
                             console.error('Erro ao salvar propriedades do campo no IndexedDB:', err);
                         });
                     } else {
-                        fetch(`/template-config/${currentTemplate}`, {
+                        fetch(`/api/template-config/${currentTemplate}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(configToSave)
@@ -2294,7 +2301,7 @@ async function renderPDF(url) {
                             console.error('Erro ao salvar após exclusão no IndexedDB:', err);
                         });
                     } else {
-                        fetch(`/template-config/${currentTemplate}`, {
+                        fetch(`/api/template-config/${currentTemplate}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(configToSave)
@@ -2360,7 +2367,7 @@ downloadBtn.addEventListener("click", async () => {
     // Se o arquivo atual tem derivedFrom, SEMPRE usa o template original limpo
     let basePdfUrl = currentPdfUrl;
     if (templateConfig.derivedFrom) {
-        basePdfUrl = `/pdf-templates/${templateConfig.derivedFrom}`;
+        basePdfUrl = `/api/pdf-templates/${templateConfig.derivedFrom}`;
         console.log(`Usando template original como base: ${templateConfig.derivedFrom}`);
     }
 
