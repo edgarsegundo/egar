@@ -2194,9 +2194,9 @@ async function renderPDF(url) {
         if (inputWrapper) {
             const inputEl = inputWrapper.querySelector('input[type="text"]');
             if (inputEl) {
-                // 🔒 Previne edição em templates do servidor (keydown e paste)
+                // 🔒 Previne edição em templates do servidor quando em modo produção (keydown e paste)
                 const preventServerEdit = async (e) => {
-                    if (currentTemplateSource === 'templates') {
+                    if (currentTemplateSource === 'templates' && isProductionMode) {
                         e.preventDefault();
                         e.stopPropagation();
                         
@@ -2204,7 +2204,7 @@ async function renderPDF(url) {
                             icon: 'info',
                             title: 'Clone o Template Primeiro',
                             html: `
-                                <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser preenchidos diretamente.</p>
+                                <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser preenchidos em modo produção.</p>
                                 <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
                                 <p class="text-xs text-gray-500">Isso permite que você salve suas alterações no seu navegador.</p>
                             `,
@@ -2582,8 +2582,8 @@ async function renderPDF(url) {
         input.style.width = (templateConfig.fields[idx]?.width || 120) + 'px';
         input.style.fontSize = (templateConfig.fields[idx]?.fontSize || 16) + 'px';
         
-        // 🔒 Define readonly se for template do servidor
-        if (currentTemplateSource === 'templates') {
+        // 🔒 Define readonly se for template do servidor E estiver em modo produção
+        if (currentTemplateSource === 'templates' && isProductionMode) {
             input.readOnly = true;
             input.style.cursor = 'not-allowed';
             input.style.backgroundColor = '#e5e7eb'; // Cinza claro
@@ -2596,7 +2596,7 @@ async function renderPDF(url) {
                     icon: 'info',
                     title: 'Clone o Template Primeiro',
                     html: `
-                        <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser preenchidos diretamente.</p>
+                        <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser preenchidos em modo produção.</p>
                         <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
                         <p class="text-xs text-gray-500">Isso permite que você salve suas alterações no seu navegador.</p>
                     `,
