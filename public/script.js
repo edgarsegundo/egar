@@ -2121,11 +2121,11 @@ async function renderPDF(url) {
         if (inputWrapper) {
             const inputEl = inputWrapper.querySelector('input[type="text"]');
             if (inputEl) {
-                inputEl.addEventListener('input', async (e) => {
-                    // 🔒 Verifica se é template do servidor antes de permitir edição
-                    if (currentTemplateSource === 'server') {
-                        // Reverte a mudança
-                        inputEl.value = templateConfig.fields[idx]?.value || '';
+                // 🔒 Previne edição em templates do servidor (keydown e paste)
+                const preventServerEdit = async (e) => {
+                    if (currentTemplateSource === 'templates') {
+                        e.preventDefault();
+                        e.stopPropagation();
                         
                         await Swal.fire({
                             icon: 'info',
@@ -2137,9 +2137,14 @@ async function renderPDF(url) {
                             `,
                             confirmButtonText: 'Entendi'
                         });
-                        return;
+                        return false;
                     }
-                    
+                };
+                
+                inputEl.addEventListener('keydown', preventServerEdit);
+                inputEl.addEventListener('paste', preventServerEdit);
+                
+                inputEl.addEventListener('input', async (e) => {
                     // Verifica se o índice ainda é válido antes de atualizar
                     if (templateConfig.fields[idx]) {
                         templateConfig.fields[idx].value = inputEl.value;
@@ -2496,6 +2501,14 @@ async function renderPDF(url) {
         input.style.height = (templateConfig.fields[idx]?.height || 20) + 'px';
         input.style.width = (templateConfig.fields[idx]?.width || 120) + 'px';
         input.style.fontSize = (templateConfig.fields[idx]?.fontSize || 16) + 'px';
+        
+        // 🔒 Define readonly se for template do servidor
+        if (currentTemplateSource === 'templates') {
+            input.readOnly = true;
+            input.style.cursor = 'not-allowed';
+            input.style.backgroundColor = '#e5e7eb'; // Cinza claro
+            input.title = 'Clone o template para editar';
+        }
 
         // Evento de clique para editar propriedades do campo (apenas em modo edição)
         const onInputClick = async (e) => {
