@@ -2938,11 +2938,156 @@ async function renderPDFPreview(url) {
                                 }
                             }
                             
-                            // Atualiza posição do overlay (sem re-renderizar o canvas)
-                            overlay.style.left = (newX - padding) + 'px';
-                            overlay.style.top = (newY - padding) + 'px';
+                            // 🎨 CRIA TEXTO AZUL PERMANENTE (DIV arrastável)
+                            // Remove o overlay antigo (invisível)
+                            if (overlay.parentNode) {
+                                overlay.parentNode.removeChild(overlay);
+                            }
                             
-                            // Remove o fantasma com animação suave
+                            // Cria novo elemento de texto azul permanente
+                            const blueTextElement = document.createElement('div');
+                            blueTextElement.style.position = 'absolute';
+                            blueTextElement.style.left = newX + 'px';
+                            blueTextElement.style.top = newY + 'px';
+                            blueTextElement.style.color = 'rgba(59, 130, 246, 0.9)'; // Azul
+                            blueTextElement.style.fontSize = (field.fontSize || 16) + 'px';
+                            blueTextElement.style.fontWeight = 'bold';
+                            blueTextElement.style.cursor = 'move';
+                            blueTextElement.style.userSelect = 'none';
+                            blueTextElement.style.zIndex = '20';
+                            blueTextElement.style.whiteSpace = 'nowrap';
+                            blueTextElement.style.padding = padding + 'px';
+                            blueTextElement.style.marginLeft = -padding + 'px';
+                            blueTextElement.style.marginTop = -padding + 'px';
+                            blueTextElement.style.transition = 'background-color 0.2s ease';
+                            blueTextElement.textContent = field.value;
+                            blueTextElement.dataset.fieldIndex = fieldIdx;
+                            
+                            // Hover no texto azul
+                            blueTextElement.addEventListener('mouseenter', () => {
+                                blueTextElement.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                                blueTextElement.style.borderRadius = '4px';
+                            });
+                            
+                            blueTextElement.addEventListener('mouseleave', () => {
+                                blueTextElement.style.backgroundColor = 'transparent';
+                            });
+                            
+                            // 🔄 TORNA O TEXTO AZUL ARRASTÁVEL NOVAMENTE
+                            let blueDragging = false;
+                            let blueGhost = null;
+                            
+                            blueTextElement.addEventListener('mousedown', (e) => {
+                                blueDragging = true;
+                                blueTextElement.style.zIndex = '1000';
+                                
+                                const rect = blueTextElement.getBoundingClientRect();
+                                const pageRect = pageWrapper.getBoundingClientRect();
+                                
+                                const blueOffsetX = e.clientX - rect.left;
+                                const blueOffsetY = e.clientY - rect.top;
+                                
+                                // Cria fantasma para o texto azul
+                                blueGhost = document.createElement('div');
+                                blueGhost.style.position = 'absolute';
+                                blueGhost.style.left = blueTextElement.style.left;
+                                blueGhost.style.top = blueTextElement.style.top;
+                                blueGhost.style.color = 'rgba(59, 130, 246, 0.5)';
+                                blueGhost.style.fontSize = blueTextElement.style.fontSize;
+                                blueGhost.style.fontWeight = 'bold';
+                                blueGhost.style.border = '2px dashed rgba(59, 130, 246, 0.8)';
+                                blueGhost.style.borderRadius = '4px';
+                                blueGhost.style.padding = padding + 'px';
+                                blueGhost.style.backgroundColor = 'rgba(59, 130, 246, 0.15)';
+                                blueGhost.style.pointerEvents = 'none';
+                                blueGhost.style.zIndex = '999';
+                                blueGhost.style.whiteSpace = 'nowrap';
+                                blueGhost.textContent = field.value;
+                                
+                                pageWrapper.appendChild(blueGhost);
+                                
+                                document.body.style.userSelect = 'none';
+                                
+                                const onBlueMove = (ev) => {
+                                    if (!blueDragging || !blueGhost) return;
+                                    
+                                    const pageRect = pageWrapper.getBoundingClientRect();
+                                    let newLeft = ev.clientX - pageRect.left - blueOffsetX;
+                                    let newTop = ev.clientY - pageRect.top - blueOffsetY;
+                                    
+                                    newLeft = Math.max(0, Math.min(newLeft, pageWrapper.offsetWidth - blueGhost.offsetWidth));
+                                    newTop = Math.max(0, Math.min(newTop, pageWrapper.offsetHeight - blueGhost.offsetHeight));
+                                    
+                                    blueGhost.style.left = newLeft + 'px';
+                                    blueGhost.style.top = newTop + 'px';
+                                };
+                                
+                                const onBlueUp = async (ev) => {
+                                    if (!blueDragging) return;
+                                    
+                                    blueDragging = false;
+                                    document.body.style.userSelect = '';
+                                    blueTextElement.style.zIndex = '20';
+                                    
+                                    if (blueGhost) {
+                                        const finalX = parseFloat(blueGhost.style.left) + padding;
+                                        const finalY = parseFloat(blueGhost.style.top) + padding;
+                                        
+                                        // Atualiza posição no config
+                                        if (templateConfig.fields[fieldIdx]) {
+                                            templateConfig.fields[fieldIdx].x = finalX;
+                                            templateConfig.fields[fieldIdx].y = finalY;
+                                            
+                                            console.log(`✅ Campo AZUL "${field.value}" movido para x:${finalX}, y:${finalY}`);
+                                            
+                                            // Salva
+                                            if (currentTemplate) {
+                                                const configToSave = { 
+                                                    fields: templateConfig.fields,
+                                                    derivedFrom: templateConfig.derivedFrom 
+                                                };
+                                                
+                                                if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                                                    await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
+                                                } else {
+                                                    await fetch(`/api/template-config/${currentTemplate}`, {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify(configToSave)
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Move o texto azul para a nova posição
+                                        blueTextElement.style.left = finalX + 'px';
+                                        blueTextElement.style.top = finalY + 'px';
+                                        
+                                        // Remove fantasma
+                                        blueGhost.style.transition = 'opacity 0.2s ease-out';
+                                        blueGhost.style.opacity = '0';
+                                        setTimeout(() => {
+                                            if (blueGhost && blueGhost.parentNode) {
+                                                blueGhost.parentNode.removeChild(blueGhost);
+                                            }
+                                            blueGhost = null;
+                                        }, 200);
+                                    }
+                                    
+                                    document.removeEventListener('mousemove', onBlueMove);
+                                    document.removeEventListener('mouseup', onBlueUp);
+                                };
+                                
+                                document.addEventListener('mousemove', onBlueMove);
+                                document.addEventListener('mouseup', onBlueUp);
+                                
+                                e.preventDefault();
+                                e.stopPropagation();
+                            });
+                            
+                            pageWrapper.appendChild(blueTextElement);
+                            
+                            // Remove o fantasma inicial com animação suave
                             ghostElement.style.transition = 'opacity 0.2s ease-out';
                             ghostElement.style.opacity = '0';
                             setTimeout(() => {
