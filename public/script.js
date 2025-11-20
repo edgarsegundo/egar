@@ -2765,7 +2765,12 @@ async function renderPDF(url) {
 async function renderPDFPreview(url) {
     if (!url) return;
     
+    // 🎯 VARIÁVEIS DE AJUSTE DE POSIÇÃO (ajuste aqui se o texto não cair exatamente onde você solta)
+    const DRAG_OFFSET_X = 1; // Ajuste horizontal: positivo = move para direita, negativo = move para esquerda
+    const DRAG_OFFSET_Y = 2; // Ajuste vertical: positivo = move para baixo, negativo = move para cima
+    
     console.log('[renderPDFPreview] Renderizando PDF em modo preview');
+    console.log(`[renderPDFPreview] Offsets de ajuste: X=${DRAG_OFFSET_X}, Y=${DRAG_OFFSET_Y}`);
     
     // Limpa o container
     pdfContainer.innerHTML = '';
@@ -2807,20 +2812,25 @@ async function renderPDFPreview(url) {
             
             fieldsOnThisPage.forEach((field, idx) => {
                 if (field.value) {
+                    const fontSize = field.fontSize || 16;
+                    
                     // 1. Desenha o texto diretamente no canvas (texto preto fixo)
-                    context.font = `${field.fontSize || 16}px Arial`;
+                    // Canvas desenha texto a partir da BASELINE, por isso usamos field.y + fontSize
+                    context.font = `${fontSize}px Arial`;
                     context.fillStyle = '#000000';
-                    context.fillText(field.value, field.x, field.y + (field.fontSize || 16));
+                    const textY = field.y + fontSize; // Posição real do texto no canvas
+                    context.fillText(field.value, field.x, textY);
                     
                     // 2. Cria overlay arrastável (invisível, mas clicável)
                     const overlay = document.createElement('div');
                     const padding = 10;
                     const fieldWidth = field.width || (context.measureText(field.value).width);
-                    const fieldHeight = field.height || (field.fontSize || 16);
+                    const fieldHeight = field.height || fontSize;
                     
+                    // ✅ CORRIGIDO: Alinha o overlay com a posição VISUAL do texto (field.y, não field.y + fontSize)
                     overlay.style.position = 'absolute';
                     overlay.style.left = (field.x - padding) + 'px';
-                    overlay.style.top = (field.y - padding) + 'px';
+                    overlay.style.top = (field.y - padding) + 'px';  // Usa field.y (topo do texto)
                     overlay.style.width = (fieldWidth + padding * 2) + 'px';
                     overlay.style.height = (fieldHeight + padding * 2) + 'px';
                     overlay.style.cursor = 'move';
@@ -2828,7 +2838,7 @@ async function renderPDFPreview(url) {
                     overlay.style.transition = 'border 0.2s ease';
                     overlay.dataset.fieldIndex = templateConfig.fields.findIndex(f => f === field);
                     overlay.dataset.fieldValue = field.value;
-                    overlay.dataset.fontSize = field.fontSize || 16;
+                    overlay.dataset.fontSize = fontSize;
                     
                     // Hover: mostra borda pontilhada
                     overlay.addEventListener('mouseenter', () => {
@@ -2850,35 +2860,31 @@ async function renderPDFPreview(url) {
                         isDragging = true;
                         overlay.style.zIndex = '1000'; // Traz para frente
                         
-                        const rect = overlay.getBoundingClientRect();
                         const pageRect = pageWrapper.getBoundingClientRect();
-                        
-                        offsetX = e.clientX - rect.left;
-                        offsetY = e.clientY - rect.top;
-                        startX = e.clientX;
-                        startY = e.clientY;
                         
                         // Cria elemento "fantasma" azul semi-transparente
                         ghostElement = document.createElement('div');
                         ghostElement.style.position = 'absolute';
                         ghostElement.style.left = (field.x - padding) + 'px';
                         ghostElement.style.top = (field.y - padding) + 'px';
-                        ghostElement.style.width = (fieldWidth + padding * 2) + 'px';
-                        ghostElement.style.height = (fieldHeight + padding * 2) + 'px';
-                        ghostElement.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
-                        ghostElement.style.border = '2px solid rgba(59, 130, 246, 0.8)';
+                        ghostElement.style.color = 'rgba(59, 130, 246, 0.9)';
+                        ghostElement.style.fontSize = fontSize + 'px';
+                        ghostElement.style.fontWeight = 'bold';
+                        ghostElement.style.border = '2px dashed rgba(59, 130, 246, 0.8)';
                         ghostElement.style.borderRadius = '4px';
+                        ghostElement.style.padding = padding + 'px';
+                        ghostElement.style.backgroundColor = 'rgba(59, 130, 246, 0.15)';
                         ghostElement.style.pointerEvents = 'none';
                         ghostElement.style.zIndex = '999';
-                        ghostElement.style.display = 'flex';
-                        ghostElement.style.alignItems = 'center';
-                        ghostElement.style.justifyContent = 'center';
-                        ghostElement.style.color = 'rgba(59, 130, 246, 0.9)';
-                        ghostElement.style.fontSize = (field.fontSize || 16) + 'px';
-                        ghostElement.style.fontWeight = 'bold';
+                        ghostElement.style.whiteSpace = 'nowrap';
                         ghostElement.textContent = field.value;
                         
                         pageWrapper.appendChild(ghostElement);
+                        
+                        // ✅ CORRIGIDO: Calcula offset com base no ghostElement (não no overlay)
+                        const ghostRect = ghostElement.getBoundingClientRect();
+                        offsetX = e.clientX - ghostRect.left;
+                        offsetY = e.clientY - ghostRect.top;
                         
                         document.body.style.userSelect = 'none';
                         e.preventDefault();
@@ -2907,9 +2913,9 @@ async function renderPDFPreview(url) {
                         overlay.style.zIndex = '10';
                         
                         if (ghostElement) {
-                            // Calcula nova posição (remove o padding)
-                            const newX = parseFloat(ghostElement.style.left) + padding;
-                            const newY = parseFloat(ghostElement.style.top) + padding;
+                            // Calcula nova posição (remove o padding + aplica offsets de ajuste)
+                            const newX = parseFloat(ghostElement.style.left) + padding + DRAG_OFFSET_X;
+                            const newY = parseFloat(ghostElement.style.top) + padding + DRAG_OFFSET_Y;
                             
                             // Atualiza a posição no templateConfig
                             const fieldIdx = parseInt(overlay.dataset.fieldIndex);
@@ -2950,7 +2956,7 @@ async function renderPDFPreview(url) {
                             blueTextElement.style.left = newX + 'px';
                             blueTextElement.style.top = newY + 'px';
                             blueTextElement.style.color = 'rgba(59, 130, 246, 0.9)'; // Azul
-                            blueTextElement.style.fontSize = (field.fontSize || 16) + 'px';
+                            blueTextElement.style.fontSize = fontSize + 'px';
                             blueTextElement.style.fontWeight = 'bold';
                             blueTextElement.style.cursor = 'move';
                             blueTextElement.style.userSelect = 'none';
