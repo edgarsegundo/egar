@@ -552,12 +552,8 @@
           <span class="text-[9px] text-gray-500 mt-0.5">Baixar</span>
         </div>
 
-        <!-- Separador -->
-        <div class="w-px bg-gray-300 mx-1 self-stretch"></div>
-
-        <!-- 🎯 SWITCH TOGGLE - Modo Edição -->
-        <div id="toggleModeBtnContainer" class="hidden flex-col items-center">
-          <div class="flex items-center justify-center p-2">
+        <div id="toggleModeBtnContainer" class="flex flex-col items-center justify-end h-full">
+          <div class="flex items-center justify-center p-0 pt-[calc(var(--spacing)*3.5)] mt-[1px]">
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" id="toggleModeCheckbox" class="sr-only peer">
               <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
@@ -565,6 +561,10 @@
           </div>
           <span class="text-[9px] text-gray-500 mt-0.5">Alterar Estrutura</span>
         </div>
+
+        <!-- Separador -->
+        <div class="w-px bg-gray-300 mx-1 self-stretch"></div>
+
 
         <div class="flex flex-col items-center">
           <button id="fullscreenBtn" class="p-2 rounded hover:bg-indigo-100 bg-indigo-50 border border-indigo-200 transition" title="Tela Cheia">
