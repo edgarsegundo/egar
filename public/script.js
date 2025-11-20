@@ -892,19 +892,35 @@ if (previewModeCheckbox) {
         
         isPreviewMode = this.checked;
         
+        const toggleCheckbox = document.getElementById('toggleModeCheckbox');
+        const toggleContainer = document.getElementById('toggleModeBtnContainer');
+        
         if (this.checked) {
-            // Desativa o modo de edição se estiver ativo
+            // Desativa e DESABILITA o modo de edição
+            if (toggleCheckbox) {
+                toggleCheckbox.checked = false;
+                toggleCheckbox.disabled = true; // 🔒 Desabilita
+            }
+            if (toggleContainer) {
+                toggleContainer.style.opacity = '0.5'; // Visual de desabilitado
+                toggleContainer.style.pointerEvents = 'none';
+            }
             if (isEditorMode) {
-                const toggleCheckbox = document.getElementById('toggleModeCheckbox');
-                if (toggleCheckbox) {
-                    toggleCheckbox.checked = false;
-                }
                 setMode(false);
             }
             
-            // Renderiza o PDF em modo preview (sem inputs)
+            // Renderiza o PDF em modo preview (com overlays arrastáveis)
             await renderPDFPreview(currentPdfUrl);
         } else {
+            // Re-habilita o modo de edição
+            if (toggleCheckbox) {
+                toggleCheckbox.disabled = false; // ✅ Re-habilita
+            }
+            if (toggleContainer) {
+                toggleContainer.style.opacity = '1';
+                toggleContainer.style.pointerEvents = 'auto';
+            }
+            
             // Volta ao modo normal
             await renderPDF(currentPdfUrl);
         }
@@ -2786,20 +2802,164 @@ async function renderPDFPreview(url) {
             pageWrapper.appendChild(canvas);
             pdfContainer.appendChild(pageWrapper);
             
-            // Desenha os textos dos campos no canvas
+            // Desenha os textos dos campos no canvas E cria overlays arrastáveis
             const fieldsOnThisPage = templateConfig.fields.filter(f => (f.page || 1) === pageNum);
             
-            fieldsOnThisPage.forEach(field => {
+            fieldsOnThisPage.forEach((field, idx) => {
                 if (field.value) {
-                    // Desenha o texto diretamente no canvas
+                    // 1. Desenha o texto diretamente no canvas (texto preto fixo)
                     context.font = `${field.fontSize || 16}px Arial`;
-                    context.fillStyle = '#000000'; // Texto preto
+                    context.fillStyle = '#000000';
                     context.fillText(field.value, field.x, field.y + (field.fontSize || 16));
+                    
+                    // 2. Cria overlay arrastável (invisível, mas clicável)
+                    const overlay = document.createElement('div');
+                    const padding = 10;
+                    const fieldWidth = field.width || (context.measureText(field.value).width);
+                    const fieldHeight = field.height || (field.fontSize || 16);
+                    
+                    overlay.style.position = 'absolute';
+                    overlay.style.left = (field.x - padding) + 'px';
+                    overlay.style.top = (field.y - padding) + 'px';
+                    overlay.style.width = (fieldWidth + padding * 2) + 'px';
+                    overlay.style.height = (fieldHeight + padding * 2) + 'px';
+                    overlay.style.cursor = 'move';
+                    overlay.style.zIndex = '10';
+                    overlay.style.transition = 'border 0.2s ease';
+                    overlay.dataset.fieldIndex = templateConfig.fields.findIndex(f => f === field);
+                    overlay.dataset.fieldValue = field.value;
+                    overlay.dataset.fontSize = field.fontSize || 16;
+                    
+                    // Hover: mostra borda pontilhada
+                    overlay.addEventListener('mouseenter', () => {
+                        overlay.style.border = '2px dashed rgba(59, 130, 246, 0.6)';
+                        overlay.style.backgroundColor = 'rgba(59, 130, 246, 0.05)';
+                    });
+                    
+                    overlay.addEventListener('mouseleave', () => {
+                        overlay.style.border = 'none';
+                        overlay.style.backgroundColor = 'transparent';
+                    });
+                    
+                    // 3. Sistema de Drag & Drop
+                    let isDragging = false;
+                    let startX, startY, offsetX, offsetY;
+                    let ghostElement = null;
+                    
+                    overlay.addEventListener('mousedown', (e) => {
+                        isDragging = true;
+                        overlay.style.zIndex = '1000'; // Traz para frente
+                        
+                        const rect = overlay.getBoundingClientRect();
+                        const pageRect = pageWrapper.getBoundingClientRect();
+                        
+                        offsetX = e.clientX - rect.left;
+                        offsetY = e.clientY - rect.top;
+                        startX = e.clientX;
+                        startY = e.clientY;
+                        
+                        // Cria elemento "fantasma" azul semi-transparente
+                        ghostElement = document.createElement('div');
+                        ghostElement.style.position = 'absolute';
+                        ghostElement.style.left = (field.x - padding) + 'px';
+                        ghostElement.style.top = (field.y - padding) + 'px';
+                        ghostElement.style.width = (fieldWidth + padding * 2) + 'px';
+                        ghostElement.style.height = (fieldHeight + padding * 2) + 'px';
+                        ghostElement.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
+                        ghostElement.style.border = '2px solid rgba(59, 130, 246, 0.8)';
+                        ghostElement.style.borderRadius = '4px';
+                        ghostElement.style.pointerEvents = 'none';
+                        ghostElement.style.zIndex = '999';
+                        ghostElement.style.display = 'flex';
+                        ghostElement.style.alignItems = 'center';
+                        ghostElement.style.justifyContent = 'center';
+                        ghostElement.style.color = 'rgba(59, 130, 246, 0.9)';
+                        ghostElement.style.fontSize = (field.fontSize || 16) + 'px';
+                        ghostElement.style.fontWeight = 'bold';
+                        ghostElement.textContent = field.value;
+                        
+                        pageWrapper.appendChild(ghostElement);
+                        
+                        document.body.style.userSelect = 'none';
+                        e.preventDefault();
+                    });
+                    
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isDragging || !ghostElement) return;
+                        
+                        const pageRect = pageWrapper.getBoundingClientRect();
+                        let newX = e.clientX - pageRect.left - offsetX;
+                        let newY = e.clientY - pageRect.top - offsetY;
+                        
+                        // Limita aos bounds da página
+                        newX = Math.max(0, Math.min(newX, pageWrapper.offsetWidth - ghostElement.offsetWidth));
+                        newY = Math.max(0, Math.min(newY, pageWrapper.offsetHeight - ghostElement.offsetHeight));
+                        
+                        ghostElement.style.left = newX + 'px';
+                        ghostElement.style.top = newY + 'px';
+                    });
+                    
+                    document.addEventListener('mouseup', async (e) => {
+                        if (!isDragging) return;
+                        
+                        isDragging = false;
+                        document.body.style.userSelect = '';
+                        overlay.style.zIndex = '10';
+                        
+                        if (ghostElement) {
+                            // Calcula nova posição (remove o padding)
+                            const newX = parseFloat(ghostElement.style.left) + padding;
+                            const newY = parseFloat(ghostElement.style.top) + padding;
+                            
+                            // Atualiza a posição no templateConfig
+                            const fieldIdx = parseInt(overlay.dataset.fieldIndex);
+                            if (templateConfig.fields[fieldIdx]) {
+                                templateConfig.fields[fieldIdx].x = newX;
+                                templateConfig.fields[fieldIdx].y = newY;
+                                
+                                console.log(`✅ Campo "${field.value}" movido para x:${newX}, y:${newY}`);
+                                
+                                // Salva automaticamente
+                                if (currentTemplate) {
+                                    const configToSave = { 
+                                        fields: templateConfig.fields,
+                                        derivedFrom: templateConfig.derivedFrom 
+                                    };
+                                    
+                                    if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                                        await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
+                                    } else {
+                                        await fetch(`/api/template-config/${currentTemplate}`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(configToSave)
+                                        });
+                                    }
+                                }
+                            }
+                            
+                            // Atualiza posição do overlay (sem re-renderizar o canvas)
+                            overlay.style.left = (newX - padding) + 'px';
+                            overlay.style.top = (newY - padding) + 'px';
+                            
+                            // Remove o fantasma com animação suave
+                            ghostElement.style.transition = 'opacity 0.2s ease-out';
+                            ghostElement.style.opacity = '0';
+                            setTimeout(() => {
+                                if (ghostElement && ghostElement.parentNode) {
+                                    ghostElement.parentNode.removeChild(ghostElement);
+                                }
+                                ghostElement = null;
+                            }, 200);
+                        }
+                    });
+                    
+                    pageWrapper.appendChild(overlay);
                 }
             });
         }
         
-        console.log('[renderPDFPreview] Preview renderizado com sucesso');
+        console.log('[renderPDFPreview] Preview renderizado com sucesso (com overlays arrastáveis)');
         
     } catch (error) {
         console.error('[renderPDFPreview] Erro ao renderizar preview:', error);
