@@ -2122,6 +2122,24 @@ async function renderPDF(url) {
             const inputEl = inputWrapper.querySelector('input[type="text"]');
             if (inputEl) {
                 inputEl.addEventListener('input', async (e) => {
+                    // 🔒 Verifica se é template do servidor antes de permitir edição
+                    if (currentTemplateSource === 'server') {
+                        // Reverte a mudança
+                        inputEl.value = templateConfig.fields[idx]?.value || '';
+                        
+                        await Swal.fire({
+                            icon: 'info',
+                            title: 'Clone o Template Primeiro',
+                            html: `
+                                <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser preenchidos diretamente.</p>
+                                <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
+                                <p class="text-xs text-gray-500">Isso permite que você salve suas alterações no seu navegador.</p>
+                            `,
+                            confirmButtonText: 'Entendi'
+                        });
+                        return;
+                    }
+                    
                     // Verifica se o índice ainda é válido antes de atualizar
                     if (templateConfig.fields[idx]) {
                         templateConfig.fields[idx].value = inputEl.value;
