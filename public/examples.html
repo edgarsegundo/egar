@@ -58,6 +58,16 @@
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 class="text-2xl font-semibold text-gray-700 mb-4">🔗 Combinações Múltiplas</h2>
             <div class="space-y-3">
+                <a href="/?template=Formulário_Visto_Mexicano.pdf&autoclone=true" 
+                   class="block px-4 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition">
+                    📋 Clonar Template Automaticamente
+                </a>
+                
+                <a href="/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&autofill=true" 
+                   class="block px-4 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">
+                    🚀 Clonar + Preencher Automaticamente
+                </a>
+                
                 <a href="/?template=Formulário_Visto_Mexicano.pdf&mode=edit&autofill=true" 
                    class="block px-4 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition">
                     🎯 Editar + Auto-fill
@@ -85,6 +95,11 @@
                     <label class="flex items-center">
                         <input type="checkbox" id="autoFillCheck" class="mr-2">
                         <span class="text-sm text-gray-700">Auto-fill</span>
+                    </label>
+                    
+                    <label class="flex items-center">
+                        <input type="checkbox" id="autoCloneCheck" class="mr-2">
+                        <span class="text-sm text-gray-700">Auto-clone</span>
                     </label>
                 </div>
                 
@@ -119,6 +134,7 @@
             const templateName = document.getElementById('templateInput').value.trim();
             const modeEdit = document.getElementById('modeEdit').checked;
             const autoFill = document.getElementById('autoFillCheck').checked;
+            const autoClone = document.getElementById('autoCloneCheck').checked;
             
             if (!templateName) {
                 alert('Por favor, digite o nome do template!');
@@ -134,6 +150,10 @@
             
             if (autoFill) {
                 params.set('autofill', 'true');
+            }
+            
+            if (autoClone) {
+                params.set('autoclone', 'true');
             }
             
             const url = `${window.location.origin}/?${params.toString()}`;

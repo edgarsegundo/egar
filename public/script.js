@@ -740,23 +740,41 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
             templateConfig = await loadTemplateConfigFromIndexedDB(templateName);
             console.log(`Config carregada:`, templateConfig);
             
+        } else if (source === 'generated') {
+            // Para arquivos gerados, primeiro tenta carregar do IndexedDB
+            console.log(`Tentando carregar '${templateName}' do IndexedDB primeiro...`);
+            try {
+                const result = await loadTemplateFromIndexedDB(templateName);
+                if (result && result.url) {
+                    console.log(`✅ Arquivo gerado encontrado no IndexedDB`);
+                    currentPdfUrl = result.url;
+                    templateConfig = await loadTemplateConfigFromIndexedDB(templateName);
+                    console.log(`Config carregada do IndexedDB:`, templateConfig);
+                } else {
+                    throw new Error('Não encontrado no IndexedDB, tentando servidor...');
+                }
+            } catch (indexedDBError) {
+                // Se não estiver no IndexedDB, tenta carregar do servidor
+                console.log(`⚠️ Não encontrado no IndexedDB, tentando servidor...`);
+                const res = await fetch(`/api/template-config/${templateName}`);
+                templateConfig = await res.json();
+                
+                // Se tiver derivedFrom, usa o PDF original
+                if (templateConfig.derivedFrom) {
+                    const url = `/api/pdf-templates/${templateConfig.derivedFrom}`;
+                    currentPdfUrl = url;
+                    console.log(`Carregando arquivo gerado '${templateName}' usando template original '${templateConfig.derivedFrom}'`);
+                } else {
+                    const url = `/api/generated-pdf-files/${templateName}`;
+                    currentPdfUrl = url;
+                }
+            }
         } else {
-            // Carrega do servidor (templates ou generated)
+            // Carrega do servidor (templates)
             const res = await fetch(`/api/template-config/${templateName}`);
             templateConfig = await res.json();
-            
-            // Se for um arquivo gerado e tiver derivedFrom, usa o PDF original
-            if (source === 'generated' && templateConfig.derivedFrom) {
-                const url = `/api/pdf-templates/${templateConfig.derivedFrom}`;
-                currentPdfUrl = url;
-                console.log(`Carregando arquivo gerado '${templateName}' usando template original '${templateConfig.derivedFrom}'`);
-            } else {
-                // Se for um template normal, usa o próprio arquivo
-                const url = source === 'generated' 
-                    ? `/api/generated-pdf-files/${templateName}` 
-                    : `/api/pdf-templates/${templateName}`;
-                currentPdfUrl = url;
-            }
+            const url = `/api/pdf-templates/${templateName}`;
+            currentPdfUrl = url;
         }
     } catch (error) {
         console.error('Erro ao carregar configuração:', error);
@@ -1642,8 +1660,9 @@ async function loadTemplateFromURL() {
     const cloneName = urlParams.get('clone');        // Nome do clone/arquivo gerado
     const mode = urlParams.get('mode');              // 'edit' ou 'fill'
     const autoFill = urlParams.get('autofill');      // 'true' para abrir modal de preenchimento
+    const autoClone = urlParams.get('autoclone');    // 'true' para clonar automaticamente
     
-    console.log('🔗 URL Parameters:', { templateName, cloneName, mode, autoFill });
+    console.log('🔗 URL Parameters:', { templateName, cloneName, mode, autoFill, autoClone });
     
     // Prioridade: clone > template
     if (cloneName) {
@@ -1674,15 +1693,72 @@ async function loadTemplateFromURL() {
     }
     
     if (templateName) {
-        console.log(`� Carregando template da URL: ${templateName}`);
+        console.log(`📋 Carregando template da URL: ${templateName}`);
         try {
             // Verifica se o template existe
             const templateExists = await checkTemplateExists(templateName);
             if (templateExists) {
                 await loadTemplate(templateName, 'templates', mode === 'edit');
                 
-                if (autoFill === 'true' && mode !== 'edit') {
-                    // Aguarda um pouco para o PDF carregar
+                // Se autoclone=true, clona automaticamente após carregar
+                if (autoClone === 'true') {
+                    console.log('🔄 Auto-clonando template...');
+                    setTimeout(async () => {
+                        try {
+                            // Pede nome do clone
+                            const { value: cloneName } = await Swal.fire({
+                                title: 'Clonar Template',
+                                input: 'text',
+                                inputLabel: 'Nome do novo arquivo:',
+                                inputPlaceholder: `Clone de ${templateName}`,
+                                inputValue: `Clone de ${templateName.replace('.pdf', '')}`,
+                                showCancelButton: true,
+                                confirmButtonText: 'Criar Clone',
+                                cancelButtonText: 'Cancelar',
+                                inputValidator: (value) => {
+                                    if (!value) {
+                                        return 'Você precisa informar um nome!';
+                                    }
+                                }
+                            });
+                            
+                            if (cloneName) {
+                                // Usa a função existente de clone
+                                await cloneTemplateToIndexedDB(templateName, cloneName);
+                                
+                                // Recarrega a lista de clones para atualizar a sidebar
+                                await loadClonedFiles();
+                                
+                                // Aguarda um pouco para garantir que o clone foi salvo
+                                await new Promise(resolve => setTimeout(resolve, 300));
+                                
+                                // Carrega o clone criado
+                                await loadTemplate(cloneName, 'generated', mode === 'edit');
+                                
+                                // Se autofill também estiver ativo, abre o modal
+                                if (autoFill === 'true' && mode !== 'edit') {
+                                    setTimeout(() => openFillModal(), 500);
+                                }
+                                
+                                await Swal.fire({
+                                    icon: 'success',
+                                    title: 'Clone Criado!',
+                                    text: `O clone "${cloneName}" foi criado com sucesso.`,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Erro ao auto-clonar:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro ao Clonar',
+                                text: 'Não foi possível criar o clone automaticamente.'
+                            });
+                        }
+                    }, 800); // Aguarda o template carregar
+                } else if (autoFill === 'true' && mode !== 'edit') {
+                    // Se não for autoclone, mas for autofill, abre modal
                     setTimeout(() => openFillModal(), 500);
                 }
                 return true;
@@ -1741,6 +1817,53 @@ async function loadCloneFromIndexedDB(cloneName) {
         request.onerror = () => {
             reject(request.error);
         };
+    });
+}
+
+/**
+ * Clona o template atual automaticamente (usado pelo parâmetro autoclone)
+ */
+async function cloneCurrentTemplate() {
+    if (!currentTemplate || !currentTemplateSource) {
+        throw new Error('Nenhum template carregado');
+    }
+    
+    // Se já for um clone, não clona novamente
+    if (currentTemplateSource === 'generated') {
+        console.log('⚠️ Já é um clone, ignorando auto-clone');
+        return;
+    }
+    
+    // Pede o nome do clone
+    const { value: cloneName } = await Swal.fire({
+        title: 'Clonar Template',
+        input: 'text',
+        inputLabel: 'Nome do novo arquivo:',
+        inputValue: currentTemplate.replace('.pdf', '') + '-clone',
+        showCancelButton: true,
+        confirmButtonText: 'Clonar',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Por favor, digite um nome!';
+            }
+        }
+    });
+    
+    if (!cloneName) return;
+    
+    // Clona o template
+    await cloneTemplateToIndexedDB(currentTemplate, cloneName);
+    
+    // Carrega o clone
+    await loadTemplate(cloneName, 'generated', false);
+    
+    Swal.fire({
+        icon: 'success',
+        title: 'Template Clonado!',
+        text: `Template clonado como "${cloneName}"`,
+        timer: 2000,
+        showConfirmButton: false
     });
 }
 
