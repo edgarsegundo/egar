@@ -2508,6 +2508,21 @@ async function renderPDF(url) {
             input.style.cursor = 'not-allowed';
             input.style.backgroundColor = '#e5e7eb'; // Cinza claro
             input.title = 'Clone o template para editar';
+            
+            // Adiciona evento de clique para mostrar mensagem
+            input.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                await Swal.fire({
+                    icon: 'info',
+                    title: 'Clone o Template Primeiro',
+                    html: `
+                        <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser preenchidos diretamente.</p>
+                        <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
+                        <p class="text-xs text-gray-500">Isso permite que você salve suas alterações no seu navegador.</p>
+                    `,
+                    confirmButtonText: 'Entendi'
+                });
+            });
         }
 
         // Evento de clique para editar propriedades do campo (apenas em modo edição)
