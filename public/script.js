@@ -9,6 +9,7 @@ let currentPdfUrl = null;
 let currentTemplate = null;
 let currentTemplateSource = null; // 'indexeddb', 'templates', ou 'generated'
 let isEditorMode = false;
+let isPreviewMode = false; // 👁️ Modo de visualização
 let templateFields = [];
 // Guarda referências dos campos criados
 let createdFields = [];
@@ -21,6 +22,8 @@ const pdfContainer = document.getElementById('pdfContainer');
 const downloadBtn = document.getElementById('downloadBtn');
 const uploadForm = document.getElementById('uploadForm');
 const toggleModeBtn = document.getElementById('toggleModeBtn');
+const toggleModeCheckbox = document.getElementById('toggleModeCheckbox');
+const previewModeCheckbox = document.getElementById('previewModeCheckbox'); // 👁️ Switch de visualização
 const saveConfigBtn = document.getElementById('saveConfigBtn');
 const clearFieldsBtn = document.getElementById('clearFieldsBtn');
 const cloneFileBtn = document.getElementById('cloneFileBtn');
@@ -785,6 +788,12 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
         toggleModeBtnContainer.classList.remove('hidden');
     }
 
+    // Mostra o switch de visualização no toolbar
+    const previewModeBtnContainer = document.getElementById('previewModeBtnContainer');
+    if (previewModeBtnContainer) {
+        previewModeBtnContainer.classList.remove('hidden');
+    }
+
     await renderPDF(currentPdfUrl);
     if (!keepMode) setMode(false);
     
@@ -873,6 +882,32 @@ if (toggleModeCheckbox) {
         
         // Alterna o modo baseado no estado do checkbox
         setMode(this.checked);
+    });
+}
+
+// 👁️ PREVIEW MODE CHECKBOX - Event listener
+if (previewModeCheckbox) {
+    previewModeCheckbox.addEventListener('change', async function() {
+        console.log('Preview:', this.checked ? 'ATIVADO' : 'DESATIVADO');
+        
+        isPreviewMode = this.checked;
+        
+        if (this.checked) {
+            // Desativa o modo de edição se estiver ativo
+            if (isEditorMode) {
+                const toggleCheckbox = document.getElementById('toggleModeCheckbox');
+                if (toggleCheckbox) {
+                    toggleCheckbox.checked = false;
+                }
+                setMode(false);
+            }
+            
+            // Renderiza o PDF em modo preview (sem inputs)
+            await renderPDFPreview(currentPdfUrl);
+        } else {
+            // Volta ao modo normal
+            await renderPDF(currentPdfUrl);
+        }
     });
 }
 
@@ -2707,6 +2742,68 @@ async function renderPDF(url) {
         recalculateTabIndex();
         
         return wrapper;
+    }
+}
+
+// 👁️ FUNÇÃO DE PREVIEW - Renderiza PDF com textos desenhados (sem inputs)
+async function renderPDFPreview(url) {
+    if (!url) return;
+    
+    console.log('[renderPDFPreview] Renderizando PDF em modo preview');
+    
+    // Limpa o container
+    pdfContainer.innerHTML = '';
+    
+    try {
+        const pdf = await pdfjsLib.getDocument(url).promise;
+        console.log(`[renderPDFPreview] PDF carregado: ${pdf.numPages} páginas`);
+        
+        // Renderiza cada página
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const viewport = page.getViewport({ scale: 1.5 });
+            
+            // Cria wrapper da página
+            const pageWrapper = document.createElement('div');
+            pageWrapper.className = 'page-wrapper mb-4 relative';
+            pageWrapper.style.position = 'relative';
+            pageWrapper.style.width = viewport.width + 'px';
+            pageWrapper.style.height = viewport.height + 'px';
+            pageWrapper.dataset.pageNumber = pageNum;
+            
+            // Cria canvas para o PDF
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const context = canvas.getContext('2d');
+            
+            // Renderiza o PDF
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+            
+            pageWrapper.appendChild(canvas);
+            pdfContainer.appendChild(pageWrapper);
+            
+            // Desenha os textos dos campos no canvas
+            const fieldsOnThisPage = templateConfig.fields.filter(f => (f.page || 1) === pageNum);
+            
+            fieldsOnThisPage.forEach(field => {
+                if (field.value) {
+                    // Desenha o texto diretamente no canvas
+                    context.font = `${field.fontSize || 16}px Arial`;
+                    context.fillStyle = '#000000'; // Texto preto
+                    context.fillText(field.value, field.x, field.y + (field.fontSize || 16));
+                }
+            });
+        }
+        
+        console.log('[renderPDFPreview] Preview renderizado com sucesso');
+        
+    } catch (error) {
+        console.error('[renderPDFPreview] Erro ao renderizar preview:', error);
+        pdfContainer.innerHTML = '<p class="text-red-500">Erro ao carregar preview do PDF</p>';
     }
 }
 
