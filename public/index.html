@@ -164,13 +164,17 @@
 
     /* Modo Edição Ativo - Efeitos especiais */
     #toggleModeBtn.edit-mode-active {
-      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
-      border-color: rgba(16, 185, 129, 0.5) !important;
-      animation: pulse-glow-green 2s ease-in-out infinite;
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
+      border-color: #10b981 !important;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
-
-    #toggleModeBtn.edit-mode-active .edit-icon {
-      animation: float 2s ease-in-out infinite;
+    
+    #toggleModeBtn.edit-mode-active #modeIcon svg {
+      color: #10b981 !important;
+    }
+    
+    #toggleModeBtn.edit-mode-active #currentMode {
+      color: #059669 !important;
     }
 
     /* Ícone com display flex */
@@ -182,7 +186,7 @@
 
     /* Transição suave entre estados */
     #toggleModeBtn {
-      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.3s ease;
     }
 
     /* Efeito de ripple ao clicar */
@@ -497,33 +501,26 @@
         <div class="absolute inset-0 rounded-full bg-green-400 opacity-0 group-hover:opacity-20 transition-opacity"></div>
       </button>
       
-      <button id="toggleModeBtn" class="group relative hidden overflow-hidden bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-600 text-white px-6 py-3 rounded-2xl font-bold shadow-2xl transition-all duration-500 hover:shadow-purple-500/50 hover:scale-105 hover:rotate-1 border-2 border-purple-400/30">
-        <!-- Efeito de brilho animado -->
-        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-        
-        <!-- Container do conteúdo -->
-        <div class="relative flex items-center gap-3">
-          <!-- Ícone que muda de acordo com o modo -->
+      <!-- 🎯 SWITCH TOGGLE - Modo Edição -->
+      <div id="toggleModeBtn" class="hidden bg-white px-5 py-3 rounded-2xl shadow-lg border-2 border-purple-200 hover:border-purple-300 transition-all duration-300">
+        <div class="flex items-center gap-3">
+          <!-- Ícone -->
           <div id="modeIcon" class="transition-all duration-500">
-            <!-- Ícone de edição (caneta) -->
-            <svg class="w-5 h-5 edit-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
             </svg>
           </div>
           
-          <!-- Texto do modo -->
-           
-          <span id="currentMode" class="text-sm font-extrabold tracking-wide">Alterar Estrutura</span>
+          <!-- Texto -->
+          <span id="currentMode" class="text-sm font-bold text-gray-700">Modo Alterar Estrutura</span>
           
-          <!-- Indicador visual pulsante -->
-          <!-- <div class="absolute -right-1 -top-1 w-3 h-3 bg-green-400 rounded-full animate-ping opacity-75"></div>
-          <div class="absolute -right-1 -top-1 w-3 h-3 bg-green-400 rounded-full"></div> -->
+          <!-- Switch -->
+          <label class="relative inline-flex items-center cursor-pointer ml-2">
+            <input type="checkbox" id="toggleModeCheckbox" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+          </label>
         </div>
-        
-        <!-- Partículas decorativas -->
-        <div class="absolute top-0 left-0 w-2 h-2 bg-yellow-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce"></div>
-        <div class="absolute bottom-0 right-0 w-2 h-2 bg-pink-300 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-bounce animation-delay-150"></div>
-      </button>
+      </div>
     </div>
 
     <!-- <h1 class="text-2xl font-bold mb-4">Editar e Salvar PDF</h1> -->

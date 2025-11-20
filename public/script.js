@@ -101,7 +101,7 @@ function setMode(editor) {
   
   if (isEditorMode) {
     // Modo EDIÇÃO - Visual Verde sem ícone
-    if (currentModeSpan) currentModeSpan.textContent = 'Sair Alterar Estrutura';
+    if (currentModeSpan) currentModeSpan.textContent = 'Modo Alterar Estrutura';
     
     // Remove o ícone no modo edição
     if (modeIcon) {
@@ -159,7 +159,7 @@ function setMode(editor) {
     if (clearFieldsBtn) clearFieldsBtn.classList.remove('hidden');
   } else {
     // Modo PREENCHIMENTO - Visual Roxo com ícone de editar
-    if (currentModeSpan) currentModeSpan.textContent = 'Alterar Estrutura';
+    if (currentModeSpan) currentModeSpan.textContent = 'Modo Alterar Estrutura';
     
     // Muda o ícone para "editar" (caneta)
     if (modeIcon) {
@@ -846,61 +846,52 @@ uploadForm.addEventListener("submit", async (e) => {
     renderPDF(currentPdfUrl);
 });
 
-// Mode toggle
-toggleModeBtn.addEventListener('click', async (event) => {
-    event.preventDefault();
-    
-    // 🔒 VALIDAÇÃO BACKEND: Verifica se pode ativar modo de edição
-    if (!isEditorMode && currentTemplate) {
-        try {
-            const response = await fetch(`/api/validate-edit-mode/${currentTemplate}`, {
-                method: 'POST'
-            });
-            
-            const validation = await response.json();
-            
-            if (!validation.success) {
-                await Swal.fire({
-                    icon: 'info',
-                    title: 'Clone o Template Primeiro',
-                    html: `
-                        <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser editados diretamente.</p>
-                        <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
-                        <p class="text-xs text-gray-500">Isso permite que você edite e salve suas alterações no seu navegador.</p>
-                    `,
-                    confirmButtonText: 'Entendi'
+// Mode toggle - DESABILITADO (agora usa o checkbox)
+// toggleModeBtn.addEventListener('click', async (event) => {
+//     event.preventDefault();
+//     // Código removido - agora o switch checkbox controla tudo
+// });
+
+// 🎯 SWITCH CHECKBOX - Event listener
+if (toggleModeCheckbox) {
+    toggleModeCheckbox.addEventListener('change', async function() {
+        console.log('Switch:', this.checked ? 'LIGADO (Modo Edição)' : 'DESLIGADO (Modo Preenchimento)');
+        
+        // 🔒 VALIDAÇÃO BACKEND: Verifica se pode ativar modo de edição
+        if (this.checked && currentTemplate) {
+            try {
+                const response = await fetch(`/api/validate-edit-mode/${currentTemplate}`, {
+                    method: 'POST'
                 });
-                return; // Cancela ativação do modo edição
+                
+                const validation = await response.json();
+                
+                if (!validation.success) {
+                    // Reverte o checkbox
+                    this.checked = false;
+                    
+                    await Swal.fire({
+                        icon: 'info',
+                        title: 'Clone o Template Primeiro',
+                        html: `
+                            <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser editados diretamente.</p>
+                            <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
+                            <p class="text-xs text-gray-500">Isso permite que você edite e salve suas alterações no seu navegador.</p>
+                        `,
+                        confirmButtonText: 'Entendi'
+                    });
+                    return; // Cancela ativação do modo edição
+                }
+            } catch (error) {
+                console.error('Erro ao validar modo de edição:', error);
+                // Se der erro, continua (pode ser template do IndexedDB)
             }
-        } catch (error) {
-            console.error('Erro ao validar modo de edição:', error);
-            // Se der erro, continua (pode ser template do IndexedDB)
         }
-    }
-    
-    // Efeito ripple ao clicar
-    const ripple = document.createElement('span');
-    ripple.classList.add('ripple-effect');
-    
-    const rect = toggleModeBtn.getBoundingClientRect();
-    const size = Math.max(rect.width, rect.height);
-    const x = event.clientX - rect.left - size / 2;
-    const y = event.clientY - rect.top - size / 2;
-    
-    ripple.style.width = ripple.style.height = size + 'px';
-    ripple.style.left = x + 'px';
-    ripple.style.top = y + 'px';
-    
-    toggleModeBtn.appendChild(ripple);
-    
-    // Remove o ripple após a animação
-    setTimeout(() => {
-        ripple.remove();
-    }, 600);
-    
-    // Alterna o modo
-    setMode(!isEditorMode);
-});
+        
+        // Alterna o modo baseado no estado do checkbox
+        setMode(this.checked);
+    });
+}
 
 // Botão de Ajuda do Modo Edição
 const editModeHelpBtn = document.getElementById('editModeHelpBtn');
