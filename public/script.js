@@ -2766,11 +2766,16 @@ async function renderPDFPreview(url) {
     if (!url) return;
     
     // 🎯 VARIÁVEIS DE AJUSTE DE POSIÇÃO (ajuste aqui se o texto não cair exatamente onde você solta)
-    const DRAG_OFFSET_X = 1; // Ajuste horizontal: positivo = move para direita, negativo = move para esquerda
+    const DRAG_OFFSET_X = 2; // Ajuste horizontal: positivo = move para direita, negativo = move para esquerda
     const DRAG_OFFSET_Y = 2; // Ajuste vertical: positivo = move para baixo, negativo = move para cima
     
+    // 🔵 VARIÁVEIS DE AJUSTE PARA O SEGUNDO DRAG (texto azul)
+    const BLUE_DRAG_OFFSET_X = 2; // Ajuste horizontal do texto azul: positivo = direita, negativo = esquerda
+    const BLUE_DRAG_OFFSET_Y = 2; // Ajuste vertical do texto azul: positivo = baixo, negativo = cima
+    
     console.log('[renderPDFPreview] Renderizando PDF em modo preview');
-    console.log(`[renderPDFPreview] Offsets de ajuste: X=${DRAG_OFFSET_X}, Y=${DRAG_OFFSET_Y}`);
+    console.log(`[renderPDFPreview] Offsets primeiro drag: X=${DRAG_OFFSET_X}, Y=${DRAG_OFFSET_Y}`);
+    console.log(`[renderPDFPreview] Offsets texto azul: X=${BLUE_DRAG_OFFSET_X}, Y=${BLUE_DRAG_OFFSET_Y}`);
     
     // Limpa o container
     pdfContainer.innerHTML = '';
@@ -3036,8 +3041,9 @@ async function renderPDFPreview(url) {
                                     blueTextElement.style.zIndex = '20';
                                     
                                     if (blueGhost) {
-                                        const finalX = parseFloat(blueGhost.style.left) + padding;
-                                        const finalY = parseFloat(blueGhost.style.top) + padding;
+                                        // Aplica offsets de ajuste para o texto azul
+                                        const finalX = parseFloat(blueGhost.style.left) + padding + BLUE_DRAG_OFFSET_X;
+                                        const finalY = parseFloat(blueGhost.style.top) + padding + BLUE_DRAG_OFFSET_Y;
                                         
                                         // Atualiza posição no config
                                         if (templateConfig.fields[fieldIdx]) {
