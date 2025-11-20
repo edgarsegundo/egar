@@ -2144,6 +2144,8 @@ async function renderPDF(url) {
                 inputEl.addEventListener('keydown', preventServerEdit);
                 inputEl.addEventListener('paste', preventServerEdit);
                 
+                // 💾 Auto-save com debounce (500ms após parar de digitar)
+                let saveTimeout;
                 inputEl.addEventListener('input', async (e) => {
                     // Verifica se o índice ainda é válido antes de atualizar
                     if (templateConfig.fields[idx]) {
@@ -2155,33 +2157,38 @@ async function renderPDF(url) {
                         modalInput.value = inputEl.value;
                     }
                     
-                    // Salva automaticamente no backend OU no IndexedDB
-                    if (currentTemplate) {
-                        try {
-                            // Preserva o derivedFrom se existir
-                            const configToSave = { fields: templateConfig.fields };
-                            if (templateConfig.derivedFrom) {
-                                configToSave.derivedFrom = templateConfig.derivedFrom;
+                    // Cancela o save anterior (debounce)
+                    clearTimeout(saveTimeout);
+                    
+                    // Agenda novo save após 500ms de inatividade
+                    saveTimeout = setTimeout(async () => {
+                        // Salva automaticamente no backend OU no IndexedDB
+                        if (currentTemplate) {
+                            try {
+                                // Preserva o derivedFrom se existir
+                                const configToSave = { fields: templateConfig.fields };
+                                if (templateConfig.derivedFrom) {
+                                    configToSave.derivedFrom = templateConfig.derivedFrom;
+                                }
+                                
+                                // Se for do IndexedDB ou clone, salva no IndexedDB
+                                if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                                    await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
+                                    console.log(`✅ Auto-save concluído: ${currentTemplate}`);
+                                } else {
+                                    // Salva no servidor
+                                    await fetch(`/api/template-config/${currentTemplate}`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(configToSave)
+                                    });
+                                    console.log(`✅ Auto-save concluído no servidor: ${currentTemplate}`);
+                                }
+                            } catch (err) {
+                                console.error('❌ Erro ao salvar config automaticamente:', err);
                             }
-                            
-                            // Se for do IndexedDB ou clone, salva no IndexedDB
-                            if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
-                                await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
-                                console.log(`Config salva no IndexedDB para: ${currentTemplate}`);
-                            } else {
-                                // Salva no servidor
-                                await fetch(`/api/template-config/${currentTemplate}`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify(configToSave)
-                                });
-                                console.log(`Config salva no servidor para: ${currentTemplate}`);
-                            }
-                        } catch (err) {
-                            // Silencioso, mas pode logar se quiser
-                            console.error('Erro ao salvar config automaticamente', err);
                         }
-                    }
+                    }, 500); // 500ms de delay
                 });
             }
         }
