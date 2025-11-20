@@ -793,6 +793,28 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
     if (previewModeBtnContainer) {
         previewModeBtnContainer.classList.remove('hidden');
     }
+    
+    // 🔄 RESETA os estados dos switches ao carregar novo template
+    if (!keepMode) {
+        // Reset do Preview Mode
+        if (previewModeCheckbox) {
+            previewModeCheckbox.checked = false;
+            isPreviewMode = false;
+        }
+        
+        // Reset do Alterar Estrutura
+        const toggleModeCheckbox = document.getElementById('toggleModeCheckbox');
+        if (toggleModeCheckbox) {
+            toggleModeCheckbox.checked = false;
+            toggleModeCheckbox.disabled = false;
+        }
+        
+        // Reset da opacidade do container
+        if (toggleModeBtnContainer) {
+            toggleModeBtnContainer.style.opacity = '1';
+            toggleModeBtnContainer.style.pointerEvents = 'auto';
+        }
+    }
 
     await renderPDF(currentPdfUrl);
     if (!keepMode) setMode(false);
