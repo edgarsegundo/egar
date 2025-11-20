@@ -1,37 +1,3 @@
 {
-  "fields": [
-    {
-      "x": 647.5,
-      "y": 231.5,
-      "name": "Válida até dia",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 50,
-      "height": 20,
-      "hint": "DD"
-    },
-    {
-      "x": 711.5,
-      "y": 230.5,
-      "name": "Válida até mês",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 55,
-      "height": 21,
-      "hint": "MM"
-    },
-    {
-      "x": 796,
-      "y": 230.5,
-      "name": "Válida até ano",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 47,
-      "height": 22,
-      "hint": "AA"
-    }
-  ]
+  "fields": []
 }

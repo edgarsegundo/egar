@@ -43,6 +43,10 @@ let templateConfig = { fields: [] };
 // Referência ao botão "Preencher" no toolbar
 const fillFormBtn = document.getElementById('fillFormBtn');
 
+// Referência ao botão "Definir Campos" (auto-detecção com IA)
+const detectFieldsBtn = document.getElementById('detectFieldsBtn');
+const autoDetectFieldsContainer = document.getElementById('autoDetectFieldsBtn');
+
 // Modal e overlay
 const overlay = document.createElement('div');
 overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 opacity-0 pointer-events-none backdrop-blur-sm';
@@ -430,12 +434,31 @@ function updateButtonsState() {
     const deleteTemplateBtn = document.getElementById('deleteTemplateBtn');
     const renameTemplateBtn = document.getElementById('renameTemplateBtn');
     const fillFormBtn = document.getElementById('fillFormBtn');
+    const autoDetectFieldsContainer = document.getElementById('autoDetectFieldsBtn');
     
     // Se está em modo produção E o template é do servidor
     const isServerTemplate = currentTemplateSource === 'templates';
     const shouldDisable = isProductionMode && isServerTemplate;
     
     console.log(`🔒 Atualizando botões - Produção: ${isProductionMode}, Template servidor: ${isServerTemplate}, Disable: ${shouldDisable}`);
+    
+    // 🤖 BOTÃO "DEFINIR CAMPOS" - Mostra apenas se:
+    // 1. Há um template carregado
+    // 2. NÃO é um clone (currentTemplateSource !== 'clone')
+    // 3. NÃO tem campos definidos (templateConfig.fields.length === 0)
+    if (autoDetectFieldsContainer) {
+        const shouldShowAutoDetect = currentTemplate && 
+                                     currentTemplateSource !== 'clone' && 
+                                     (!templateConfig.fields || templateConfig.fields.length === 0);
+        
+        if (shouldShowAutoDetect) {
+            autoDetectFieldsContainer.classList.remove('hidden');
+            autoDetectFieldsContainer.classList.add('flex');
+        } else {
+            autoDetectFieldsContainer.classList.add('hidden');
+            autoDetectFieldsContainer.classList.remove('flex');
+        }
+    }
     
     // Botão "+" de adicionar template ao servidor
     if (addServerTemplateBtn) {
@@ -1202,6 +1225,142 @@ cloneFileBtn.addEventListener('click', async () => {
         });
     }
 });
+
+// 🤖 BOTÃO DEFINIR CAMPOS - Auto-detecção com IA
+if (detectFieldsBtn) {
+    detectFieldsBtn.addEventListener('click', async () => {
+        if (!currentTemplate || !currentPdfUrl) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Atenção',
+                text: 'Nenhum PDF carregado.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        try {
+            // Mostra loading
+            Swal.fire({
+                title: '🤖 Analisando PDF com IA...',
+                html: '<p class="text-sm text-gray-600">Isso pode levar alguns segundos...</p>',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // 1. Busca o PDF atual (como ArrayBuffer)
+            let pdfBuffer;
+            if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                // Para templates do IndexedDB, carrega do blob
+                const result = await loadTemplateFromIndexedDB(currentTemplate);
+                const response = await fetch(result.url);
+                pdfBuffer = await response.arrayBuffer();
+            } else {
+                // Para templates do servidor
+                const response = await fetch(currentPdfUrl);
+                pdfBuffer = await response.arrayBuffer();
+            }
+
+            // 2. Envia para o endpoint de extração
+            const extractResponse = await fetch('/extract-pdf-fields', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/pdf'
+                },
+                body: pdfBuffer
+            });
+
+            if (!extractResponse.ok) {
+                const errorData = await extractResponse.json();
+                throw new Error(errorData.error || 'Erro ao processar PDF');
+            }
+
+            const { success, fields } = await extractResponse.json();
+
+            if (!success || !fields || fields.length === 0) {
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'Nenhum Campo Detectado',
+                    text: 'A IA não conseguiu detectar campos neste PDF. Você pode criar campos manualmente.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            // 3. Mapeia os campos para o formato do sistema
+            const mappedFields = fields.map(field => ({
+                name: field.name || 'Campo sem nome',
+                value: '',
+                x: field.x || 0,
+                y: field.y || 0,
+                page: field.page || 1,
+                width: field.width || 120,
+                height: field.height || 20,
+                fontSize: field.fontSize || 16,
+                hint: field.hint || ''
+            }));
+
+            // 4. Atualiza o templateConfig
+            templateConfig.fields = mappedFields;
+
+            // 5. Salva a configuração
+            const configToSave = { 
+                fields: mappedFields,
+                derivedFrom: templateConfig.derivedFrom 
+            };
+
+            if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
+            } else {
+                await fetch(`/api/template-config/${currentTemplate}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(configToSave)
+                });
+            }
+
+            // 6. Re-renderiza o PDF com os novos campos
+            await renderPDF(currentPdfUrl);
+
+            // 7. Ativa automaticamente o modo "Alterar Estrutura"
+            const toggleModeCheckbox = document.getElementById('toggleModeCheckbox');
+            if (toggleModeCheckbox && !toggleModeCheckbox.checked) {
+                toggleModeCheckbox.checked = true;
+                isEditorMode = true;
+                toggleFieldEditButtons(true);
+            }
+
+            // 8. Esconde o botão "Definir Campos" (já tem campos agora)
+            if (autoDetectFieldsContainer) {
+                autoDetectFieldsContainer.classList.add('hidden');
+            }
+
+            // 9. Mostra mensagem de sucesso
+            await Swal.fire({
+                icon: 'success',
+                title: '✅ Campos Detectados!',
+                html: `
+                    <p class="text-sm text-gray-600 mb-2">Foram detectados <strong>${mappedFields.length} campos</strong>.</p>
+                    <p class="text-sm text-gray-700">Ajuste as posições, tamanhos e nomes conforme necessário.</p>
+                    <p class="text-xs text-gray-500 mt-2">Modo "Alterar Estrutura" ativado automaticamente.</p>
+                `,
+                confirmButtonText: 'Entendi'
+            });
+
+        } catch (error) {
+            console.error('Erro ao detectar campos:', error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: error.message || 'Erro ao detectar campos com IA.',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+}
 
 // Adicionar template (upload PDF)
 const addTemplateBtn = document.getElementById('addTemplateBtn');
