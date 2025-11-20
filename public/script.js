@@ -90,9 +90,7 @@ function setMode(editor) {
   isEditorMode = editor;
   console.log(`[setMode] Mudando para modo: ${isEditorMode ? 'EDIÇÃO' : 'PREENCHIMENTO'}`);
   
-  const currentModeSpan = document.getElementById('currentMode');
-  const modeIcon = document.getElementById('modeIcon');
-  const toggleBtn = document.getElementById('toggleModeBtn');
+  const toggleCheckbox = document.getElementById('toggleModeCheckbox');
   const editModeOverlay = document.getElementById('editModeOverlay');
   const pdfContainer = document.getElementById('pdfContainer');
   const editModeToast = document.getElementById('editModeToast');
@@ -100,17 +98,11 @@ function setMode(editor) {
   const editModeHelpBtn = document.getElementById('editModeHelpBtn');
   
   if (isEditorMode) {
-    // Modo EDIÇÃO - Visual Verde sem ícone
-    if (currentModeSpan) currentModeSpan.textContent = 'Modo Alterar Estrutura';
+    // Modo EDIÇÃO
     
-    // Remove o ícone no modo edição
-    if (modeIcon) {
-      modeIcon.innerHTML = '';
-    }
-    
-    // Adiciona classe de modo ativo
-    if (toggleBtn) {
-      toggleBtn.classList.add('edit-mode-active');
+    // Marca o checkbox como checked
+    if (toggleCheckbox) {
+      toggleCheckbox.checked = true;
     }
     
     // Ativa overlay verde
@@ -158,21 +150,11 @@ function setMode(editor) {
     if (saveConfigBtn) saveConfigBtn.classList.remove('hidden');
     if (clearFieldsBtn) clearFieldsBtn.classList.remove('hidden');
   } else {
-    // Modo PREENCHIMENTO - Visual Roxo com ícone de editar
-    if (currentModeSpan) currentModeSpan.textContent = 'Modo Alterar Estrutura';
+    // Modo PREENCHIMENTO
     
-    // Muda o ícone para "editar" (caneta)
-    if (modeIcon) {
-      modeIcon.innerHTML = `
-        <svg class="w-5 h-5 edit-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-        </svg>
-      `;
-    }
-    
-    // Remove classe de modo ativo
-    if (toggleBtn) {
-      toggleBtn.classList.remove('edit-mode-active');
+    // Desmarca o checkbox
+    if (toggleCheckbox) {
+      toggleCheckbox.checked = false;
     }
     
     // Desativa overlay
@@ -797,9 +779,10 @@ async function loadTemplate(templateName, source = 'templates', keepMode = false
         actionBar.classList.remove('hidden');
     }
 
-    // Mostra o botão de modo edição no canto superior direito
-    if (toggleModeBtn) {
-        toggleModeBtn.classList.remove('hidden');
+    // Mostra o switch toggle no toolbar
+    const toggleModeBtnContainer = document.getElementById('toggleModeBtnContainer');
+    if (toggleModeBtnContainer) {
+        toggleModeBtnContainer.classList.remove('hidden');
     }
 
     await renderPDF(currentPdfUrl);

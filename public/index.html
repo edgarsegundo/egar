@@ -490,7 +490,7 @@
       </svg>
     </button>
 
-    <!-- Botão Modo Edição - Canto Superior Direito - Design Incrível -->
+    <!-- Botão Modo Edição - Canto Superior Direito - REMOVIDO (agora está no toolbar) -->
     <div style="position: absolute; right: 1.5rem; top: 1.5rem; z-index: 50; display: flex; gap: 0.75rem; align-items: center;">
       <!-- Botão de Ajuda (Help) -->
       <button id="editModeHelpBtn" class="hidden group relative bg-white text-green-600 p-3 rounded-full shadow-lg transition-all duration-300 hover:shadow-green-500/30 hover:scale-110 border-2 border-green-400/50 hover:bg-green-50" title="Ajuda do Modo Edição">
@@ -500,27 +500,6 @@
         <!-- Efeito de pulso -->
         <div class="absolute inset-0 rounded-full bg-green-400 opacity-0 group-hover:opacity-20 transition-opacity"></div>
       </button>
-      
-      <!-- 🎯 SWITCH TOGGLE - Modo Edição -->
-      <div id="toggleModeBtn" class="hidden bg-white px-5 py-3 rounded-2xl shadow-lg border-2 border-purple-200 hover:border-purple-300 transition-all duration-300">
-        <div class="flex items-center gap-3">
-          <!-- Ícone -->
-          <div id="modeIcon" class="transition-all duration-500">
-            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-            </svg>
-          </div>
-          
-          <!-- Texto -->
-          <span id="currentMode" class="text-sm font-bold text-gray-700">Modo Alterar Estrutura</span>
-          
-          <!-- Switch -->
-          <label class="relative inline-flex items-center cursor-pointer ml-2">
-            <input type="checkbox" id="toggleModeCheckbox" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-          </label>
-        </div>
-      </div>
     </div>
 
     <!-- <h1 class="text-2xl font-bold mb-4">Editar e Salvar PDF</h1> -->
@@ -576,6 +555,16 @@
         <!-- Separador -->
         <div class="w-px bg-gray-300 mx-1 self-stretch"></div>
 
+        <!-- 🎯 SWITCH TOGGLE - Modo Edição -->
+        <div id="toggleModeBtnContainer" class="hidden flex-col items-center">
+          <div class="flex items-center justify-center p-2">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="toggleModeCheckbox" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+            </label>
+          </div>
+          <span class="text-[9px] text-gray-500 mt-0.5">Alterar Estrutura</span>
+        </div>
 
         <div class="flex flex-col items-center">
           <button id="fullscreenBtn" class="p-2 rounded hover:bg-indigo-100 bg-indigo-50 border border-indigo-200 transition" title="Tela Cheia">
