@@ -14,6 +14,10 @@ O sistema agora suporta carregar templates e clones automaticamente através de 
 | `clone` | string | Nome do clone/arquivo gerado a carregar | `meu-formulario-2024` |
 | `mode` | string | Modo de abertura: `edit` ou `fill` | `edit` |
 | `autofill` | boolean | Se `true`, abre automaticamente o modal de preenchimento | `true` |
+| `autoclone` | boolean | Se `true`, clona o template automaticamente | `true` |
+| `quickclone` | boolean | Se `true`, clona sem perguntar nome (requer `autoclone=true`) | `true` |
+
+**⚠️ Importante:** Quando `autoclone=true`, a URL é automaticamente limpa após criar o clone para evitar duplicatas ao favoritar/recarregar a página.
 
 ---
 
@@ -58,7 +62,54 @@ http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autofill=true
 
 ---
 
-### 4. Carregar Clone/Arquivo Gerado
+### 4. Clonar Template Automaticamente
+
+```url
+http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true
+```
+
+**O que acontece:**
+- ✅ Carrega o template
+- ✅ Pede nome do clone ao usuário
+- ✅ Cria clone automaticamente
+- ✅ **Redireciona para URL limpa** (evita duplicatas ao favoritar)
+
+---
+
+### 5. Quick Clone (Clone Rápido sem Prompt)
+
+```url
+http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&quickclone=true
+```
+
+**⭐ Recomendado para compartilhar em fóruns/redes sociais**
+
+**O que acontece:**
+- ✅ Carrega o template
+- ✅ Cria clone automaticamente com nome incremental ("Template - Cópia 1", "Cópia 2", etc.)
+- ✅ Mostra toast notification discreta
+- ✅ **Redireciona para URL limpa** (seguro para favoritar!)
+
+---
+
+### 6. Quick Clone + AutoFill (Experiência Mais Rápida!)
+
+```url
+http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&quickclone=true&autofill=true
+```
+
+**⭐ Melhor experiência do usuário: zero cliques!**
+
+**O que acontece:**
+- ✅ Carrega template
+- ✅ Cria clone automaticamente
+- ✅ Abre modal de preenchimento
+- ✅ **Redireciona para URL limpa**
+- 🎯 Usuário começa a preencher imediatamente
+
+---
+
+### 7. Carregar Clone/Arquivo Gerado
 
 ```url
 http://localhost:3000/?clone=meu-formulario-preenchido
@@ -71,7 +122,7 @@ http://localhost:3000/?clone=meu-formulario-preenchido
 
 ---
 
-### 5. Carregar Clone em Modo Edição
+### 8. Carregar Clone em Modo Edição
 
 ```url
 http://localhost:3000/?clone=meu-formulario-preenchido&mode=edit
@@ -84,7 +135,7 @@ http://localhost:3000/?clone=meu-formulario-preenchido&mode=edit
 
 ---
 
-### 6. Combinar Múltiplos Parâmetros
+### 9. Combinar Múltiplos Parâmetros
 
 ```url
 http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&mode=edit&autofill=true
@@ -114,7 +165,37 @@ http://localhost:3000/?template=Template1.pdf&clone=MeuClone
 
 ## 💡 Casos de Uso Práticos
 
-### 1. Link de Compartilhamento
+### 1. 🌐 Compartilhamento em Fóruns e Redes Sociais (Recomendado)
+
+**Use `quickclone=true` para evitar duplicatas!**
+
+```url
+https://fastvistos.com.br/formularios/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&quickclone=true&autofill=true
+```
+
+**Por que usar quickclone?**
+- ✅ Cada pessoa que clicar terá seu próprio clone (privado)
+- ✅ Após criar o clone, a URL é limpa automaticamente
+- ✅ Seguro para favoritar/bookmarkar
+- ✅ **Não cria clones duplicados** ao recarregar a página
+- ✅ Experiência zero-clique: abre direto no formulário de preenchimento
+
+**O que acontece:**
+
+1. **Primeiro clique** (ex: de um fórum):
+   - URL original: `?template=Form.pdf&autoclone=true&quickclone=true&autofill=true`
+   - Cria clone automaticamente: "Formulário_Visto_Mexicano - Cópia 1"
+   - Abre modal de preenchimento
+   - **Redireciona para:** `https://fastvistos.com.br/formularios/` (URL limpa)
+
+2. **Ao favoritar/recarregar:**
+   - URL agora é: `https://fastvistos.com.br/formularios/`
+   - Mostra tela inicial com o clone já criado
+   - **Não cria novos clones**
+
+---
+
+### 2. Link de Compartilhamento Simples
 
 Envie um link para alguém preencher um formulário específico:
 
@@ -122,7 +203,9 @@ Envie um link para alguém preencher um formulário específico:
 https://seusite.com/?template=Formulário_Visto_Mexicano.pdf&autofill=true
 ```
 
-### 2. Atalhos de Desktop
+---
+
+### 3. Atalhos de Desktop
 
 Crie atalhos no desktop para formulários frequentes:
 
@@ -137,7 +220,9 @@ open -a "Google Chrome" "http://localhost:3000/?template=Autorização_Viagem_In
 xdg-open "http://localhost:3000/?template=Autorização_Viagem_Internacional.pdf"
 ```
 
-### 3. Integração com Sistemas Externos
+---
+
+### 4. Integração com Sistemas Externos
 
 ```javascript
 // Sistema externo redireciona para formulário específico
@@ -146,7 +231,9 @@ const url = `https://seusite.com/?template=${encodeURIComponent(templateName)}&a
 window.location.href = url;
 ```
 
-### 4. Bookmarks Organizados
+---
+
+### 5. Bookmarks Organizados
 
 Salve favoritos no navegador:
 

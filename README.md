@@ -55,12 +55,14 @@ http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autofill=true
 http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true
 
 # Clonar SEM PERGUNTAR nome (quick clone - nome automático)
+# ⚠️ Após criar o clone, a URL é limpa automaticamente para evitar duplicatas
 http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&quickclone=true
 
 # Clonar E preencher automaticamente
 http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&autofill=true
 
 # Quick clone + Preencher (experiência mais rápida!)
+# ⚠️ Após criar o clone, a URL é limpa automaticamente para evitar duplicatas
 http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&quickclone=true&autofill=true
 
 # Carregar clone/arquivo salvo

@@ -1776,6 +1776,13 @@ async function loadTemplateFromURL() {
                                         showConfirmButton: false
                                     });
                                 }
+                                
+                                // 🔄 REDIRECIONAMENTO: Remove parâmetros de autoclone da URL
+                                // Isso evita que ao favoritar/recarregar a página, novos clones sejam criados infinitamente
+                                console.log('🔄 Redirecionando para URL limpa...');
+                                const cleanUrl = window.location.origin + window.location.pathname;
+                                window.history.replaceState({}, document.title, cleanUrl);
+                                console.log('✅ URL limpa:', cleanUrl);
                             }
                         } catch (error) {
                             console.error('Erro ao auto-clonar:', error);
