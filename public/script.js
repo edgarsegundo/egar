@@ -1627,11 +1627,134 @@ if (deleteTemplateBtn) {
     });
 }
 
-// 🔒 Verificar modo produção e carregar templates quando a página carrega
+/**
+ * Lê os parâmetros da URL e carrega template automaticamente
+ * Exemplos de uso:
+ * - ?template=Formulário_Visto_Mexicano.pdf
+ * - ?template=Autorização_Viagem_Internacional.pdf&mode=edit
+ * - ?clone=meu-formulario-preenchido
+ */
+async function loadTemplateFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Parâmetros disponíveis
+    const templateName = urlParams.get('template');  // Nome do template
+    const cloneName = urlParams.get('clone');        // Nome do clone/arquivo gerado
+    const mode = urlParams.get('mode');              // 'edit' ou 'fill'
+    const autoFill = urlParams.get('autofill');      // 'true' para abrir modal de preenchimento
+    
+    console.log('🔗 URL Parameters:', { templateName, cloneName, mode, autoFill });
+    
+    // Prioridade: clone > template
+    if (cloneName) {
+        console.log(`📄 Carregando clone da URL: ${cloneName}`);
+        try {
+            // Busca o clone no IndexedDB
+            const cloneData = await loadCloneFromIndexedDB(cloneName);
+            if (cloneData) {
+                await loadTemplate(cloneName, 'generated', mode === 'edit');
+                
+                if (autoFill === 'true' && mode !== 'edit') {
+                    // Aguarda um pouco para o PDF carregar
+                    setTimeout(() => openFillModal(), 500);
+                }
+                return true;
+            } else {
+                console.warn(`⚠️ Clone "${cloneName}" não encontrado`);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Clone não encontrado',
+                    text: `O arquivo "${cloneName}" não foi encontrado.`,
+                    timer: 3000
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao carregar clone da URL:', error);
+        }
+    }
+    
+    if (templateName) {
+        console.log(`� Carregando template da URL: ${templateName}`);
+        try {
+            // Verifica se o template existe
+            const templateExists = await checkTemplateExists(templateName);
+            if (templateExists) {
+                await loadTemplate(templateName, 'templates', mode === 'edit');
+                
+                if (autoFill === 'true' && mode !== 'edit') {
+                    // Aguarda um pouco para o PDF carregar
+                    setTimeout(() => openFillModal(), 500);
+                }
+                return true;
+            } else {
+                console.warn(`⚠️ Template "${templateName}" não encontrado`);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Template não encontrado',
+                    text: `O template "${templateName}" não foi encontrado.`,
+                    timer: 3000
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao carregar template da URL:', error);
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * Verifica se um template existe
+ */
+async function checkTemplateExists(templateName) {
+    try {
+        const response = await fetch(`/api/template-config/${templateName}`);
+        return response.ok;
+    } catch (error) {
+        console.error('Erro ao verificar template:', error);
+        return false;
+    }
+}
+
+/**
+ * Carrega um clone do IndexedDB pelo nome
+ */
+async function loadCloneFromIndexedDB(cloneName) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('EgarDB', 1);
+        
+        request.onsuccess = (event) => {
+            const db = event.target.result;
+            const transaction = db.transaction(['generatedFiles'], 'readonly');
+            const store = transaction.objectStore('generatedFiles');
+            const getRequest = store.get(cloneName);
+            
+            getRequest.onsuccess = () => {
+                resolve(getRequest.result);
+            };
+            
+            getRequest.onerror = () => {
+                reject(getRequest.error);
+            };
+        };
+        
+        request.onerror = () => {
+            reject(request.error);
+        };
+    });
+}
+
+// �🔒 Verificar modo produção e carregar templates quando a página carrega
 (async () => {
     await checkProductionMode();
     await loadTemplates();
     loadClonedFiles();
+    
+    // ✨ Carrega template da URL se especificado
+    const loadedFromURL = await loadTemplateFromURL();
+    if (loadedFromURL) {
+        console.log('✅ Template carregado automaticamente da URL');
+    }
     
     // Atualiza o estado inicial dos botões
     updateButtonsState();
