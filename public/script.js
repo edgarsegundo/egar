@@ -101,7 +101,7 @@ function setMode(editor) {
   
   if (isEditorMode) {
     // Modo EDIÇÃO - Visual Verde sem ícone
-    if (currentModeSpan) currentModeSpan.textContent = '✓ Modo Edição Ativo';
+    if (currentModeSpan) currentModeSpan.textContent = 'Sair Alterar Estrutura';
     
     // Remove o ícone no modo edição
     if (modeIcon) {
@@ -159,7 +159,7 @@ function setMode(editor) {
     if (clearFieldsBtn) clearFieldsBtn.classList.remove('hidden');
   } else {
     // Modo PREENCHIMENTO - Visual Roxo com ícone de editar
-    if (currentModeSpan) currentModeSpan.textContent = 'Ativar Modo Edição';
+    if (currentModeSpan) currentModeSpan.textContent = 'Alterar Estrutura';
     
     // Muda o ícone para "editar" (caneta)
     if (modeIcon) {
