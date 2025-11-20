@@ -63,9 +63,19 @@
                     📋 Clonar Template Automaticamente
                 </a>
                 
+                <a href="/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&quickclone=true" 
+                   class="block px-4 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">
+                    ⚡ Quick Clone (Sem Perguntar Nome)
+                </a>
+                
                 <a href="/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&autofill=true" 
                    class="block px-4 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">
                     🚀 Clonar + Preencher Automaticamente
+                </a>
+                
+                <a href="/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&quickclone=true&autofill=true" 
+                   class="block px-4 py-3 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition">
+                    ⚡🚀 Quick Clone + Auto-fill (Experiência Mais Rápida!)
                 </a>
                 
                 <a href="/?template=Formulário_Visto_Mexicano.pdf&mode=edit&autofill=true" 
@@ -86,7 +96,7 @@
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
                 
-                <div class="flex gap-4">
+                <div class="flex gap-4 flex-wrap">
                     <label class="flex items-center">
                         <input type="checkbox" id="modeEdit" class="mr-2">
                         <span class="text-sm text-gray-700">Modo Edição</span>
@@ -100,6 +110,11 @@
                     <label class="flex items-center">
                         <input type="checkbox" id="autoCloneCheck" class="mr-2">
                         <span class="text-sm text-gray-700">Auto-clone</span>
+                    </label>
+                    
+                    <label class="flex items-center">
+                        <input type="checkbox" id="quickCloneCheck" class="mr-2">
+                        <span class="text-sm text-gray-700">Quick-clone</span>
                     </label>
                 </div>
                 
@@ -135,6 +150,7 @@
             const modeEdit = document.getElementById('modeEdit').checked;
             const autoFill = document.getElementById('autoFillCheck').checked;
             const autoClone = document.getElementById('autoCloneCheck').checked;
+            const quickClone = document.getElementById('quickCloneCheck').checked;
             
             if (!templateName) {
                 alert('Por favor, digite o nome do template!');
@@ -154,6 +170,10 @@
             
             if (autoClone) {
                 params.set('autoclone', 'true');
+            }
+            
+            if (quickClone) {
+                params.set('quickclone', 'true');
             }
             
             const url = `${window.location.origin}/?${params.toString()}`;

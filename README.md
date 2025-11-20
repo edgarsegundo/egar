@@ -54,8 +54,14 @@ http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autofill=true
 # Clonar template automaticamente
 http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true
 
+# Clonar SEM PERGUNTAR nome (quick clone - nome automático)
+http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&quickclone=true
+
 # Clonar E preencher automaticamente
 http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&autofill=true
+
+# Quick clone + Preencher (experiência mais rápida!)
+http://localhost:3000/?template=Formulário_Visto_Mexicano.pdf&autoclone=true&quickclone=true&autofill=true
 
 # Carregar clone/arquivo salvo
 http://localhost:3000/?clone=meu-formulario-preenchido
@@ -70,6 +76,7 @@ http://localhost:3000/?clone=meu-formulario-preenchido
 | `mode` | Modo de abertura | `edit` ou `fill` |
 | `autofill` | Abrir modal de preenchimento | `true` |
 | `autoclone` | Clonar template automaticamente | `true` |
+| `quickclone` | Clonar sem perguntar nome (requer `autoclone=true`) | `true` |
 
 📖 **Documentação completa:** [docs/URL_QUERY_PARAMETERS.md](docs/URL_QUERY_PARAMETERS.md)
 

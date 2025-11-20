@@ -1661,8 +1661,9 @@ async function loadTemplateFromURL() {
     const mode = urlParams.get('mode');              // 'edit' ou 'fill'
     const autoFill = urlParams.get('autofill');      // 'true' para abrir modal de preenchimento
     const autoClone = urlParams.get('autoclone');    // 'true' para clonar automaticamente
+    const quickClone = urlParams.get('quickclone');  // 'true' para clonar sem perguntar nome
     
-    console.log('🔗 URL Parameters:', { templateName, cloneName, mode, autoFill, autoClone });
+    console.log('🔗 URL Parameters:', { templateName, cloneName, mode, autoFill, autoClone, quickClone });
     
     // Prioridade: clone > template
     if (cloneName) {
@@ -1705,22 +1706,33 @@ async function loadTemplateFromURL() {
                     console.log('🔄 Auto-clonando template...');
                     setTimeout(async () => {
                         try {
-                            // Pede nome do clone
-                            const { value: cloneName } = await Swal.fire({
-                                title: 'Clonar Template',
-                                input: 'text',
-                                inputLabel: 'Nome do novo arquivo:',
-                                inputPlaceholder: `Clone de ${templateName}`,
-                                inputValue: `Clone de ${templateName.replace('.pdf', '')}`,
-                                showCancelButton: true,
-                                confirmButtonText: 'Criar Clone',
-                                cancelButtonText: 'Cancelar',
-                                inputValidator: (value) => {
-                                    if (!value) {
-                                        return 'Você precisa informar um nome!';
+                            let cloneName;
+                            
+                            // Se quickclone=true, não pergunta o nome
+                            if (quickClone === 'true') {
+                                console.log('⚡ Quick clone ativado - gerando nome automaticamente');
+                                cloneName = await generateUniqueCloneName(templateName);
+                                console.log(`✨ Nome gerado: ${cloneName}`);
+                            } else {
+                                // Pede nome do clone
+                                const result = await Swal.fire({
+                                    title: 'Clonar Template',
+                                    input: 'text',
+                                    inputLabel: 'Nome do novo arquivo:',
+                                    inputPlaceholder: `Clone de ${templateName}`,
+                                    inputValue: `Clone de ${templateName.replace('.pdf', '')}`,
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Criar Clone',
+                                    cancelButtonText: 'Cancelar',
+                                    inputValidator: (value) => {
+                                        if (!value) {
+                                            return 'Você precisa informar um nome!';
+                                        }
                                     }
-                                }
-                            });
+                                });
+                                
+                                cloneName = result.value;
+                            }
                             
                             if (cloneName) {
                                 // Usa a função existente de clone
@@ -1740,13 +1752,30 @@ async function loadTemplateFromURL() {
                                     setTimeout(() => openFillModal(), 500);
                                 }
                                 
-                                await Swal.fire({
-                                    icon: 'success',
-                                    title: 'Clone Criado!',
-                                    text: `O clone "${cloneName}" foi criado com sucesso.`,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                });
+                                // Se for quick clone, mostra notificação mais discreta
+                                if (quickClone === 'true') {
+                                    // Toast notification (pequena e rápida)
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 2000,
+                                        timerProgressBar: true
+                                    });
+                                    
+                                    await Toast.fire({
+                                        icon: 'success',
+                                        title: `Clone criado: ${cloneName}`
+                                    });
+                                } else {
+                                    await Swal.fire({
+                                        icon: 'success',
+                                        title: 'Clone Criado!',
+                                        text: `O clone "${cloneName}" foi criado com sucesso.`,
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    });
+                                }
                             }
                         } catch (error) {
                             console.error('Erro ao auto-clonar:', error);
@@ -1793,16 +1822,84 @@ async function checkTemplateExists(templateName) {
 }
 
 /**
+ * Gera um nome único para clone baseado no template
+ * Ex: "Formulário" -> "Formulário - Cópia 1", "Formulário - Cópia 2", etc.
+ */
+async function generateUniqueCloneName(templateName) {
+    const baseName = templateName.replace('.pdf', '');
+    let counter = 1;
+    let cloneName = `${baseName} - Cópia ${counter}`;
+    
+    // Busca todos os clones existentes no IndexedDB
+    const existingClones = await getAllClonesFromIndexedDB();
+    const existingNames = existingClones.map(c => c.name);
+    
+    // Incrementa o contador até encontrar um nome único
+    while (existingNames.includes(cloneName)) {
+        counter++;
+        cloneName = `${baseName} - Cópia ${counter}`;
+    }
+    
+    console.log(`📝 Nome único gerado: ${cloneName}`);
+    return cloneName;
+}
+
+/**
+ * Retorna todos os clones do IndexedDB
+ */
+async function getAllClonesFromIndexedDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('PDFTemplatesDB', 2);
+        
+        request.onsuccess = (event) => {
+            const db = event.target.result;
+            
+            // Verifica se a store existe
+            if (!db.objectStoreNames.contains('templates')) {
+                console.warn('Object store "templates" não existe');
+                resolve([]);
+                return;
+            }
+            
+            const transaction = db.transaction(['templates'], 'readonly');
+            const store = transaction.objectStore('templates');
+            const getAllRequest = store.getAll();
+            
+            getAllRequest.onsuccess = () => {
+                const clones = getAllRequest.result || [];
+                resolve(clones);
+            };
+            
+            getAllRequest.onerror = () => {
+                reject(getAllRequest.error);
+            };
+        };
+        
+        request.onerror = () => {
+            reject(request.error);
+        };
+    });
+}
+
+/**
  * Carrega um clone do IndexedDB pelo nome
  */
 async function loadCloneFromIndexedDB(cloneName) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('EgarDB', 1);
+        const request = indexedDB.open('PDFTemplatesDB', 2);
         
         request.onsuccess = (event) => {
             const db = event.target.result;
-            const transaction = db.transaction(['generatedFiles'], 'readonly');
-            const store = transaction.objectStore('generatedFiles');
+            
+            // Verifica se a store existe
+            if (!db.objectStoreNames.contains('templates')) {
+                console.warn('Object store "templates" não existe');
+                resolve(null);
+                return;
+            }
+            
+            const transaction = db.transaction(['templates'], 'readonly');
+            const store = transaction.objectStore('templates');
             const getRequest = store.get(cloneName);
             
             getRequest.onsuccess = () => {
