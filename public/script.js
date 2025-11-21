@@ -65,19 +65,37 @@ document.addEventListener('DOMContentLoaded', updateMoveFieldsYButtons);
 window.updateMoveFieldsYButtons = updateMoveFieldsYButtons;
 // Lógica dos botões de mover campos para cima/baixo
 if (moveFieldsUpBtn && moveFieldsDownBtn) {
-    moveFieldsUpBtn.addEventListener('click', () => {
+    moveFieldsUpBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const delta = -5; // pixels para cima
         if (templateConfig.fields && templateConfig.fields.length) {
-            templateConfig.fields.forEach(f => f.y = Math.max(0, (f.y || 0) + delta));
-            renderPDF(currentPdfUrl);
+            templateConfig.fields.forEach((f, idx) => {
+                f.y = Math.max(0, (f.y || 0) + delta);
+                // Atualiza o elemento visual diretamente
+                const fieldObj = createdFields[idx];
+                if (fieldObj && fieldObj.wrapper && fieldObj.wrapper.style) {
+                    fieldObj.wrapper.style.top = f.y + 'px';
+                }
+            });
         }
+        return false;
     });
-    moveFieldsDownBtn.addEventListener('click', () => {
+    moveFieldsDownBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const delta = 5; // pixels para baixo
         if (templateConfig.fields && templateConfig.fields.length) {
-            templateConfig.fields.forEach(f => f.y = (f.y || 0) + delta);
-            renderPDF(currentPdfUrl);
+            templateConfig.fields.forEach((f, idx) => {
+                f.y = (f.y || 0) + delta;
+                // Atualiza o elemento visual diretamente
+                const fieldObj = createdFields[idx];
+                if (fieldObj && fieldObj.wrapper && fieldObj.wrapper.style) {
+                    fieldObj.wrapper.style.top = f.y + 'px';
+                }
+            });
         }
+        return false;
     });
 }
 
