@@ -1262,6 +1262,7 @@ if (detectFieldsBtn) {
                 });
                 return;
             }
+
             // Converte o canvas para Blob PNG
             const pngBlob = await new Promise(resolve => firstCanvas.toBlob(resolve, 'image/png'));
             if (!pngBlob) {
@@ -1273,6 +1274,47 @@ if (detectFieldsBtn) {
                 });
                 return;
             }
+
+            // DEBUG: Visualizar a imagem PNG gerada antes de enviar para a IA, com overlay dos campos detectados
+            const imgUrl = URL.createObjectURL(pngBlob);
+            let previewFields = null;
+            // Função para mostrar overlay dos campos
+            async function showPreviewWithOverlay(fields) {
+                return Swal.fire({
+                    title: 'Pré-visualização da Imagem Enviada',
+                    html: `
+                        <div style="position:relative;display:inline-block;">
+                            <img id='debugPreviewImg' src="${imgUrl}" style="display:block;max-width:100%;border:1px solid #ccc;box-shadow:0 2px 8px #0002;">
+                            <canvas id='debugOverlayCanvas' style="position:absolute;left:0;top:0;pointer-events:none;"></canvas>
+                        </div>
+                        <br><span class='text-xs text-gray-500'>Esta é a imagem enviada para a IA.<br>Os campos detectados aparecerão em vermelho.</span>`,
+                    confirmButtonText: fields ? 'Fechar' : 'Enviar para IA',
+                    didOpen: () => {
+                        if (fields) {
+                            const img = document.getElementById('debugPreviewImg');
+                            const overlay = document.getElementById('debugOverlayCanvas');
+                            img.onload = () => {
+                                overlay.width = img.naturalWidth;
+                                overlay.height = img.naturalHeight;
+                                overlay.style.width = img.width + 'px';
+                                overlay.style.height = img.height + 'px';
+                                const ctx = overlay.getContext('2d');
+                                ctx.clearRect(0,0,overlay.width,overlay.height);
+                                fields.forEach(f => {
+                                    ctx.strokeStyle = 'red';
+                                    ctx.lineWidth = 2;
+                                    ctx.strokeRect(f.x, f.y, f.width || 120, f.height || 25);
+                                    ctx.font = 'bold 14px sans-serif';
+                                    ctx.fillStyle = 'red';
+                                    ctx.fillText(f.name || '', f.x+4, f.y+16);
+                                });
+                            };
+                        }
+                    }
+                });
+            }
+            // Primeira visualização: só a imagem
+            await showPreviewWithOverlay(null);
 
             // Envia para o endpoint de extração
             const extractResponse = await fetch('/api/extract-pdf-fields', {
