@@ -12,10 +12,13 @@
     "watch:css": "npx postcss ./public/css/input.css -o ./public/css/output.css --watch --verbose"
   },
   "dependencies": {
+    "canvas": "^3.2.0",
     "dotenv": "^17.2.3",
     "express": "^4.19.2",
     "multer": "^1.4.5-lts.1",
-    "pdf-lib": "^1.17.1"
+    "openai": "^6.9.1",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^5.4.394"
   },
   "keywords": [],
   "author": "",

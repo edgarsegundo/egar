@@ -1,3 +1,224 @@
 {
-  "fields": []
+  "fields": [
+    {
+      "name": "Validade",
+      "value": "",
+      "x": 375,
+      "y": 68,
+      "page": 1,
+      "width": 113,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Nome do Responsável",
+      "value": "",
+      "x": 75,
+      "y": 98,
+      "page": 1,
+      "width": 375,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Número da Identidade/Passaporte",
+      "value": "",
+      "x": 300,
+      "y": 120,
+      "page": 1,
+      "width": 150,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Órgão Expedidor",
+      "value": "",
+      "x": 75,
+      "y": 143,
+      "page": 1,
+      "width": 150,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Data de Expedição",
+      "value": "",
+      "x": 300,
+      "y": 143,
+      "page": 1,
+      "width": 150,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Endereço",
+      "value": "",
+      "x": 75,
+      "y": 165,
+      "page": 1,
+      "width": 375,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Cidade",
+      "value": "",
+      "x": 75,
+      "y": 188,
+      "page": 1,
+      "width": 225,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "UF",
+      "value": "",
+      "x": 338,
+      "y": 188,
+      "page": 1,
+      "width": 38,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Telefone de Contato",
+      "value": "",
+      "x": 413,
+      "y": 188,
+      "page": 1,
+      "width": 113,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Nome do Menor",
+      "value": "",
+      "x": 75,
+      "y": 300,
+      "page": 1,
+      "width": 375,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Data de Nascimento",
+      "value": "",
+      "x": 300,
+      "y": 323,
+      "page": 1,
+      "width": 150,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Naturalidade",
+      "value": "",
+      "x": 75,
+      "y": 345,
+      "page": 1,
+      "width": 375,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Número do Passaporte/Identidade",
+      "value": "",
+      "x": 75,
+      "y": 368,
+      "page": 1,
+      "width": 375,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Órgão Expedidor do Menor",
+      "value": "",
+      "x": 75,
+      "y": 390,
+      "page": 1,
+      "width": 150,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Data de Expedição do Menor",
+      "value": "",
+      "x": 300,
+      "y": 390,
+      "page": 1,
+      "width": 150,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Nome do Acompanhante",
+      "value": "",
+      "x": 75,
+      "y": 435,
+      "page": 1,
+      "width": 375,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Número do Passaporte/Identidade do Acompanhante",
+      "value": "",
+      "x": 75,
+      "y": 458,
+      "page": 1,
+      "width": 375,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Órgão Expedidor do Acompanhante",
+      "value": "",
+      "x": 75,
+      "y": 480,
+      "page": 1,
+      "width": 150,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Data de Expedição do Acompanhante",
+      "value": "",
+      "x": 300,
+      "y": 480,
+      "page": 1,
+      "width": 150,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    },
+    {
+      "name": "Local/Data",
+      "value": "",
+      "x": 75,
+      "y": 525,
+      "page": 1,
+      "width": 375,
+      "height": 25,
+      "fontSize": 16,
+      "hint": ""
+    }
+  ]
 }

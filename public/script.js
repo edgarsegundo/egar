@@ -1228,6 +1228,7 @@ cloneFileBtn.addEventListener('click', async () => {
 
 // 🤖 BOTÃO DEFINIR CAMPOS - Auto-detecção com IA
 if (detectFieldsBtn) {
+
     detectFieldsBtn.addEventListener('click', async () => {
         if (!currentTemplate || !currentPdfUrl) {
             await Swal.fire({
@@ -1240,7 +1241,6 @@ if (detectFieldsBtn) {
         }
 
         try {
-            // Mostra loading
             Swal.fire({
                 title: '🤖 Analisando PDF com IA...',
                 html: '<p class="text-sm text-gray-600">Isso pode levar alguns segundos...</p>',
@@ -1251,34 +1251,67 @@ if (detectFieldsBtn) {
                 }
             });
 
-            // 1. Busca o PDF atual (como ArrayBuffer)
-            let pdfBuffer;
-            if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
-                // Para templates do IndexedDB, carrega do blob
-                const result = await loadTemplateFromIndexedDB(currentTemplate);
-                const response = await fetch(result.url);
-                pdfBuffer = await response.arrayBuffer();
-            } else {
-                // Para templates do servidor
-                const response = await fetch(currentPdfUrl);
-                pdfBuffer = await response.arrayBuffer();
+            // Captura o canvas da primeira página renderizada
+            const firstCanvas = document.querySelector('#pdfContainer canvas');
+            if (!firstCanvas) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Não foi possível capturar a imagem do PDF. Certifique-se que o PDF está renderizado.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+            // Converte o canvas para Blob PNG
+            const pngBlob = await new Promise(resolve => firstCanvas.toBlob(resolve, 'image/png'));
+            if (!pngBlob) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Falha ao converter o PDF em imagem PNG.',
+                    confirmButtonText: 'OK'
+                });
+                return;
             }
 
-            // 2. Envia para o endpoint de extração
-            const extractResponse = await fetch('/extract-pdf-fields', {
+            // Envia para o endpoint de extração
+            const extractResponse = await fetch('/api/extract-pdf-fields', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/pdf'
+                    'Content-Type': 'image/png'
                 },
-                body: pdfBuffer
+                body: pngBlob
             });
 
             if (!extractResponse.ok) {
-                const errorData = await extractResponse.json();
-                throw new Error(errorData.error || 'Erro ao processar PDF');
+                let errorMessage = 'Erro ao processar PDF';
+                try {
+                    const contentType = extractResponse.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const errorData = await extractResponse.json();
+                        errorMessage = errorData.error || errorMessage;
+                    } else {
+                        const errorText = await extractResponse.text();
+                        console.error('Resposta do servidor:', errorText);
+                        errorMessage = `Erro ${extractResponse.status}: ${extractResponse.statusText}`;
+                    }
+                } catch (e) {
+                    errorMessage = `Erro ${extractResponse.status}: ${extractResponse.statusText}`;
+                }
+                throw new Error(errorMessage);
             }
 
-            const { success, fields } = await extractResponse.json();
+            let responseData;
+            const contentType = extractResponse.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                responseData = await extractResponse.json();
+            } else {
+                const responseText = await extractResponse.text();
+                console.error('Resposta recebida (não-JSON):', responseText);
+                throw new Error('Resposta inválida do servidor. Verifique o console para detalhes.');
+            }
+
+            const { success, fields } = responseData;
 
             if (!success || !fields || fields.length === 0) {
                 await Swal.fire({

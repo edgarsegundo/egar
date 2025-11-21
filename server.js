@@ -2,7 +2,9 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { openai } from './openai-client.js'; // adjust path as needed
 import dotenv from "dotenv";
+import { extractFields } from "./pdf-fields-extractor.js";
 
 // 🔧 Carrega variáveis de ambiente do arquivo .env
 dotenv.config();
@@ -508,6 +510,49 @@ app.get("/api/is-production", (req, res) => {
     });
 });
 
+// 🤖 POST endpoint para extrair campos aproximados de um PDF (com IA)
+app.post('/api/extract-pdf-fields', express.raw({ type: 'image/png', limit: '20mb' }), async (req, res) => {
+    try {
+        console.log('📥 Requisição recebida em /extract-pdf-fields');
+
+        console.log('📦 Content-Type:', req.headers['content-type']);
+        console.log('📦 Body type:', typeof req.body);
+        console.log('📦 Body is Buffer?:', Buffer.isBuffer(req.body));
+
+        let pngBuffer = req.body;
+        if (!Buffer.isBuffer(pngBuffer) || !pngBuffer.length) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Nenhuma imagem PNG foi enviada. Envie o arquivo como body binário.' 
+            });
+        }
+        console.log('�️ PNG Buffer validado com tamanho:', pngBuffer.length);
+
+        // Chama a função que extrai campos com IA
+        const fields = await extractFields(openai, pngBuffer);
+
+        if (!fields || fields.length === 0) {
+            return res.json({
+                success: true,
+                fields: []
+            });
+        }
+
+        console.log(`✅ Extraídos ${fields.length} campos com sucesso`);
+
+        return res.json({
+            success: true,
+            fields: fields
+        });
+
+    } catch (error) {
+        console.error('❌ Erro em /extract-pdf-fields:', error);
+        return res.status(500).json({ 
+            success: false, 
+            error: 'Erro interno ao processar o PDF: ' + error.message
+        });
+    }
+});
 
 const PORT = 3000;
 // app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
