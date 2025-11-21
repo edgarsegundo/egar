@@ -1404,6 +1404,17 @@ if (detectFieldsBtn) {
             // Primeira visualização: só a imagem
             await showPreviewWithOverlay(null);
 
+            // Mostra loading após usuário confirmar envio
+            Swal.fire({
+                title: '🤖 Enviando para IA...',
+                html: '<div class="flex justify-center"><div class="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600"></div></div><p class="text-sm text-gray-600 mt-4">Analisando imagem e detectando campos...</p>',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             // Envia para o endpoint de extração
             const extractResponse = await fetch('/api/extract-pdf-fields', {
                 method: 'POST',
