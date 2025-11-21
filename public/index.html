@@ -535,6 +535,20 @@
           <span class="text-[9px] text-gray-500 mt-0.5">Preencher</span>
         </div>
 
+
+        <!-- BOTÕES DE AJUSTE Y DOS CAMPOS (só fora do modo produção) -->
+        <div id="moveFieldsYBtnContainer" class="hidden flex-col items-center">
+          <div class="flex flex-col gap-1">
+            <button id="moveFieldsUpBtn" class="p-2 rounded hover:bg-gray-100 bg-gray-50 border border-gray-200 transition" title="Mover todos os campos para cima">
+              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+            </button>
+            <button id="moveFieldsDownBtn" class="p-2 rounded hover:bg-gray-100 bg-gray-50 border border-gray-200 transition" title="Mover todos os campos para baixo">
+              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+          </div>
+          <span class="text-[9px] text-gray-500 mt-0.5">Ajustar Y</span>
+        </div>
+
         <!-- 🤖 BOTÃO DEFINIR CAMPOS COM IA -->
         <div id="autoDetectFieldsBtn" class="hidden flex-col items-center">
           <button id="detectFieldsBtn" class="p-2 rounded hover:bg-purple-100 bg-purple-50 border border-purple-200 transition" title="Detectar campos automaticamente com IA">

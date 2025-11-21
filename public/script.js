@@ -46,6 +46,40 @@ const fillFormBtn = document.getElementById('fillFormBtn');
 // Referência ao botão "Definir Campos" (auto-detecção com IA)
 const detectFieldsBtn = document.getElementById('detectFieldsBtn');
 const autoDetectFieldsContainer = document.getElementById('autoDetectFieldsBtn');
+const moveFieldsYBtnContainer = document.getElementById('moveFieldsYBtnContainer');
+const moveFieldsUpBtn = document.getElementById('moveFieldsUpBtn');
+const moveFieldsDownBtn = document.getElementById('moveFieldsDownBtn');
+// Função para mostrar/esconder botões de ajuste Y conforme modo produção
+function updateMoveFieldsYButtons() {
+    if (typeof isProductionMode !== 'undefined' && !isProductionMode) {
+        moveFieldsYBtnContainer.classList.remove('hidden');
+        moveFieldsYBtnContainer.classList.add('flex');
+    } else {
+        moveFieldsYBtnContainer.classList.add('hidden');
+        moveFieldsYBtnContainer.classList.remove('flex');
+    }
+}
+
+// Chamar ao carregar e ao mudar modo produção
+document.addEventListener('DOMContentLoaded', updateMoveFieldsYButtons);
+window.updateMoveFieldsYButtons = updateMoveFieldsYButtons;
+// Lógica dos botões de mover campos para cima/baixo
+if (moveFieldsUpBtn && moveFieldsDownBtn) {
+    moveFieldsUpBtn.addEventListener('click', () => {
+        const delta = -5; // pixels para cima
+        if (templateConfig.fields && templateConfig.fields.length) {
+            templateConfig.fields.forEach(f => f.y = Math.max(0, (f.y || 0) + delta));
+            renderPDF(currentPdfUrl);
+        }
+    });
+    moveFieldsDownBtn.addEventListener('click', () => {
+        const delta = 5; // pixels para baixo
+        if (templateConfig.fields && templateConfig.fields.length) {
+            templateConfig.fields.forEach(f => f.y = (f.y || 0) + delta);
+            renderPDF(currentPdfUrl);
+        }
+    });
+}
 
 // Modal e overlay
 const overlay = document.createElement('div');
@@ -2266,6 +2300,7 @@ async function cloneCurrentTemplate() {
     
     // Atualiza o estado inicial dos botões
     updateButtonsState();
+    updateMoveFieldsYButtons();
 })();
 
 // // Migrar arquivos gerados do servidor para IndexedDB (primeira vez)
