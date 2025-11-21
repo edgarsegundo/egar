@@ -78,6 +78,24 @@ if (moveFieldsUpBtn && moveFieldsDownBtn) {
                     fieldObj.wrapper.style.top = f.y + 'px';
                 }
             });
+            
+            // Auto-save após mover campos
+            if (currentTemplate) {
+                const configToSave = { 
+                    fields: templateConfig.fields,
+                    derivedFrom: templateConfig.derivedFrom 
+                };
+                
+                if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                    saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
+                } else {
+                    fetch(`/api/template-config/${currentTemplate}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(configToSave)
+                    });
+                }
+            }
         }
         return false;
     });
@@ -94,6 +112,24 @@ if (moveFieldsUpBtn && moveFieldsDownBtn) {
                     fieldObj.wrapper.style.top = f.y + 'px';
                 }
             });
+            
+            // Auto-save após mover campos
+            if (currentTemplate) {
+                const configToSave = { 
+                    fields: templateConfig.fields,
+                    derivedFrom: templateConfig.derivedFrom 
+                };
+                
+                if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                    saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
+                } else {
+                    fetch(`/api/template-config/${currentTemplate}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(configToSave)
+                    });
+                }
+            }
         }
         return false;
     });

@@ -1,7 +1,5 @@
 // Importa polyfills PRIMEIRO
 
-
-
 export async function extractFields(openai, pngBufferOrBase64) {
     try {
         console.log('🤖 Iniciando extração de campos com IA (imagem PNG recebida)...');
@@ -13,42 +11,126 @@ export async function extractFields(openai, pngBufferOrBase64) {
 
         // Envia para OpenAI Vision API
         const response = await openai.chat.completions.create({
-            model: "gpt-4o",
+            model: "gpt-4o-mini", // gpt-4o
             messages: [
                 {
                     role: "user",
                     content: [
                         {
                             type: "text",
-                            text: `Analise esta imagem de um formulário PDF e identifique TODOS os campos de entrada (caixas de texto onde o usuário pode digitar informações).
+                            text: 
+`
+Você é um assistente especializado em detectar TODOS os campos de entrada de texto em uma imagem de formulário e retornar coordenadas pixel-precisas para inserir caixas de texto. Leia com atenção e siga todas as regras. Não imprima nada além do array JSON especificado ao final.
 
-Para cada campo identificado, retorne um objeto JSON com:
-- name: nome descritivo do campo (ex: "Nome Completo", "CPF", "Data de Nascimento")
-- page: sempre 1 (primeira página)
-- x: coordenada X do canto superior esquerdo do campo em pixels
-- y: coordenada Y do canto superior esquerdo do campo em pixels
-- width: largura estimada do campo em pixels
-- height: altura estimada do campo em pixels (normalmente 20-30)
-- fontSize: tamanho de fonte sugerido (use 16 como padrão)
+1. METADADOS DA IMAGEM (antes de processar a imagem, use estes valores para normalizar):
 
-IMPORTANTE:
-- Retorne APENAS um array JSON válido, sem markdown, sem explicações
-- Não inclua checkboxes, radio buttons ou botões
-- Inclua apenas campos de texto onde o usuário pode digitar
-- Use nomes descritivos em português para os campos
+* width: largura da imagem em pixels.
+* height: altura da imagem em pixels.
+* dpi (se disponível): densidade em DPI; se não houver, assuma 72 DPI.
+  Esses valores serão fornecidos junto com a imagem — use-os para estimar tamanhos reais.
 
-Exemplo do formato esperado:
-[
+2. SISTEMA DE COORDENADAS:
+
+* Origem (0,0) no CANTO SUPERIOR ESQUERDO.
+* X aumenta para a DIREITA, Y aumenta para BAIXO.
+* Todas as coordenadas e medidas devem ser números inteiros (pixels).
+* Arredonde para o inteiro mais próximo; se necessário, explique nada — apenas retorne inteiros.
+
+3. REFERÊNCIAS E PONTOS A REPORTAR:
+
+* Para caixas retangulares: reporte o canto superior esquerdo (x,y), width e height.
+* Para linhas sublinhadas: reporte (x, y) = posição da LINHA DE BASE do texto onde o usuário escreverá; width = comprimento da linha; height = altura útil da linha (recomendar 25–30px para uma única linha).
+* Para espaços depois de rótulos (ex.: "Nome:"): considere o início do espaço em branco (após o rótulo) como o x inicial do campo.
+* Para células de tabelas: reporte cada célula como um campo separado com o canto superior esquerdo e largura/altura.
+* Se um campo for multi-linha, use height = altura total e adicione \`"multiline": true\`.
+
+4. CORREÇÕES VISUAIS:
+
+* Detecte e corrija rotação/skew leve da página; retornar coordenadas na imagem original já corrigidas.
+* Se o campo estiver rotacionado (>5°), ainda retorne o canto superior esquerdo do bounding box axis-aligned (não rotacionado) e inclua \`"rotated": true\` e \`"angle": valor_em_graus\` (opcional).
+
+5. PRECISÃO DE MEDIDAS E FONT SIZE:
+
+* width e height em pixels inteiros.
+* fontSize recomendado: calcule como ~0.6 * height (use 16 como padrão se não puder inferir).
+* Se puder, ajuste fontSize para o valor inteiro que melhor caiba no height detectado.
+
+6. O QUE DETECTAR (incluir TODOS):
+
+* Linhas horizontais em branco/sublineadas para escrita manual.
+* Caixas retangulares vazias.
+* Espaços claramente vazios após rótulos ("Nome:", "Endereço:", etc).
+* Células vazias em tabelas/grids.
+* Áreas delimitadas por bordas ou sublinhados.
+
+7. O QUE IGNORAR:
+
+* Checkboxes, radio buttons, botões interativos, textos já preenchidos, títulos/cabeçalhos que não são campos de entrada.
+
+8. NOMENCLATURA:
+
+* \`name\`: use o rótulo mais próximo em português (ex.: "Nome Completo", "CPF", "Data de Nascimento").
+* Se não houver rótulo, descreva objetivamente (ex.: "Linha sublinhada - Observações", "Célula tabela 2,3").
+* Evite nomes genéricos como "Campo 1". Use português brasileiro.
+
+9. SAÍDA JSON OBRIGATÓRIA:
+
+* Retorne **APENAS** um array JSON válido contendo um objeto por campo. **Sem markdown, sem texto adicional.**
+* Campos obrigatórios por objeto:
   {
-    "name": "Nome Completo",
-    "page": 1,
-    "x": 120,
-    "y": 150,
-    "width": 300,
-    "height": 25,
-    "fontSize": 16
+  "name": "Nome descritivo do campo",
+  "page": número_inteiro_página,
+  "x": inteiro_pixels,
+  "y": inteiro_pixels,
+  "width": inteiro_pixels,
+  "height": inteiro_pixels,
+  "fontSize": inteiro
   }
-]`
+* Campos opcionais recomendados (permitidos):
+
+  * "type": "underline" | "box" | "after_label" | "table_cell"
+  * "confidence": número_decimal_entre_0_e_1
+  * "multiline": true/false
+  * "rotated": true/false
+  * "angle": número_em_graus (se rotated = true)
+
+10. REGRAS EXTRAS DE QUALIDADE:
+
+* Seja MUITO preciso com X e Y — o texto precisa cair exatamente na linha ou caixa.
+* Não invente campos e não omita campos visíveis.
+* Se campos estiverem muito próximos, identifique cada um separadamente.
+* Para cada campo, estime \`confidence\` (0–1) se possível.
+
+11. FORMATO FINAL E EXEMPLO:
+
+* Responda **somente** com o array JSON; por exemplo:
+  [
+  {
+  "name": "Nome Completo",
+  "page": 1,
+  "x": 150,
+  "y": 200,
+  "width": 350,
+  "height": 25,
+  "fontSize": 16,
+  "type": "after_label",
+  "confidence": 0.98
+  },
+  {
+  "name": "CPF",
+  "page": 1,
+  "x": 150,
+  "y": 250,
+  "width": 200,
+  "height": 25,
+  "fontSize": 16,
+  "type": "box",
+  "confidence": 0.95
+  }
+  ]
+
+Agora, analise a imagem fornecida (use os metadados width/height/dpi se houver) e retorne o JSON com TODOS os campos identificados.
+`
                         },
                         {
                             type: "image_url",
