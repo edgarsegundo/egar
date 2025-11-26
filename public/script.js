@@ -2659,9 +2659,11 @@ async function renderPDF(url) {
             inputEl.focus();
 
             let isSaving = false;
+            let isClosed = false;
             async function confirmField() {
-                if (isSaving) return;
+                if (isSaving || isClosed) return;
                 isSaving = true;
+                isClosed = true;
                 const fieldName = inputEl.value.trim();
                 if (!fieldName) {
                     inputEl.style.borderColor = '#dc2626';
@@ -2669,8 +2671,12 @@ async function renderPDF(url) {
                     isSaving = false;
                     return;
                 }
-                document.body.removeChild(modal);
-                if (ballSvg && ballSvg.parentNode) ballSvg.parentNode.removeChild(ballSvg);
+                if (modal && modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                }
+                if (ballSvg && ballSvg.parentNode) {
+                    ballSvg.parentNode.removeChild(ballSvg);
+                }
                 // Cria o campo com largura automática
                 templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum, fontSize: 16, width: autoWidth });
                 createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
@@ -2704,8 +2710,15 @@ async function renderPDF(url) {
             }
 
             cancelBtn.onclick = () => {
-                document.body.removeChild(modal);
-                if (ballSvg && ballSvg.parentNode) ballSvg.parentNode.removeChild(ballSvg);
+                if (!isClosed) {
+                    isClosed = true;
+                    if (modal && modal.parentNode) {
+                        modal.parentNode.removeChild(modal);
+                    }
+                    if (ballSvg && ballSvg.parentNode) {
+                        ballSvg.parentNode.removeChild(ballSvg);
+                    }
+                }
             };
 
             createBtn.onmousedown = confirmField;
@@ -2733,9 +2746,14 @@ async function renderPDF(url) {
             };
 
             inputEl.onblur = () => {
-                if (!isSaving) {
-                    document.body.removeChild(modal);
-                    if (ballSvg && ballSvg.parentNode) ballSvg.parentNode.removeChild(ballSvg);
+                if (!isSaving && !isClosed) {
+                    isClosed = true;
+                    if (modal && modal.parentNode) {
+                        modal.parentNode.removeChild(modal);
+                    }
+                    if (ballSvg && ballSvg.parentNode) {
+                        ballSvg.parentNode.removeChild(ballSvg);
+                    }
                 }
             };
         };

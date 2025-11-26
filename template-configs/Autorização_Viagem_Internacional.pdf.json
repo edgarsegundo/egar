@@ -804,6 +804,24 @@
       "page": 1,
       "fontSize": 16,
       "width": 668
+    },
+    {
+      "x": 606,
+      "y": 1000,
+      "name": "we",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 284
+    },
+    {
+      "x": 548,
+      "y": 1202,
+      "name": "wwe",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 22
     }
   ]
 }
