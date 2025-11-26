@@ -3232,24 +3232,86 @@ async function renderPDF(url) {
 
             const result = await Swal.fire({
                 title: 'Configurar Campo',
+                width: 500,
                 html: `
-                    <div style="width:420px;max-width:98vw;display:block;">
-                        <label>Nome do campo:</label>
-                        <input id="fieldNameInput" class="swal2-input" placeholder="Ex: Nome completo" value="${currentName}">
-                        <label>Dica de formato:</label>
-                        <input id="fieldHintInput" class="swal2-input" placeholder="Ex: dd/mm/yyyy" value="${currentHint}">
-                        <label>Conteúdo:</label>
-                        <input id="fieldValueInput" class="swal2-input" value="${currentValue}">
-                        <label>Posição X:</label>
-                        <input id="fieldXInput" class="swal2-input" type="number" value="${x}">
-                        <label>Posição Y:</label>
-                        <input id="fieldYInput" class="swal2-input" type="number" value="${y}">
-                        <label>Tamanho da fonte:</label>
-                        <input id="fieldFontSizeInput" class="swal2-input" type="number" value="${input.style.fontSize.replace('px','')}">
-                        <label>Largura:</label>
-                        <input id="fieldWidthInput" class="swal2-input" type="number" value="${input.style.width.replace('px','')}">
-                        <label>Altura:</label>
-                        <input id="fieldHeightInput" class="swal2-input" type="number" value="${input.style.height.replace('px','')}">
+                    <style>
+                        .swal2-container .form-wrapper {
+                            width: 100%;
+                            padding: 0 8px;
+                            box-sizing: border-box;
+                        }
+
+                        .form-row {
+                            display: flex;
+                            flex-direction: column;
+                            margin-bottom: 10px;
+                            text-align: left;
+                        }
+
+                        .form-row label {
+                            font-size: 13px;
+                            margin-bottom: 3px;
+                            font-weight: 600;
+                        }
+
+                        /* Reduz o tamanho padrão absurdo do SweetAlert */
+                        .form-row input {
+                            height: 32px !important;
+                            padding: 6px 10px !important;
+                            font-size: 14px !important;
+                            width: 100% !important;
+                            box-sizing: border-box;
+                            margin: 0 !important;
+                        }
+
+                        /* Garante que não vaze para fora */
+                        #swal2-html-container {
+                            padding: 0 !important;
+                        }
+                    </style>
+
+                    <div class="form-wrapper">
+
+                        <div class="form-row">
+                            <label>Nome do campo:</label>
+                            <input id="fieldNameInput" value="${currentName}">
+                        </div>
+
+                        <div class="form-row">
+                            <label>Dica de formato:</label>
+                            <input id="fieldHintInput" placeholder="Ex: dd/mm/yyyy" value="${currentHint}">
+                        </div>
+
+                        <div class="form-row">
+                            <label>Conteúdo:</label>
+                            <input id="fieldValueInput" value="${currentValue}">
+                        </div>
+
+                        <div class="form-row">
+                            <label>Posição X:</label>
+                            <input id="fieldXInput" type="number" value="${x}">
+                        </div>
+
+                        <div class="form-row">
+                            <label>Posição Y:</label>
+                            <input id="fieldYInput" type="number" value="${y}">
+                        </div>
+
+                        <div class="form-row">
+                            <label>Tamanho da fonte:</label>
+                            <input id="fieldFontSizeInput" type="number" value="${input.style.fontSize.replace('px','')}">
+                        </div>
+
+                        <div class="form-row">
+                            <label>Largura:</label>
+                            <input id="fieldWidthInput" type="number" value="${input.style.width.replace('px','')}">
+                        </div>
+
+                        <div class="form-row">
+                            <label>Altura:</label>
+                            <input id="fieldHeightInput" type="number" value="${input.style.height.replace('px','')}">
+                        </div>
+
                     </div>
                 `,
                 focusConfirm: false,
@@ -3266,13 +3328,25 @@ async function renderPDF(url) {
                     const newFontSize = parseInt(document.getElementById('fieldFontSizeInput').value);
                     const newWidth = parseInt(document.getElementById('fieldWidthInput').value);
                     const newHeight = parseInt(document.getElementById('fieldHeightInput').value);
+
                     if (!newName) {
                         Swal.showValidationMessage('O nome do campo é obrigatório');
                         return false;
                     }
-                    return { name: newName, hint: newHint, value: newValue, x: newX, y: newY, fontSize: newFontSize, width: newWidth, height: newHeight };
+
+                    return {
+                        name: newName,
+                        hint: newHint,
+                        value: newValue,
+                        x: newX,
+                        y: newY,
+                        fontSize: newFontSize,
+                        width: newWidth,
+                        height: newHeight
+                    };
                 }
             });
+
             
             if (result.isConfirmed && result.value) {
                 const { name: newName, hint: newHint, value: newValue, x: newX, y: newY, fontSize: newFontSize, width: newWidth, height: newHeight } = result.value;
