@@ -2382,6 +2382,91 @@ async function cloneCurrentTemplate() {
 //     }
 // })();
 
+
+function detectAutoWidth(canvas, clickX, clickY) {
+    const ctx = canvas.getContext('2d');
+
+    // ============================
+    //  DEBUG: pode ligar/desligar
+    // ============================
+    const DEBUG_DETECTOR = true;
+    
+    // Amostragem vertical mínima (evita capturar outras linhas)
+    const HALF_H = 3;                       // total height = 7px
+    const SCAN_HEIGHT = HALF_H * 2 + 1;
+
+    // Amostragem horizontal ampliada para maior estabilidade
+    const STEP_X = 2;                       // pular 2px por iteração
+
+    // Threshold de detecção de conteúdo escuro
+    const DARK_THRESHOLD = 150;             // quanto menor = mais sensível
+    const MIN_ALPHA = 80;                   // ignora pixels muito transparentes
+
+    const MAX_WIDTH = 500;
+    const MAX_SCAN_X = canvas.width;
+
+    // Guardará onde encontramos o primeiro pixel escuro
+    let transitionX = null;
+
+    for (let x = Math.round(clickX); x < MAX_SCAN_X; x += STEP_X) {
+
+        const yStart = Math.max(0, clickY - HALF_H);
+        const yEnd = Math.min(canvas.height - 1, clickY + HALF_H);
+
+        const image = ctx.getImageData(x, yStart, 1, yEnd - yStart + 1);
+        const data = image.data;
+
+        let isDarkColumn = false;
+
+        // Analisa 1 coluna (SCAN_HEIGHT pixels)
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i+1];
+            const b = data[i+2];
+            const a = data[i+3];
+
+            const luminance = (r + g + b) / 3;
+
+            if (a > MIN_ALPHA && luminance < DARK_THRESHOLD) {
+                isDarkColumn = true;
+                break;
+            }
+        }
+
+        // =====================
+        // DEBUG VISUAL (azul)
+        // =====================
+        if (DEBUG_DETECTOR) {
+            ctx.fillStyle = isDarkColumn ? "purple" : "rgba(0,120,255,0.35)";
+            ctx.fillRect(x, yStart, STEP_X, SCAN_HEIGHT);
+        }
+
+        // Encontrou conteúdo escuro
+        if (isDarkColumn) {
+            transitionX = x;
+
+            // Marcação visual da borda detectada
+            if (DEBUG_DETECTOR) {
+                ctx.fillStyle = "red";
+                ctx.fillRect(x, yStart, STEP_X, SCAN_HEIGHT);
+            }
+
+            break;
+        }
+    }
+
+    // Caso nada encontrado até o fim → usa largura máxima disponível
+    if (!transitionX) {
+        return Math.max(30, Math.min(canvas.width - clickX - 2, MAX_WIDTH));
+    }
+
+    const rawWidth = transitionX - clickX;
+    const finalWidth = Math.max(40, Math.min(rawWidth * 0.92, MAX_WIDTH));
+
+    return finalWidth;
+}
+
+
 async function renderPDF(url) {
     console.log(`[renderPDF] INICIANDO - URL: ${url}`);
     console.log(`[renderPDF] Campos existentes em createdFields: ${createdFields.length}`);
@@ -2443,36 +2528,14 @@ async function renderPDF(url) {
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            // Detecta largura automática do espaço em branco
-            let autoWidth = 120; // fallback padrão
+            let autoWidth = 120;
             try {
-                const ctx = canvas.getContext('2d');
-                // Pega a linha de pixels na posição y
-                const imageData = ctx.getImageData(0, Math.round(y), canvas.width, 1);
-                const data = imageData.data;
-                // Começa do x clicado até o fim da linha
-                let found = false;
-                for (let px = Math.round(x); px < canvas.width; px++) {
-                    const i = px * 4;
-                    const r = data[i];
-                    const g = data[i + 1];
-                    const b = data[i + 2];
-                    const a = data[i + 3];
-                    // Considera "branco" se RGB > 240 e alpha > 200
-                    if (!(r > 240 && g > 240 && b > 240 && a > 200)) {
-                        autoWidth = px - Math.round(x);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    autoWidth = canvas.width - Math.round(x) - 2;
-                }
-                // Limita largura mínima/máxima
-                autoWidth = Math.max(30, Math.min(autoWidth, 400));
-            } catch (err) {
-                console.warn('Falha ao detectar largura automática:', err);
+                autoWidth = detectAutoWidth(canvas, x, y);
+            } catch (e) {
+                console.warn("Erro detectando largura:", e);
             }
+
+            return;
 
             const { value: fieldName } = await Swal.fire({
                 title: 'Novo Campo',
