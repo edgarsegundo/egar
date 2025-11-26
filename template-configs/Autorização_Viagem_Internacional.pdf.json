@@ -1,36 +1,9 @@
 {
   "fields": [
     {
-      "x": 637,
-      "y": 308,
-      "name": "hj",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 242
-    },
-    {
       "x": 105,
       "y": 367,
       "name": "a",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 15
-    },
-    {
-      "x": 68,
-      "y": 335,
-      "name": "edgar",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 124
-    },
-    {
-      "x": 89,
-      "y": 282,
-      "name": "wdwdw",
       "value": "",
       "page": 1,
       "fontSize": 16,
