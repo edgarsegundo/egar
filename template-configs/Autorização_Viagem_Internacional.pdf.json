@@ -199,13 +199,15 @@
       "hint": ""
     },
     {
-      "x": 653,
+      "x": 100,
       "y": 250,
       "name": "sss",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 52
+      "width": 52,
+      "hint": "",
+      "height": 20
     },
     {
       "x": 628,
@@ -226,13 +228,33 @@
       "width": 298
     },
     {
-      "x": 466,
+      "x": 1,
       "y": 343,
       "name": "sqsqsq",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 276
+      "width": 276,
+      "hint": "",
+      "height": 20
+    },
+    {
+      "x": 600.5,
+      "y": 490,
+      "name": "sds",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 172.5
+    },
+    {
+      "x": 426,
+      "y": 588,
+      "name": "sd",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 464
     }
   ]
 }
