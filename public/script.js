@@ -1492,7 +1492,7 @@ if (detectFieldsBtn) {
                 y: field.y || 0,
                 page: field.page || 1,
                 width: field.width || 120,
-                height: field.height || 20,
+                height: field.height || 18,
                 fontSize: field.fontSize || 16,
                 hint: field.hint || ''
             }));
