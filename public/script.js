@@ -293,7 +293,10 @@ async function openFillModal() {
             icon: 'warning',
             title: 'Atenção',
             text: 'Nenhum template carregado.',
-            confirmButtonText: 'OK'
+            confirmButtonText: 'OK',
+            backdrop: false,
+            position: 'center',
+            allowOutsideClick: true
         });
         return;
     }
@@ -315,7 +318,10 @@ async function openFillModal() {
                     <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
                     <p class="text-xs text-gray-500">Isso permite que você salve suas alterações no seu navegador.</p>
                 `,
-                confirmButtonText: 'Entendi'
+                confirmButtonText: 'Entendi',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true
             });
             return;
         }
@@ -1240,7 +1246,10 @@ cloneFileBtn.addEventListener('click', async () => {
             icon: 'warning',
             title: 'Atenção',
             text: 'Nenhum arquivo carregado para clonar.',
-            confirmButtonText: 'OK'
+            confirmButtonText: 'OK',
+            backdrop: false,
+            position: 'center',
+            allowOutsideClick: true
         });
         return;
     }
@@ -1259,6 +1268,9 @@ cloneFileBtn.addEventListener('click', async () => {
         showCancelButton: true,
         confirmButtonText: 'Clonar',
         cancelButtonText: 'Cancelar',
+        backdrop: false,
+        position: 'center',
+        allowOutsideClick: true,
         preConfirm: () => {
             const input = document.getElementById('swal-input-clone').value;
             if (!input || input.trim() === '') {
@@ -1283,6 +1295,8 @@ cloneFileBtn.addEventListener('click', async () => {
             title: 'Clonando...',
             text: 'Por favor aguarde',
             allowOutsideClick: false,
+            backdrop: false,
+            position: 'center',
             didOpen: () => {
                 Swal.showLoading();
             }
@@ -1301,7 +1315,10 @@ cloneFileBtn.addEventListener('click', async () => {
             icon: 'success',
             title: 'Sucesso!',
             text: `Template clonado: ${finalCloneName}`,
-            confirmButtonText: 'OK'
+            confirmButtonText: 'OK',
+            backdrop: false,
+            position: 'center',
+            allowOutsideClick: true
         });
     } catch (error) {
         console.error('Erro ao clonar arquivo:', error);
@@ -1309,7 +1326,10 @@ cloneFileBtn.addEventListener('click', async () => {
             icon: 'error',
             title: 'Erro',
             text: error.message || 'Erro ao clonar arquivo.',
-            confirmButtonText: 'OK'
+            confirmButtonText: 'OK',
+            backdrop: false,
+            position: 'center',
+            allowOutsideClick: true
         });
     }
 });
@@ -3764,6 +3784,9 @@ downloadBtn.addEventListener("click", async () => {
         cancelButtonText: 'Cancelar',
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
+        backdrop: false,
+        position: 'center',
+        allowOutsideClick: true,
         inputValidator: (value) => {
             if (!value) {
                 return 'Por favor, digite um nome para o arquivo!';
