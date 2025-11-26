@@ -2640,7 +2640,7 @@ async function renderPDF(url) {
                 // Cria o campo com largura automática
                 templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum, fontSize: 16, width: autoWidth });
                 
-                let offsetY = 0;
+                let offsetY = 17;
                 // Ajusta o top do wrapper para posicionar acima do ponto clicado
                 createInputField(x, y - offsetY, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
                 // Esconde a dica flutuante após criar o primeiro campo
@@ -3165,13 +3165,19 @@ async function renderPDF(url) {
         // Evento de clique para editar propriedades do campo (apenas em modo edição)
         const onInputClick = async (e) => {
             if (!isEditorMode) return; // Só permite edição em modo editor
-            
+
             e.stopPropagation();
-            
-            // Pega valores atuais
-            const currentName = input.dataset.fieldName || name;
-            const currentHint = templateConfig.fields[idx]?.hint || '';
-            const currentValue = input.value || '';
+
+            // Pega valores ATUALIZADOS do campo
+            const fieldData = templateConfig.fields[idx] || {};
+            const currentName = fieldData.name || name;
+            const currentHint = fieldData.hint || '';
+            const currentValue = fieldData.value || '';
+            const currentX = fieldData.x ?? x;
+            const currentY = fieldData.y ?? y;
+            const currentFontSize = fieldData.fontSize ?? (parseInt(input.style.fontSize) || 16);
+            const currentWidth = fieldData.width ?? (parseInt(input.style.width) || 120);
+            const currentHeight = fieldData.height ?? (parseInt(input.style.height) || 20);
 
             const result = await Swal.fire({
                 title: 'Configurar Campo',
@@ -3232,27 +3238,27 @@ async function renderPDF(url) {
 
                         <div class="form-row">
                             <label>Posição X:</label>
-                            <input id="fieldXInput" type="number" value="${x}">
+                            <input id="fieldXInput" type="number" value="${currentX}">
                         </div>
 
                         <div class="form-row">
                             <label>Posição Y:</label>
-                            <input id="fieldYInput" type="number" value="${y}">
+                            <input id="fieldYInput" type="number" value="${currentY}">
                         </div>
 
                         <div class="form-row">
                             <label>Tamanho da fonte:</label>
-                            <input id="fieldFontSizeInput" type="number" value="${input.style.fontSize.replace('px','')}">
+                            <input id="fieldFontSizeInput" type="number" value="${currentFontSize}">
                         </div>
 
                         <div class="form-row">
                             <label>Largura:</label>
-                            <input id="fieldWidthInput" type="number" value="${input.style.width.replace('px','')}">
+                            <input id="fieldWidthInput" type="number" value="${currentWidth}">
                         </div>
 
                         <div class="form-row">
                             <label>Altura:</label>
-                            <input id="fieldHeightInput" type="number" value="${input.style.height.replace('px','')}">
+                            <input id="fieldHeightInput" type="number" value="${currentHeight}">
                         </div>
 
                     </div>

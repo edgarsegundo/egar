@@ -1,28 +1,438 @@
 {
   "fields": [
     {
-      "x": 646.5,
-      "y": 234,
-      "name": "field_1764188575430",
+      "x": 650.5,
+      "y": 236,
+      "name": "Autorização válida até o dia",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 52,
-      "height": 20
+      "width": 42,
+      "height": 20,
+      "hint": "DD"
     },
     {
       "x": 711.5,
-      "y": 233,
-      "name": "field_1764188586931",
+      "y": 236,
+      "name": "Autorização válida até o mês",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 50.5
+      "width": 60,
+      "hint": "MMM",
+      "height": 20
     },
     {
       "x": 797.5,
-      "y": 234,
-      "name": "field_1764188593249",
+      "y": 236,
+      "name": "Autorização válida até o ano",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 41,
+      "height": 20,
+      "hint": "AA"
+    },
+    {
+      "x": 85,
+      "y": 266,
+      "name": "Responsável Nome",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 732,
+      "height": 20,
+      "hint": ""
+    },
+    {
+      "x": 384.5,
+      "y": 297,
+      "name": "RG ou Passaporte",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 128,
+      "height": 20,
+      "hint": ""
+    },
+    {
+      "x": 629.5,
+      "y": 296,
+      "name": "RG ou passaporte expedido pela - linha 1",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 188,
+      "height": 20,
+      "hint": ""
+    },
+    {
+      "x": 314.5,
+      "y": 318,
+      "name": "field_1764189437017",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 58.5
+    },
+    {
+      "x": 317.5,
+      "y": 320,
+      "name": "Responsável - DIA da expedição RG ou passaporte",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 54,
+      "hint": "DD",
+      "height": 20
+    },
+    {
+      "x": 384.5,
+      "y": 319,
+      "name": "Responsável - MÊS da expedição RG ou passaporte",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 62,
+      "hint": "MMM",
+      "height": 20
+    },
+    {
+      "x": 447.5,
+      "y": 320,
+      "name": "Responsável - ANO da expedição RG ou passaporte",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 57,
+      "height": 20,
+      "hint": "AAAA"
+    },
+    {
+      "x": 587,
+      "y": 321,
+      "name": "Reponsável residente a - linha 1",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 239,
+      "hint": "",
+      "height": 20
+    },
+    {
+      "x": 591.5,
+      "y": 377,
+      "name": "field_1764189480330",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 28.5
+    },
+    {
+      "x": 633.5,
+      "y": 377,
+      "name": "field_1764189483992",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 164,
+      "height": 19
+    },
+    {
+      "x": 150.5,
+      "y": 408,
+      "name": "Responsável - UF",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 20,
+      "hint": "SP",
+      "height": 20
+    },
+    {
+      "x": 200.5,
+      "y": 406,
+      "name": "Responsável DDD",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 15,
+      "hint": "19",
+      "height": 20
+    },
+    {
+      "x": 257.5,
+      "y": 403,
+      "name": "field_1764189500609",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 15,
+      "hint": "",
+      "height": 19
+    },
+    {
+      "x": 344.5,
+      "y": 406,
+      "name": "field_1764189505549",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 20.5
+    },
+    {
+      "x": 461.5,
+      "y": 407,
+      "name": "field_1764189516208",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 279,
+      "height": 20
+    },
+    {
+      "x": 310.5,
+      "y": 436,
+      "name": "field_1764189524188",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 180.5
+    },
+    {
+      "x": 612.5,
+      "y": 453,
+      "name": "field_1764189582637",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 209,
+      "height": 18
+    },
+    {
+      "x": 192.5,
+      "y": 474,
+      "name": "field_1764189591833",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 54.5
+    },
+    {
+      "x": 261.5,
+      "y": 475,
+      "name": "field_1764189593274",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 48.5
+    },
+    {
+      "x": 324.5,
+      "y": 474,
+      "name": "field_1764189594758",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 56.5
+    },
+    {
+      "x": 192.5,
+      "y": 459,
+      "name": "field_1764189596378",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 364,
+      "height": 20
+    },
+    {
+      "x": 262.5,
+      "y": 462,
+      "name": "field_1764189602309",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 680.5
+    },
+    {
+      "x": 324.5,
+      "y": 460,
+      "name": "field_1764189609051",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 348.5
+    },
+    {
+      "x": 446.5,
+      "y": 538,
+      "name": "field_1764189611261",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 42.5
+    },
+    {
+      "x": 52.5,
+      "y": 498,
+      "name": "field_1764189612933",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 30,
+      "height": 20
+    },
+    {
+      "x": 642.5,
+      "y": 534,
+      "name": "field_1764189616517",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 181,
+      "height": 20
+    },
+    {
+      "x": 179.5,
+      "y": 560,
+      "name": "field_1764189621952",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 15
+    },
+    {
+      "x": 228.5,
+      "y": 563,
+      "name": "field_1764189623351",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 15
+    },
+    {
+      "x": 287.5,
+      "y": 561,
+      "name": "field_1764189624627",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 20.5
+    },
+    {
+      "x": 375.5,
+      "y": 564,
+      "name": "field_1764189625883",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 15
+    },
+    {
+      "x": 66.5,
+      "y": 595,
+      "name": "field_1764189631260",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 812.5
+    },
+    {
+      "x": 67.5,
+      "y": 621,
+      "name": "field_1764189633196",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 470.5
+    },
+    {
+      "x": 633.5,
+      "y": 621,
+      "name": "field_1764189634951",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 56.5
+    },
+    {
+      "x": 705.5,
+      "y": 620,
+      "name": "field_1764189636132",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 48.5
+    },
+    {
+      "x": 764.5,
+      "y": 605,
+      "name": "field_1764189637320",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 56,
+      "height": 18
+    },
+    {
+      "x": 629.5,
+      "y": 616,
+      "name": "field_1764189642862",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 15
+    },
+    {
+      "x": 174.5,
+      "y": 642,
+      "name": "field_1764189644404",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 18.5
+    },
+    {
+      "x": 787.5,
+      "y": 612,
+      "name": "field_1764189645808",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 500
+    },
+    {
+      "x": 231.5,
+      "y": 676,
+      "name": "field_1764189647689",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 232.5
+    },
+    {
+      "x": 581.5,
+      "y": 676,
+      "name": "field_1764189649223",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 308.5
+    },
+    {
+      "x": 92.5,
+      "y": 702,
+      "name": "field_1764189651154",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 54.5
+    },
+    {
+      "x": 160.5,
+      "y": 704,
+      "name": "field_1764189652437",
       "value": "",
       "page": 1,
       "fontSize": 16,
@@ -30,15 +440,206 @@
       "height": 20
     },
     {
-      "x": 133.5,
-      "y": 342,
-      "name": "field_1764188612382",
+      "x": 219.5,
+      "y": 702,
+      "name": "field_1764189655673",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 732,
-      "height": 22,
-      "hint": ""
+      "width": 54.5
+    },
+    {
+      "x": 87.5,
+      "y": 728,
+      "name": "field_1764189658170",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 734,
+      "height": 19
+    },
+    {
+      "x": 323.5,
+      "y": 761,
+      "name": "field_1764189662302",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 134.5
+    },
+    {
+      "x": 580.5,
+      "y": 762,
+      "name": "field_1764189663818",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 246.5
+    },
+    {
+      "x": 94.5,
+      "y": 790,
+      "name": "field_1764189665878",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 52.5
+    },
+    {
+      "x": 160.5,
+      "y": 789,
+      "name": "field_1764189667182",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 50.5
+    },
+    {
+      "x": 226.5,
+      "y": 790,
+      "name": "field_1764189668496",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 54.5
+    },
+    {
+      "x": 348.5,
+      "y": 791,
+      "name": "field_1764189670386",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 530.5
+    },
+    {
+      "x": 71.5,
+      "y": 819,
+      "name": "field_1764189672023",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 542.5
+    },
+    {
+      "x": 702.5,
+      "y": 818,
+      "name": "field_1764189673889",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 187.5
+    },
+    {
+      "x": 71.5,
+      "y": 848,
+      "name": "field_1764189675798",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 690.5
+    },
+    {
+      "x": 793.5,
+      "y": 848,
+      "name": "field_1764189677608",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 30.5
+    },
+    {
+      "x": 147.5,
+      "y": 966,
+      "name": "field_1764189679442",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 182,
+      "height": 20
+    },
+    {
+      "x": 342.5,
+      "y": 963,
+      "name": "field_1764189683310",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 44.5
+    },
+    {
+      "x": 408.5,
+      "y": 966,
+      "name": "field_1764189685660",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 128.5
+    },
+    {
+      "x": 581.5,
+      "y": 967,
+      "name": "field_1764189686980",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 41,
+      "height": 18
+    },
+    {
+      "x": 59.5,
+      "y": 319,
+      "name": "RG ou passaporte expedido pela - linha 2",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 136,
+      "hint": "",
+      "height": 20
+    },
+    {
+      "x": 61.5,
+      "y": 349,
+      "name": "Reponsável residente a - linha 2",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 682,
+      "hint": "",
+      "height": 20
+    },
+    {
+      "x": 61.5,
+      "y": 378,
+      "name": "Responsável - Cidade",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 354,
+      "hint": "",
+      "height": 20
+    },
+    {
+      "x": 444.5,
+      "y": 378,
+      "name": "Responsável - UF",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 34,
+      "hint": "SP",
+      "height": 21
+    },
+    {
+      "x": 592.5,
+      "y": 378,
+      "name": "Responsável - DDD",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 32,
+      "hint": "19",
+      "height": 20
     }
   ]
 }
