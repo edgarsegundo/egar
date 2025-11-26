@@ -1,0 +1,44 @@
+{
+  "fields": [
+    {
+      "x": 646.5,
+      "y": 234,
+      "name": "field_1764188575430",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 52,
+      "height": 20
+    },
+    {
+      "x": 711.5,
+      "y": 233,
+      "name": "field_1764188586931",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 50.5
+    },
+    {
+      "x": 797.5,
+      "y": 234,
+      "name": "field_1764188593249",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 41,
+      "height": 20
+    },
+    {
+      "x": 133.5,
+      "y": 342,
+      "name": "field_1764188612382",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 732,
+      "height": 22,
+      "hint": ""
+    }
+  ]
+}

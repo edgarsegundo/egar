@@ -2574,9 +2574,6 @@ async function renderPDF(url) {
                 console.warn("Erro detectando largura:", e);
             }
 
-            // // return;
-            // fieldName = "editar";
-
             // Modal minimalista: input flutuante sobre o clique
             let modal = document.createElement('div');
             modal.id = 'customFieldModal';
@@ -2629,13 +2626,11 @@ async function renderPDF(url) {
                 if (isSaving || isClosed) return;
                 isSaving = true;
                 isClosed = true;
-                const fieldName = inputEl.value.trim();
+                let fieldName = inputEl.value.trim();
                 if (!fieldName) {
-                    inputEl.style.borderColor = '#dc2626';
-                    inputEl.focus();
-                    isSaving = false;
-                    return;
+                    fieldName = `field_${Date.now()}`;
                 }
+
                 if (modal && modal.parentNode) {
                     modal.parentNode.removeChild(modal);
                 }
@@ -2645,7 +2640,7 @@ async function renderPDF(url) {
                 // Cria o campo com largura automática
                 templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum, fontSize: 16, width: autoWidth });
                 
-                let offsetY = 17;
+                let offsetY = 0;
                 // Ajusta o top do wrapper para posicionar acima do ponto clicado
                 createInputField(x, y - offsetY, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
                 // Esconde a dica flutuante após criar o primeiro campo
