@@ -1004,6 +1004,9 @@ if (toggleModeCheckbox) {
                     await Swal.fire({
                         icon: 'info',
                         title: 'Clone o Template Primeiro',
+                        backdrop: false,
+                        position: 'center',
+                        allowOutsideClick: true,
                         html: `
                             <p class="text-sm text-gray-600 mb-3">Templates do servidor não podem ser editados diretamente.</p>
                             <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
@@ -1109,6 +1112,9 @@ if (saveConfigBtn) {
                     icon: 'success',
                     title: 'Configuração Salva!',
                     text: `A configuração foi salva no seu navegador.`,
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true,
                     confirmButtonText: 'OK'
                 });
             } else {
@@ -1125,6 +1131,9 @@ if (saveConfigBtn) {
                     icon: 'success',
                     title: 'Configuração Salva!',
                     text: 'A configuração foi salva no servidor.',
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true,
                     confirmButtonText: 'OK'
                 });
             }
@@ -1135,6 +1144,9 @@ if (saveConfigBtn) {
                 icon: 'error',
                 title: 'Erro!',
                 text: 'Erro ao salvar configuração',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,
                 confirmButtonText: 'OK'
             });
         }
@@ -1343,6 +1355,9 @@ if (detectFieldsBtn) {
                 icon: 'warning',
                 title: 'Atenção',
                 text: 'Nenhum PDF carregado.',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,                
                 confirmButtonText: 'OK'
             });
             return;
@@ -1366,6 +1381,9 @@ if (detectFieldsBtn) {
                     icon: 'error',
                     title: 'Erro',
                     text: 'Não foi possível capturar a imagem do PDF. Certifique-se que o PDF está renderizado.',
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true,                    
                     confirmButtonText: 'OK'
                 });
                 return;
@@ -1378,6 +1396,9 @@ if (detectFieldsBtn) {
                     icon: 'error',
                     title: 'Erro',
                     text: 'Falha ao converter o PDF em imagem PNG.',
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true,                    
                     confirmButtonText: 'OK'
                 });
                 return;
@@ -1390,6 +1411,9 @@ if (detectFieldsBtn) {
             async function showPreviewWithOverlay(fields) {
                 return Swal.fire({
                     title: 'Pré-visualização da Imagem Enviada',
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true,
                     html: `
                         <div style="position:relative;display:inline-block;">
                             <img id='debugPreviewImg' src="${imgUrl}" style="display:block;max-width:100%;border:1px solid #ccc;box-shadow:0 2px 8px #0002;">
@@ -1479,7 +1503,10 @@ if (detectFieldsBtn) {
                     icon: 'warning',
                     title: 'Nenhum Campo Detectado',
                     text: 'A IA não conseguiu detectar campos neste PDF. Você pode criar campos manualmente.',
-                    confirmButtonText: 'OK'
+                    confirmButtonText: 'OK',
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true
                 });
                 return;
             }
@@ -1541,6 +1568,9 @@ if (detectFieldsBtn) {
                     <p class="text-sm text-gray-700">Ajuste as posições, tamanhos e nomes conforme necessário.</p>
                     <p class="text-xs text-gray-500 mt-2">Modo "Alterar Estrutura" ativado automaticamente.</p>
                 `,
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,
                 confirmButtonText: 'Entendi'
             });
 
@@ -1550,7 +1580,10 @@ if (detectFieldsBtn) {
                 icon: 'error',
                 title: 'Erro',
                 text: error.message || 'Erro ao detectar campos com IA.',
-                confirmButtonText: 'OK'
+                confirmButtonText: 'OK',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true
             });
         }
     });
@@ -1618,6 +1651,9 @@ if (addTemplateBtn) {
                             </p>
                         `,
                         timer: 3000,
+                        backdrop: false,
+                        position: 'center',
+                        allowOutsideClick: true,                        
                         showConfirmButton: false
                     });
                     await loadTemplates();
@@ -1629,6 +1665,9 @@ if (addTemplateBtn) {
                 await Swal.fire({
                     icon: 'error',
                     title: 'Erro ao Salvar',
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true,                    
                     text: err.message || 'Erro ao salvar template no navegador.'
                 });
             }
@@ -1713,6 +1752,9 @@ if (addServerTemplateBtn) {
                     await Swal.fire({
                         icon: 'error',
                         title: 'Operação não permitida',
+                        backdrop: false,
+                        position: 'center',
+                        allowOutsideClick: true,
                         text: result.message || 'Não é permitido adicionar templates ao servidor em modo produção.',
                         confirmButtonText: 'Entendi'
                     });
@@ -1741,6 +1783,9 @@ if (addServerTemplateBtn) {
                 await Swal.fire({
                     icon: 'error',
                     title: 'Erro ao Salvar',
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true,
                     text: err.message || 'Erro ao salvar template no servidor.'
                 });
             }
@@ -1759,7 +1804,10 @@ if (renameTemplateBtn) {
                 icon: 'warning',
                 title: 'Atenção',
                 text: 'Nenhum template carregado para renomear.',
-                confirmButtonText: 'OK'
+                confirmButtonText: 'OK',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true
             });
             return;
         }
@@ -1782,7 +1830,10 @@ if (renameTemplateBtn) {
                     icon: 'error',
                     title: 'Renomeação não permitida',
                     text: validation.message,
-                    confirmButtonText: 'OK'
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,
+                confirmButtonText: 'OK'
                 });
                 return;
             }
@@ -1824,6 +1875,9 @@ if (renameTemplateBtn) {
                 icon: 'info',
                 title: 'Mesmo Nome',
                 text: 'O novo nome é igual ao nome atual.',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,
                 confirmButtonText: 'OK'
             });
             return;
@@ -1848,6 +1902,9 @@ if (renameTemplateBtn) {
                         icon: 'error',
                         title: 'Erro ao Renomear',
                         text: renameResult.message || renameResult.error || 'Não foi possível renomear o template do servidor.',
+                        backdrop: false,
+                        position: 'center',
+                        allowOutsideClick: true,
                         confirmButtonText: 'OK'
                     });
                     return;
@@ -1867,7 +1924,10 @@ if (renameTemplateBtn) {
                     title: 'Renomeado!',
                     text: `Template renomeado para '${finalNewName}'`,
                     timer: 1500,
-                    showConfirmButton: false
+                    showConfirmButton: false,
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true
                 });
                 
             } else if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
@@ -1886,7 +1946,10 @@ if (renameTemplateBtn) {
                     title: 'Renomeado!',
                     text: `Template renomeado para '${finalNewName}'`,
                     timer: 1500,
-                    showConfirmButton: false
+                    showConfirmButton: false,
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true
                 });
             }
         } catch (error) {
@@ -1895,6 +1958,9 @@ if (renameTemplateBtn) {
                 icon: 'error',
                 title: 'Erro!',
                 text: 'Erro ao renomear template: ' + error.message,
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,
                 confirmButtonText: 'OK'
             });
         }
@@ -1910,6 +1976,9 @@ if (deleteTemplateBtn) {
                 icon: 'warning',
                 title: 'Atenção',
                 text: 'Nenhum template carregado para excluir.',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,
                 confirmButtonText: 'OK'
             });
             return;
@@ -1928,6 +1997,9 @@ if (deleteTemplateBtn) {
                     icon: 'error',
                     title: 'Exclusão não permitida',
                     text: result.message,
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true,
                     confirmButtonText: 'OK'
                 });
                 return;
@@ -1938,6 +2010,9 @@ if (deleteTemplateBtn) {
                 icon: 'error',
                 title: 'Erro de validação',
                 text: 'Não foi possível validar a exclusão do template.',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,                
                 confirmButtonText: 'OK'
             });
             return;
@@ -1956,7 +2031,10 @@ if (deleteTemplateBtn) {
             confirmButtonColor: '#dc2626',
             cancelButtonColor: '#6b7280',
             confirmButtonText: 'Sim, excluir!',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            backdrop: false,
+            position: 'center',
+            allowOutsideClick: true
         });
         
         if (!result.isConfirmed) return;
@@ -1985,6 +2063,9 @@ if (deleteTemplateBtn) {
                         icon: 'error',
                         title: 'Erro ao Excluir',
                         text: deleteResult.message || 'Não foi possível excluir o template do servidor.',
+                        backdrop: false,
+                        position: 'center',
+                        allowOutsideClick: true,
                         confirmButtonText: 'OK'
                     });
                     return;
@@ -2027,6 +2108,9 @@ if (deleteTemplateBtn) {
                 icon: 'success',
                 title: 'Excluído!',
                 text: 'Template excluído com sucesso.',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,                
                 confirmButtonText: 'OK'
             });
             
@@ -2038,6 +2122,9 @@ if (deleteTemplateBtn) {
             await Swal.fire({
                 icon: 'error',
                 title: 'Erro!',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,                
                 text: 'Erro ao excluir template: ' + error.message,
                 confirmButtonText: 'OK'
             });
@@ -2085,6 +2172,9 @@ async function loadTemplateFromURL() {
                     icon: 'warning',
                     title: 'Clone não encontrado',
                     text: `O arquivo "${cloneName}" não foi encontrado.`,
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true,
                     timer: 3000
                 });
             }
@@ -2124,6 +2214,9 @@ async function loadTemplateFromURL() {
                                     showCancelButton: true,
                                     confirmButtonText: 'Criar Clone',
                                     cancelButtonText: 'Cancelar',
+                                    backdrop: false,
+                                    position: 'center',
+                                    allowOutsideClick: true,
                                     inputValidator: (value) => {
                                         if (!value) {
                                             return 'Você precisa informar um nome!';
@@ -2173,6 +2266,9 @@ async function loadTemplateFromURL() {
                                         title: 'Clone Criado!',
                                         text: `O clone "${cloneName}" foi criado com sucesso.`,
                                         timer: 2000,
+                                        backdrop: false,
+                                        position: 'center',
+                                        allowOutsideClick: true,
                                         showConfirmButton: false
                                     });
                                 }
@@ -2189,6 +2285,9 @@ async function loadTemplateFromURL() {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Erro ao Clonar',
+                                backdrop: false,
+                                position: 'center',
+                                allowOutsideClick: true,
                                 text: 'Não foi possível criar o clone automaticamente.'
                             });
                         }
@@ -2204,7 +2303,10 @@ async function loadTemplateFromURL() {
                     icon: 'warning',
                     title: 'Template não encontrado',
                     text: `O template "${templateName}" não foi encontrado.`,
-                    timer: 3000
+                    timer: 3000,
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true
                 });
             }
         } catch (error) {
@@ -2367,7 +2469,10 @@ async function cloneCurrentTemplate() {
         title: 'Template Clonado!',
         text: `Template clonado como "${cloneName}"`,
         timer: 2000,
-        showConfirmButton: false
+        showConfirmButton: false,
+        backdrop: false,
+        position: 'center',
+        allowOutsideClick: true
     });
 }
 
@@ -2822,6 +2927,9 @@ async function renderPDF(url) {
                                 <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
                                 <p class="text-xs text-gray-500">Isso permite que você salve suas alterações no seu navegador.</p>
                             `,
+                            backdrop: false,
+                            position: 'center',
+                            allowOutsideClick: true,
                             confirmButtonText: 'Entendi'
                         });
                         return false;
@@ -3214,6 +3322,9 @@ async function renderPDF(url) {
                         <p class="text-sm text-gray-700 mb-3"><strong>Por favor, clone este template primeiro</strong> usando o botão "Clonar" no toolbar acima.</p>
                         <p class="text-xs text-gray-500">Isso permite que você salve suas alterações no seu navegador.</p>
                     `,
+                    backdrop: false,
+                    position: 'center',
+                    allowOutsideClick: true,
                     confirmButtonText: 'Entendi'
                 });
             });
@@ -3257,6 +3368,9 @@ async function renderPDF(url) {
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Salvar',
                 cancelButtonText: 'Cancelar',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true,
                 preConfirm: () => {
                     const newName = document.getElementById('fieldNameInput').value.trim();
                     const newHint = document.getElementById('fieldHintInput').value.trim();
@@ -3888,6 +4002,9 @@ downloadBtn.addEventListener("click", async () => {
             icon: 'success',
             title: 'PDF Baixado!',
             text: `O arquivo "${fileName}" foi baixado com sucesso!`,
+            backdrop: false,
+            position: 'center',
+            allowOutsideClick: true,
             confirmButtonColor: '#3085d6',
             timer: 3000,
             timerProgressBar: true
@@ -3901,7 +4018,10 @@ downloadBtn.addEventListener("click", async () => {
             icon: 'error',
             title: 'Erro ao Baixar',
             text: 'Ocorreu um erro ao fazer o download do PDF.',
-            confirmButtonColor: '#d33'
+            confirmButtonColor: '#d33',
+            backdrop: false,
+            position: 'center',
+            allowOutsideClick: true
         });
     }
 });
