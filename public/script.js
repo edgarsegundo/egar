@@ -2432,7 +2432,6 @@ async function renderPDF(url) {
 
         canvas.onclick = async (e) => {
             if (!isEditorMode) return;
-            
             // Remove o toast imediatamente ao clicar no PDF
             const editModeToast = document.getElementById('editModeToast');
             if (editModeToast && editModeToast.classList.contains('show')) {
@@ -2440,11 +2439,41 @@ async function renderPDF(url) {
                 editModeToast.classList.add('hide');
                 editModeToast.removeAttribute('data-auto-hide');
             }
-            
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            
+
+            // Detecta largura automática do espaço em branco
+            let autoWidth = 120; // fallback padrão
+            try {
+                const ctx = canvas.getContext('2d');
+                // Pega a linha de pixels na posição y
+                const imageData = ctx.getImageData(0, Math.round(y), canvas.width, 1);
+                const data = imageData.data;
+                // Começa do x clicado até o fim da linha
+                let found = false;
+                for (let px = Math.round(x); px < canvas.width; px++) {
+                    const i = px * 4;
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const a = data[i + 3];
+                    // Considera "branco" se RGB > 240 e alpha > 200
+                    if (!(r > 240 && g > 240 && b > 240 && a > 200)) {
+                        autoWidth = px - Math.round(x);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    autoWidth = canvas.width - Math.round(x) - 2;
+                }
+                // Limita largura mínima/máxima
+                autoWidth = Math.max(30, Math.min(autoWidth, 400));
+            } catch (err) {
+                console.warn('Falha ao detectar largura automática:', err);
+            }
+
             const { value: fieldName } = await Swal.fire({
                 title: 'Novo Campo',
                 input: 'text',
@@ -2459,20 +2488,16 @@ async function renderPDF(url) {
                     }
                 }
             });
-            
             // Se o usuário cancelar ou não digitar nada, não cria o campo
             if (!fieldName || fieldName.trim() === '') return;
-            
-            // Sempre salva a página do campo
-            templateConfig.fields.push({ x, y, name: fieldName.trim(), value: '', page: pageNum, fontSize: 16 });
+            // Cria o campo com largura automática
+            templateConfig.fields.push({ x, y, name: fieldName.trim(), value: '', page: pageNum, fontSize: 16, width: autoWidth });
             createInputField(x, y, fieldName.trim(), '', isEditorMode, templateConfig.fields.length - 1, pageNum);
-            
             // Esconde a dica flutuante após criar o primeiro campo
             const pdfClickHint = document.getElementById('pdfClickHint');
             if (pdfClickHint) {
                 pdfClickHint.classList.remove('show');
             }
-            
             // Auto-save após criar o campo
             if (currentTemplate) {
                 try {
@@ -2480,7 +2505,6 @@ async function renderPDF(url) {
                         fields: templateConfig.fields,
                         derivedFrom: templateConfig.derivedFrom 
                     };
-                    
                     if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
                         await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
                         console.log(`Campo criado e salvo no IndexedDB: ${fieldName.trim()}`);
