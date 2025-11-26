@@ -1764,33 +1764,6 @@ if (renameTemplateBtn) {
             return;
         }
         
-        // 🔒 VALIDAÇÃO BACKEND: Verifica se pode renomear
-        try {
-            const response = await fetch('/api/rename-template', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    oldName: currentTemplate,
-                    newName: currentTemplate // Só para validação
-                })
-            });
-            
-            const validation = await response.json();
-            
-            if (response.status === 403) {
-                await Swal.fire({
-                    icon: 'error',
-                    title: 'Renomeação não permitida',
-                    text: validation.message,
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
-        } catch (error) {
-            // Se deu erro de rede ou validação, continua (pode ser template do IndexedDB)
-            console.log('Validação de renomeação:', error);
-        }
-        
         // Remove a extensão .pdf para sugerir o nome
         const baseName = currentTemplate.replace(/\.pdf$/i, '');
         
@@ -1915,34 +1888,6 @@ if (deleteTemplateBtn) {
             return;
         }
         
-        // 🔒 VALIDAÇÃO BACKEND: Verifica se pode excluir
-        try {
-            const response = await fetch(`/api/template/${currentTemplate}`, {
-                method: 'DELETE'
-            });
-            
-            const result = await response.json();
-            
-            if (!result.success) {
-                await Swal.fire({
-                    icon: 'error',
-                    title: 'Exclusão não permitida',
-                    text: result.message,
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
-        } catch (error) {
-            console.error('Erro ao validar exclusão:', error);
-            await Swal.fire({
-                icon: 'error',
-                title: 'Erro de validação',
-                text: 'Não foi possível validar a exclusão do template.',
-                confirmButtonText: 'OK'
-            });
-            return;
-        }
-        
         // Se passou na validação, pede confirmação
         const result = await Swal.fire({
             title: 'Confirmar Exclusão',
@@ -1960,7 +1905,7 @@ if (deleteTemplateBtn) {
         });
         
         if (!result.isConfirmed) return;
-        
+
         try {
             // Mostra loading
             Swal.fire({
@@ -2699,7 +2644,10 @@ async function renderPDF(url) {
                 }
                 // Cria o campo com largura automática
                 templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum, fontSize: 16, width: autoWidth });
-                createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
+                
+                let offsetY = 17;
+                // Ajusta o top do wrapper para posicionar acima do ponto clicado
+                createInputField(x, y - offsetY, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
                 // Esconde a dica flutuante após criar o primeiro campo
                 const pdfClickHint = document.getElementById('pdfClickHint');
                 if (pdfClickHint) {
@@ -3479,8 +3427,6 @@ async function renderPDF(url) {
         wrapper.appendChild(input);
         wrapper.appendChild(resizeHandle);
         wrapper.appendChild(fontSizeHandle);
-        // Ajusta o top do wrapper para posicionar acima do ponto clicado
-        // wrapper.style.top = `${y - input.offsetHeight}px`;
 
         createdFields.push({ wrapper, input, dragHandle, deleteBtn, resizeHandle, fontSizeHandle, listeners });
         
