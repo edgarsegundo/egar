@@ -113,45 +113,24 @@
     {
       "x": 633.5,
       "y": 377,
-      "name": "field_1764189483992",
+      "name": "Responsável fone",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 164,
-      "height": 19
+      "height": 19,
+      "hint": "99111-3231"
     },
     {
       "x": 150.5,
-      "y": 408,
-      "name": "Responsável - UF",
+      "y": 406,
+      "name": "Responsável qualidade de PAI",
       "value": "",
       "page": 1,
-      "fontSize": 16,
-      "width": 20,
-      "hint": "SP",
-      "height": 20
-    },
-    {
-      "x": 150.5,
-      "y": 408,
-      "name": "Responsável DDD",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
+      "fontSize": 8,
       "width": 15,
-      "hint": "19",
+      "hint": "X",
       "height": 20
-    },
-    {
-      "x": 257.5,
-      "y": 403,
-      "name": "field_1764189500609",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 15,
-      "hint": "",
-      "height": 19
     },
     {
       "x": 344.5,
@@ -182,8 +161,8 @@
       "width": 180.5
     },
     {
-      "x": 612.5,
-      "y": 453,
+      "x": 610.5,
+      "y": 438,
       "name": "field_1764189582637",
       "value": "",
       "page": 1,
@@ -192,8 +171,8 @@
       "height": 18
     },
     {
-      "x": 192.5,
-      "y": 474,
+      "x": 190.5,
+      "y": 462,
       "name": "field_1764189591833",
       "value": "",
       "page": 1,
@@ -201,8 +180,8 @@
       "width": 54.5
     },
     {
-      "x": 261.5,
-      "y": 475,
+      "x": 256.5,
+      "y": 463,
       "name": "field_1764189593274",
       "value": "",
       "page": 1,
@@ -210,8 +189,8 @@
       "width": 48.5
     },
     {
-      "x": 324.5,
-      "y": 474,
+      "x": 318.5,
+      "y": 463,
       "name": "field_1764189594758",
       "value": "",
       "page": 1,
@@ -219,8 +198,8 @@
       "width": 56.5
     },
     {
-      "x": 366.5,
-      "y": 493,
+      "x": 454.5,
+      "y": 463,
       "name": "field_1764189596378",
       "value": "",
       "page": 1,
@@ -229,140 +208,154 @@
       "height": 20
     },
     {
-      "x": 460.5,
-      "y": 561,
-      "name": "field_1764189616517",
+      "x": 58.5,
+      "y": 318,
+      "name": "RG ou passaporte expedido pela - linha 2",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 181,
+      "width": 132,
+      "hint": "",
       "height": 20
     },
     {
-      "x": 179.5,
-      "y": 560,
-      "name": "field_1764189621952",
+      "x": 61.5,
+      "y": 349,
+      "name": "Reponsável residente a - linha 2",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 15
+      "width": 678,
+      "hint": "",
+      "height": 20
     },
     {
-      "x": 639.5,
+      "x": 62.5,
+      "y": 376,
+      "name": "Responsável Cidade",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 352,
+      "hint": "",
+      "height": 20
+    },
+    {
+      "x": 440.5,
+      "y": 378,
+      "name": "Reponsável UF",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 42,
+      "hint": "SP",
+      "height": 20
+    },
+    {
+      "x": 591.5,
+      "y": 377,
+      "name": "Responsável fone DDD",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 32,
+      "hint": "99",
+      "height": 20
+    },
+    {
+      "x": 200.5,
+      "y": 407,
+      "name": "Responsável qualidade de MÃE",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 16,
+      "hint": "X",
+      "height": 20
+    },
+    {
+      "x": 61.5,
       "y": 520,
-      "name": "field_1764189624627",
+      "name": "field_1764191395963",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 20.5
+      "width": 352.5
     },
     {
-      "x": 283.5,
-      "y": 549,
-      "name": "field_1764189633196",
+      "x": 437.5,
+      "y": 523,
+      "name": "field_1764191401109",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 470.5
+      "width": 44.5
     },
     {
-      "x": 59.5,
-      "y": 580,
-      "name": "field_1764189636132",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 765,
-      "height": 18
-    },
-    {
-      "x": 760.5,
-      "y": 608,
-      "name": "field_1764189645808",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 59,
-      "height": 18
-    },
-    {
-      "x": 573.5,
-      "y": 664,
-      "name": "field_1764189655673",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 250,
-      "height": 19
-    },
-    {
-      "x": 87.5,
-      "y": 688,
-      "name": "field_1764189658170",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 734,
-      "height": 19
-    },
-    {
-      "x": 154.5,
-      "y": 688,
-      "name": "field_1764189662302",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 50,
-      "height": 19
-    },
-    {
-      "x": 216.5,
-      "y": 689,
-      "name": "field_1764189663818",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 246.5
-    },
-    {
-      "x": 572.5,
-      "y": 748,
-      "name": "field_1764189668496",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 54.5
-    },
-    {
-      "x": 793.5,
-      "y": 848,
-      "name": "field_1764189677608",
+      "x": 599.5,
+      "y": 521,
+      "name": "field_1764191405858",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 30.5
     },
     {
-      "x": 81.5,
-      "y": 805,
-      "name": "RG ou passaporte expedido pela - linha 2",
+      "x": 640.5,
+      "y": 521,
+      "name": "field_1764191409245",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 136,
-      "hint": "",
+      "width": 184,
       "height": 20
     },
     {
-      "x": 444.5,
-      "y": 378,
-      "name": "Responsável - UF",
+      "x": 173.5,
+      "y": 551,
+      "name": "field_1764191417317",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 34,
-      "hint": "SP",
-      "height": 21
+      "width": 15
+    },
+    {
+      "x": 221.5,
+      "y": 549,
+      "name": "field_1764191419152",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 24.5
+    },
+    {
+      "x": 279.5,
+      "y": 549,
+      "name": "field_1764191420928",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 22.5
+    },
+    {
+      "x": 372.5,
+      "y": 550,
+      "name": "field_1764191433978",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 15
+    },
+    {
+      "x": 199.5,
+      "y": 408,
+      "name": "Responsável qualidade de MÃE",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 15,
+      "hint": "X",
+      "height": 20
     }
   ]
 }

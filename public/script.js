@@ -3416,26 +3416,23 @@ async function renderPDF(url) {
                     target.removeEventListener(type, handler);
                 });
                 if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
-                
                 // Remove o campo do array createdFields
                 const fieldIndex = createdFields.findIndex(f => f.wrapper === wrapper);
                 if (fieldIndex !== -1) {
                     createdFields.splice(fieldIndex, 1);
                 }
-                
-                // Auto-save após excluir o campo
+                // Auto-save IMEDIATO após excluir o campo (sem debounce)
                 if (currentTemplate) {
-                    const configToSave = { 
+                    const configToSave = {
                         fields: templateConfig.fields,
-                        derivedFrom: templateConfig.derivedFrom 
+                        derivedFrom: templateConfig.derivedFrom
                     };
-                    
                     if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
                         await saveTemplateConfigToIndexedDB(currentTemplate, configToSave).catch(err => {
                             console.error('Erro ao salvar após exclusão no IndexedDB:', err);
                         });
                     } else {
-                        fetch(`/api/template-config/${currentTemplate}`, {
+                        await fetch(`/api/template-config/${currentTemplate}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(configToSave)
@@ -3444,7 +3441,6 @@ async function renderPDF(url) {
                         });
                     }
                 }
-                
                 // Recalcula tabindex após excluir campo
                 recalculateTabIndex();
             }
