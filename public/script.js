@@ -2586,6 +2586,10 @@ async function renderPDF(url) {
         await page.render({ canvasContext: ctx, viewport }).promise;
 
         canvas.onclick = async (e) => {
+            if (e) {
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            }
             if (!isEditorMode) return;
             // Remove o toast imediatamente ao clicar no PDF
             const editModeToast = document.getElementById('editModeToast');
@@ -2608,53 +2612,132 @@ async function renderPDF(url) {
             // // return;
             // fieldName = "editar";
 
-            const { value: fieldName } = await Swal.fire({
-                title: 'Novo Campo',
-                input: 'text',
-                inputLabel: 'Digite o nome do campo:',
-                inputPlaceholder: 'Nome do campo',
-                showCancelButton: true,
-                confirmButtonText: 'Criar',
-                cancelButtonText: 'Cancelar',
-                inputValidator: (value) => {
-                    if (!value || !value.trim()) {
-                        return 'Por favor, digite um nome válido!';
-                    }
-                }
-            });
+            // Modal minimalista: input flutuante sobre o clique
+            let modal = document.createElement('div');
+            modal.id = 'customFieldModal';
+            modal.style.position = 'absolute';
+            modal.style.left = `${rect.left + x}px`;
+            modal.style.top = `${rect.top + y}px`;
+            modal.style.transform = 'translate(-50%, -120%)';
+            modal.style.background = 'rgba(255,255,255,0.85)';
+            modal.style.padding = '6px 10px';
+            modal.style.borderRadius = '8px';
+            modal.style.boxShadow = '0 2px 8px #0002';
+            modal.style.zIndex = '99999';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.gap = '6px';
+            modal.style.minWidth = '120px';
+            modal.style.maxWidth = '220px';
+            modal.style.border = '1px solid #93c5fd';
+            modal.innerHTML = `
+                <input id="customFieldNameInput" type="text" placeholder="Nome" style="width:90px;padding:4px 8px;font-size:1rem;border:1px solid #93c5fd;border-radius:6px;background:rgba(255,255,255,0.7);outline:none;">
+                <button id="customFieldCreateBtn" style="background:#2563eb;color:#fff;padding:4px 10px;border:none;border-radius:6px;font-size:0.95rem;">OK</button>
+                <button id="customFieldCancelBtn" style="background:#e5e7eb;color:#374151;padding:4px 10px;border:none;border-radius:6px;font-size:0.95rem;">✕</button>
+            `;
+            document.body.appendChild(modal);
 
-            // Se o usuário cancelar ou não digitar nada, não cria o campo
-            if (!fieldName || fieldName.trim() === '') return;
-            // Cria o campo com largura automática
-            templateConfig.fields.push({ x, y, name: fieldName.trim(), value: '', page: pageNum, fontSize: 16, width: autoWidth });
-            createInputField(x, y, fieldName.trim(), '', isEditorMode, templateConfig.fields.length - 1, pageNum);
-            // Esconde a dica flutuante após criar o primeiro campo
-            const pdfClickHint = document.getElementById('pdfClickHint');
-            if (pdfClickHint) {
-                pdfClickHint.classList.remove('show');
-            }
-            // Auto-save após criar o campo
-            if (currentTemplate) {
-                try {
-                    const configToSave = { 
-                        fields: templateConfig.fields,
-                        derivedFrom: templateConfig.derivedFrom 
-                    };
-                    if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
-                        await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
-                        console.log(`Campo criado e salvo no IndexedDB: ${fieldName.trim()}`);
-                    } else {
-                        await fetch(`/api/template-config/${currentTemplate}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(configToSave)
-                        });
-                        console.log(`Campo criado e salvo no servidor: ${fieldName.trim()}`);
+            // Adiciona só a bolinha no ponto de clique
+            let ballSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            ballSvg.setAttribute('id', 'customFieldBall');
+            ballSvg.style.position = 'absolute';
+            ballSvg.style.left = '0';
+            ballSvg.style.top = '0';
+            ballSvg.style.width = '100vw';
+            ballSvg.style.height = '100vh';
+            ballSvg.style.pointerEvents = 'none';
+            ballSvg.style.zIndex = '99998';
+            const endX = rect.left + x;
+            const endY = rect.top + y;
+            ballSvg.innerHTML = `<circle cx="${endX}" cy="${endY}" r="7" fill="#2563eb" stroke="#fff" stroke-width="2" />`;
+            document.body.appendChild(ballSvg);
+
+            const inputEl = modal.querySelector('#customFieldNameInput');
+            const cancelBtn = modal.querySelector('#customFieldCancelBtn');
+            const createBtn = modal.querySelector('#customFieldCreateBtn');
+
+            inputEl.focus();
+
+            let isSaving = false;
+            async function confirmField() {
+                if (isSaving) return;
+                isSaving = true;
+                const fieldName = inputEl.value.trim();
+                if (!fieldName) {
+                    inputEl.style.borderColor = '#dc2626';
+                    inputEl.focus();
+                    isSaving = false;
+                    return;
+                }
+                document.body.removeChild(modal);
+                if (ballSvg && ballSvg.parentNode) ballSvg.parentNode.removeChild(ballSvg);
+                // Cria o campo com largura automática
+                templateConfig.fields.push({ x, y, name: fieldName, value: '', page: pageNum, fontSize: 16, width: autoWidth });
+                createInputField(x, y, fieldName, '', isEditorMode, templateConfig.fields.length - 1, pageNum);
+                // Esconde a dica flutuante após criar o primeiro campo
+                const pdfClickHint = document.getElementById('pdfClickHint');
+                if (pdfClickHint) {
+                    pdfClickHint.classList.remove('show');
+                }
+                // Auto-save após criar o campo
+                if (currentTemplate) {
+                    try {
+                        const configToSave = { 
+                            fields: templateConfig.fields,
+                            derivedFrom: templateConfig.derivedFrom 
+                        };
+                        if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                            await saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
+                            console.log(`Campo criado e salvo no IndexedDB: ${fieldName}`);
+                        } else {
+                            await fetch(`/api/template-config/${currentTemplate}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(configToSave)
+                            });
+                            console.log(`Campo criado e salvo no servidor: ${fieldName}`);
+                        }
+                    } catch (err) {
+                        console.error('Erro ao salvar novo campo:', err);
                     }
-                } catch (err) {
-                    console.error('Erro ao salvar novo campo:', err);
                 }
             }
+
+            cancelBtn.onclick = () => {
+                document.body.removeChild(modal);
+                if (ballSvg && ballSvg.parentNode) ballSvg.parentNode.removeChild(ballSvg);
+            };
+
+            createBtn.onmousedown = confirmField;
+
+            inputEl.onkeydown = (ev) => {
+                if (ev.key === 'Enter') {
+                    ev.preventDefault();
+                    confirmField();
+                }
+                if (ev.key === 'Tab') {
+                    ev.preventDefault();
+                    confirmField();
+                    // Após salvar, foca no próximo elemento (se houver)
+                    setTimeout(() => {
+                        const focusable = Array.from(document.querySelectorAll('input,button,select,textarea,a[href]')).filter(el => el.offsetParent !== null);
+                        const idx = focusable.indexOf(inputEl);
+                        if (idx >= 0 && idx < focusable.length - 1) {
+                            focusable[idx + 1].focus();
+                        }
+                    }, 10);
+                }
+                if (ev.key === 'Escape') {
+                    cancelBtn.click();
+                }
+            };
+
+            inputEl.onblur = () => {
+                if (!isSaving) {
+                    document.body.removeChild(modal);
+                    if (ballSvg && ballSvg.parentNode) ballSvg.parentNode.removeChild(ballSvg);
+                }
+            };
         };
     }
     
