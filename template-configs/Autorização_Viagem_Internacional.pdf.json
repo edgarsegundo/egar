@@ -608,15 +608,6 @@
       "width": 542
     },
     {
-      "x": 411,
-      "y": 962,
-      "name": "editar",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 126
-    },
-    {
       "x": 178,
       "y": 1029,
       "name": "editar",
@@ -624,24 +615,6 @@
       "page": 1,
       "fontSize": 16,
       "width": 500
-    },
-    {
-      "x": 145,
-      "y": 961,
-      "name": "editar",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 242
-    },
-    {
-      "x": 477,
-      "y": 730,
-      "name": "editar",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 350
     },
     {
       "x": 576,
@@ -725,15 +698,6 @@
       "width": 360
     },
     {
-      "x": 262,
-      "y": 937,
-      "name": "xxxww",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 500
-    },
-    {
       "x": 71,
       "y": 1005,
       "name": "ccccc",
@@ -746,15 +710,6 @@
       "x": 86,
       "y": 934,
       "name": "rrr",
-      "value": "",
-      "page": 1,
-      "fontSize": 16,
-      "width": 500
-    },
-    {
-      "x": 252,
-      "y": 1142,
-      "name": "ffff",
       "value": "",
       "page": 1,
       "fontSize": 16,

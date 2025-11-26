@@ -3317,7 +3317,10 @@ async function renderPDF(url) {
                 confirmButtonColor: '#dc2626',
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Sim, excluir',
-                cancelButtonText: 'Cancelar'
+                cancelButtonText: 'Cancelar',
+                backdrop: false,
+                position: 'center',
+                allowOutsideClick: true
             });
             
             if (result.isConfirmed) {
