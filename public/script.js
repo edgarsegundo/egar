@@ -2869,6 +2869,32 @@ async function renderPDF(url) {
     }
 
     function createInputField(x, y, name, value, editorMode, idx, page = 1) {
+        // Debounce global para auto-save de campos
+        let fieldSaveTimeout;
+        function debounceFieldSave() {
+            clearTimeout(fieldSaveTimeout);
+            fieldSaveTimeout = setTimeout(async () => {
+                if (currentTemplate) {
+                    const configToSave = {
+                        fields: templateConfig.fields,
+                        derivedFrom: templateConfig.derivedFrom
+                    };
+                    if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+                        await saveTemplateConfigToIndexedDB(currentTemplate, configToSave).catch(err => {
+                            console.error('Erro ao salvar campos no IndexedDB:', err);
+                        });
+                    } else {
+                        await fetch(`/api/template-config/${currentTemplate}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(configToSave)
+                        }).catch(err => {
+                            console.error('Erro ao salvar campos no servidor:', err);
+                        });
+                    }
+                }
+            }, 500); // 500ms debounce
+        }
         const pageWrapper = pdfContainer.querySelector(`div[data-page-number='${page}']`);
         if (!pageWrapper) return;
 
@@ -2925,6 +2951,7 @@ async function renderPDF(url) {
                 if (templateConfig.fields[idx]) {
                     templateConfig.fields[idx].x = newX;
                     templateConfig.fields[idx].y = newY;
+                    debounceFieldSave();
                 }
                 // Atualiza também o dataset do input para manter sincronizado
                 const inputEl = wrapper.querySelector('input[type="text"]');
@@ -3008,6 +3035,7 @@ async function renderPDF(url) {
                 if (templateConfig.fields[idx]) {
                     templateConfig.fields[idx].width = newWidth;
                     templateConfig.fields[idx].height = newHeight;
+                    debounceFieldSave();
                 }
             }
             function onResizeMouseUp() {
@@ -3082,6 +3110,7 @@ async function renderPDF(url) {
                 // Salva no config (verifica se o índice ainda é válido)
                 if (templateConfig.fields[idx]) {
                     templateConfig.fields[idx].fontSize = newFontSize;
+                    debounceFieldSave();
                 }
             }
             
