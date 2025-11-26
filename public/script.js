@@ -14,6 +14,59 @@ let templateFields = [];
 // Guarda referências dos campos criados
 let createdFields = [];
 
+// Debounce global para salvar config
+let saveConfigDebounceTimeout = null;
+function debounceSaveConfig() {
+    if (saveConfigDebounceTimeout) clearTimeout(saveConfigDebounceTimeout);
+    saveConfigDebounceTimeout = setTimeout(saveConfig, 500);
+}
+
+// Sincroniza campos do array para o DOM
+function syncFieldsToDOM() {
+    templateConfig.fields.forEach((field, idx) => {
+        const fieldObj = createdFields[idx];
+        if (fieldObj && fieldObj.wrapper && fieldObj.wrapper.style) {
+            fieldObj.wrapper.style.left = field.x + 'px';
+            fieldObj.wrapper.style.top = field.y + 'px';
+            fieldObj.wrapper.style.width = field.width + 'px';
+            fieldObj.wrapper.style.height = field.height + 'px';
+            if (fieldObj.input) {
+                fieldObj.input.value = field.value || '';
+                fieldObj.input.style.fontSize = (field.fontSize || 16) + 'px';
+            }
+        }
+    });
+}
+
+// Sincroniza valores dos inputs do DOM para o array
+function syncDOMToFields() {
+    createdFields.forEach((fieldObj, idx) => {
+        if (fieldObj.input && templateConfig.fields[idx]) {
+            templateConfig.fields[idx].value = fieldObj.input.value;
+        }
+    });
+}
+
+// Save config centralizado
+async function saveConfig() {
+    if (!currentTemplate) return;
+    const config = { fields: templateConfig.fields };
+    if (templateConfig.derivedFrom) config.derivedFrom = templateConfig.derivedFrom;
+    try {
+        if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
+            await saveTemplateConfigToIndexedDB(currentTemplate, config);
+        } else {
+            await fetch(`/api/template-config/${currentTemplate}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            });
+        }
+    } catch (err) {
+        console.error('Erro ao salvar config:', err);
+    }
+}
+
 // 🔒 Variável global para armazenar se está em modo produção
 let isProductionMode = false;
 
@@ -72,30 +125,9 @@ if (moveFieldsUpBtn && moveFieldsDownBtn) {
         if (templateConfig.fields && templateConfig.fields.length) {
             templateConfig.fields.forEach((f, idx) => {
                 f.y = Math.max(0, (f.y || 0) + delta);
-                // Atualiza o elemento visual diretamente
-                const fieldObj = createdFields[idx];
-                if (fieldObj && fieldObj.wrapper && fieldObj.wrapper.style) {
-                    fieldObj.wrapper.style.top = f.y + 'px';
-                }
             });
-            
-            // Auto-save após mover campos
-            if (currentTemplate) {
-                const configToSave = { 
-                    fields: templateConfig.fields,
-                    derivedFrom: templateConfig.derivedFrom 
-                };
-                
-                if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
-                    saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
-                } else {
-                    fetch(`/api/template-config/${currentTemplate}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(configToSave)
-                    });
-                }
-            }
+            syncFieldsToDOM();
+            debounceSaveConfig();
         }
         return false;
     });
@@ -106,30 +138,9 @@ if (moveFieldsUpBtn && moveFieldsDownBtn) {
         if (templateConfig.fields && templateConfig.fields.length) {
             templateConfig.fields.forEach((f, idx) => {
                 f.y = (f.y || 0) + delta;
-                // Atualiza o elemento visual diretamente
-                const fieldObj = createdFields[idx];
-                if (fieldObj && fieldObj.wrapper && fieldObj.wrapper.style) {
-                    fieldObj.wrapper.style.top = f.y + 'px';
-                }
             });
-            
-            // Auto-save após mover campos
-            if (currentTemplate) {
-                const configToSave = { 
-                    fields: templateConfig.fields,
-                    derivedFrom: templateConfig.derivedFrom 
-                };
-                
-                if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
-                    saveTemplateConfigToIndexedDB(currentTemplate, configToSave);
-                } else {
-                    fetch(`/api/template-config/${currentTemplate}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(configToSave)
-                    });
-                }
-            }
+            syncFieldsToDOM();
+            debounceSaveConfig();
         }
         return false;
     });
@@ -3421,26 +3432,8 @@ async function renderPDF(url) {
                 if (fieldIndex !== -1) {
                     createdFields.splice(fieldIndex, 1);
                 }
-                // Auto-save IMEDIATO após excluir o campo (sem debounce)
-                if (currentTemplate) {
-                    const configToSave = {
-                        fields: templateConfig.fields,
-                        derivedFrom: templateConfig.derivedFrom
-                    };
-                    if (currentTemplateSource === 'indexeddb' || currentTemplateSource === 'clone') {
-                        await saveTemplateConfigToIndexedDB(currentTemplate, configToSave).catch(err => {
-                            console.error('Erro ao salvar após exclusão no IndexedDB:', err);
-                        });
-                    } else {
-                        await fetch(`/api/template-config/${currentTemplate}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(configToSave)
-                        }).catch(err => {
-                            console.error('Erro ao salvar após exclusão no servidor:', err);
-                        });
-                    }
-                }
+                syncFieldsToDOM();
+                saveConfig(); // Save imediato na exclusão
                 // Recalcula tabindex após excluir campo
                 recalculateTabIndex();
             }
