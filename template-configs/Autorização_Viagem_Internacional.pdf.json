@@ -309,17 +309,6 @@
       "hint": ""
     },
     {
-      "name": "Local/Data",
-      "value": "",
-      "x": 140,
-      "y": 948,
-      "page": 1,
-      "width": 225,
-      "height": 25,
-      "fontSize": 16,
-      "hint": ""
-    },
-    {
       "x": 586,
       "y": 319,
       "name": "Responsável Endereço Linha 1",
@@ -421,13 +410,238 @@
       "width": 363.88
     },
     {
-      "x": 68.5,
-      "y": 802,
-      "name": "xxxx",
+      "x": 480,
+      "y": 274,
+      "name": "zz",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 180.84
+      "width": 410
+    },
+    {
+      "x": 599.5,
+      "y": 529,
+      "name": "zz",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 22.5
+    },
+    {
+      "x": 204.5,
+      "y": 501,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 120
+    },
+    {
+      "x": 473.5,
+      "y": 421,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 120
+    },
+    {
+      "x": 397.5,
+      "y": 678,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 120
+    },
+    {
+      "x": 285.5,
+      "y": 561,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 120
+    },
+    {
+      "x": 343.5,
+      "y": 502,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 394.5
+    },
+    {
+      "x": 456.5,
+      "y": 592,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 422.5
+    },
+    {
+      "x": 103.5,
+      "y": 645,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 16.5
+    },
+    {
+      "x": 170.5,
+      "y": 645,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 22.5
+    },
+    {
+      "x": 190.5,
+      "y": 474,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 56.5
+    },
+    {
+      "x": 320.5,
+      "y": 476,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 60.5
+    },
+    {
+      "x": 151.5,
+      "y": 417,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 18.5
+    },
+    {
+      "x": 327.5,
+      "y": 380,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 96.5
+    },
+    {
+      "x": 67.5,
+      "y": 326,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 130.5
+    },
+    {
+      "x": 488.5,
+      "y": 265,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 390.5
+    },
+    {
+      "x": 187.5,
+      "y": 458,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 58.5
+    },
+    {
+      "x": 311.5,
+      "y": 443,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 120
+    },
+    {
+      "x": 62.5,
+      "y": 499,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 120
+    },
+    {
+      "x": 473.5,
+      "y": 589,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 416.5
+    },
+    {
+      "x": 70,
+      "y": 839,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 696
+    },
+    {
+      "x": 72,
+      "y": 813,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 542
+    },
+    {
+      "x": 411,
+      "y": 962,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 126
+    },
+    {
+      "x": 178,
+      "y": 1029,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 500
+    },
+    {
+      "x": 145,
+      "y": 961,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 242
+    },
+    {
+      "x": 477,
+      "y": 730,
+      "name": "editar",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 350
     }
   ]
 }

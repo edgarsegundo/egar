@@ -2386,82 +2386,152 @@ async function cloneCurrentTemplate() {
 function detectAutoWidth(canvas, clickX, clickY) {
     const ctx = canvas.getContext('2d');
 
-    // ============================
-    //  DEBUG: pode ligar/desligar
-    // ============================
-    const DEBUG_DETECTOR = true;
-    
-    // Amostragem vertical mínima (evita capturar outras linhas)
-    const HALF_H = 3;                       // total height = 7px
-    const SCAN_HEIGHT = HALF_H * 2 + 1;
+    // ============================================================
+    //  CONFIGURAÇÕES AJUSTÁVEIS
+    // ============================================================
 
-    // Amostragem horizontal ampliada para maior estabilidade
-    const STEP_X = 2;                       // pular 2px por iteração
+    const DEBUG = false;                       // debug visual vertical/horizontal
 
-    // Threshold de detecção de conteúdo escuro
-    const DARK_THRESHOLD = 150;             // quanto menor = mais sensível
-    const MIN_ALPHA = 80;                   // ignora pixels muito transparentes
+    // Varredura vertical adaptativa
+    const VERTICAL_BASE = 4;
+    const VERTICAL_MIN  = 3;
+    const VERTICAL_MAX  = 14;
+    const VERTICAL_SWEEP_X = 20;
 
+    // Detecção de pixels escuros
+    const DARK_THRESHOLD = 150;
+    const MIN_ALPHA = 80;
+
+    // Varredura horizontal
+    const STEP_X = 2;
     const MAX_WIDTH = 500;
-    const MAX_SCAN_X = canvas.width;
 
-    // Guardará onde encontramos o primeiro pixel escuro
+    const WIDTH_CANVAS = canvas.width;
+    const HEIGHT_CANVAS = canvas.height;
+
+
+    // ============================================================
+    // 1. Função auxiliar — pixel escuro?
+    // ============================================================
+    function isDarkPixel(r, g, b, a) {
+        if (a < MIN_ALPHA) return false;
+        const lum = (r + g + b) / 3;
+        return lum < DARK_THRESHOLD;
+    }
+
+
+    // ============================================================
+    // 2. Varredura vertical adaptativa
+    // ============================================================
+    let expandUp = VERTICAL_BASE;
+    let expandDown = VERTICAL_BASE;
+
+    function scanVerticalDirection(direction) {
+        for (let dy = 1; dy <= VERTICAL_MAX; dy++) {
+            const y = clickY + dy * direction;
+            if (y < 0 || y >= HEIGHT_CANVAS) break;
+
+            for (let dx = -VERTICAL_SWEEP_X; dx <= VERTICAL_SWEEP_X; dx += 2) {
+                const x = Math.min(Math.max(0, clickX + dx), WIDTH_CANVAS - 1);
+                const pixel = ctx.getImageData(x, y, 1, 1).data;
+
+                if (isDarkPixel(pixel[0], pixel[1], pixel[2], pixel[3])) {
+                    return dy - 1; // limite antes do texto real
+                }
+            }
+        }
+        return VERTICAL_MAX;
+    }
+
+    // aplicar varredura
+    expandUp   = scanVerticalDirection(-1);
+    expandDown = scanVerticalDirection(+1);
+
+    // ------------------------------------------------------------
+    // Garantir limites da janela vertical
+    // ------------------------------------------------------------
+    expandUp = Math.max(expandUp, VERTICAL_MIN);
+    expandDown = Math.max(expandDown, VERTICAL_MIN);
+
+    let totalVertical = expandUp + expandDown;
+
+    if (totalVertical > VERTICAL_MAX) {
+        const factor = VERTICAL_MAX / totalVertical;
+        expandUp = Math.max(VERTICAL_MIN, Math.round(expandUp * factor));
+        expandDown = Math.max(VERTICAL_MIN, Math.round(expandDown * factor));
+    }
+
+    const scanTop = Math.max(0, Math.round(clickY - expandUp));
+    const scanBottom = Math.min(HEIGHT_CANVAS - 1, Math.round(clickY + expandDown));
+    const scanHeight = scanBottom - scanTop + 1;
+
+
+    // ============================================================
+    // 3. Varredura horizontal para detectar texto real
+    // ============================================================
     let transitionX = null;
 
-    for (let x = Math.round(clickX); x < MAX_SCAN_X; x += STEP_X) {
+    for (let x = Math.round(clickX); x < WIDTH_CANVAS; x += STEP_X) {
+        const img = ctx.getImageData(x, scanTop, 1, scanHeight);
+        const data = img.data;
 
-        const yStart = Math.max(0, clickY - HALF_H);
-        const yEnd = Math.min(canvas.height - 1, clickY + HALF_H);
+        let foundDark = false;
 
-        const image = ctx.getImageData(x, yStart, 1, yEnd - yStart + 1);
-        const data = image.data;
-
-        let isDarkColumn = false;
-
-        // Analisa 1 coluna (SCAN_HEIGHT pixels)
         for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i+1];
-            const b = data[i+2];
-            const a = data[i+3];
-
-            const luminance = (r + g + b) / 3;
-
-            if (a > MIN_ALPHA && luminance < DARK_THRESHOLD) {
-                isDarkColumn = true;
+            if (isDarkPixel(data[i], data[i+1], data[i+2], data[i+3])) {
+                foundDark = true;
                 break;
             }
         }
 
-        // =====================
-        // DEBUG VISUAL (azul)
-        // =====================
-        if (DEBUG_DETECTOR) {
-            ctx.fillStyle = isDarkColumn ? "purple" : "rgba(0,120,255,0.35)";
-            ctx.fillRect(x, yStart, STEP_X, SCAN_HEIGHT);
+        if (DEBUG) {
+            ctx.fillStyle = foundDark ? "purple" : "rgba(0,150,255,0.35)";
+            ctx.fillRect(x, scanTop, STEP_X, scanHeight);
         }
 
-        // Encontrou conteúdo escuro
-        if (isDarkColumn) {
+        if (foundDark) {
             transitionX = x;
 
-            // Marcação visual da borda detectada
-            if (DEBUG_DETECTOR) {
+            if (DEBUG) {
                 ctx.fillStyle = "red";
-                ctx.fillRect(x, yStart, STEP_X, SCAN_HEIGHT);
+                ctx.fillRect(x, scanTop, STEP_X, scanHeight);
             }
-
             break;
         }
     }
 
-    // Caso nada encontrado até o fim → usa largura máxima disponível
+
+    // ============================================================
+    // 4. Cálculo da largura final  (SHRINK FIX + DEBUG)
+    // ============================================================
+
+    const WIDTH_SHRINK = 6;  // reduz X%
+    const MIN_FINAL_WIDTH = 15;        // <-- Altere se quiser testar o shrink
+
     if (!transitionX) {
-        return Math.max(30, Math.min(canvas.width - clickX - 2, MAX_WIDTH));
+        // fallback sem shrink (como antes)
+        return Math.max(
+            30,
+            Math.min(WIDTH_CANVAS - clickX - 2, MAX_WIDTH)
+        );
     }
 
     const rawWidth = transitionX - clickX;
-    const finalWidth = Math.max(40, Math.min(rawWidth * 0.92, MAX_WIDTH));
+
+    // const shrinkWidth = rawWidth - WIDTH_SHRINK;
+
+    // Agora sim o shrink funciona corretamente
+    const finalWidth = Math.max(
+        MIN_FINAL_WIDTH,
+        rawWidth
+    );
+
+    // DEBUG opcional
+    if(DEBUG) {
+        console.log("[detectAutoWidth] raw=", rawWidth,
+                    // "shrink=", shrinkWidth,
+                    "final=", finalWidth);
+    }
 
     return finalWidth;
 }
@@ -2535,7 +2605,8 @@ async function renderPDF(url) {
                 console.warn("Erro detectando largura:", e);
             }
 
-            return;
+            // // return;
+            // fieldName = "editar";
 
             const { value: fieldName } = await Swal.fire({
                 title: 'Novo Campo',
@@ -2551,6 +2622,7 @@ async function renderPDF(url) {
                     }
                 }
             });
+
             // Se o usuário cancelar ou não digitar nada, não cria o campo
             if (!fieldName || fieldName.trim() === '') return;
             // Cria o campo com largura automática
