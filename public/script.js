@@ -3385,11 +3385,13 @@ async function renderPDF(url) {
         deleteBtn.addEventListener('click', onDelete);
         listeners.push({ target: deleteBtn, type: 'click', handler: onDelete });
 
-        wrapper.appendChild(deleteBtn);
-        wrapper.appendChild(dragHandle);
-        wrapper.appendChild(input);
-        wrapper.appendChild(resizeHandle);
-        wrapper.appendChild(fontSizeHandle);
+    wrapper.appendChild(deleteBtn);
+    wrapper.appendChild(dragHandle);
+    wrapper.appendChild(input);
+    wrapper.appendChild(resizeHandle);
+    wrapper.appendChild(fontSizeHandle);
+    // Ajusta o top do wrapper para posicionar acima do ponto clicado
+    wrapper.style.top = `${y - input.offsetHeight}px`;
 
         createdFields.push({ wrapper, input, dragHandle, deleteBtn, resizeHandle, fontSizeHandle, listeners });
         

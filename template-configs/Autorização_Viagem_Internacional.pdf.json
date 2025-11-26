@@ -197,6 +197,42 @@
       "height": 25,
       "fontSize": 16,
       "hint": ""
+    },
+    {
+      "x": 653,
+      "y": 250,
+      "name": "sss",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 52
+    },
+    {
+      "x": 628,
+      "y": 288,
+      "name": "ww",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 188
+    },
+    {
+      "x": 592,
+      "y": 335,
+      "name": "sdsd",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 298
+    },
+    {
+      "x": 466,
+      "y": 343,
+      "name": "sqsqsq",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 276
     }
   ]
 }
