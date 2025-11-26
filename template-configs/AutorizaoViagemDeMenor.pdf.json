@@ -410,265 +410,310 @@
     {
       "x": 63.5,
       "y": 580,
-      "name": "field_1764192499742",
+      "name": "Menor nome 1",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 747,
+      "width": 758,
       "height": 20,
       "hint": ""
     },
     {
       "x": 62.5,
       "y": 608,
-      "name": "field_1764192529441",
+      "name": "Menor nome 2",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 470.5
+      "width": 470,
+      "hint": "",
+      "height": 20
     },
     {
       "x": 631.5,
       "y": 609,
-      "name": "field_1764192531545",
+      "name": "Menor nascido DIA",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 50.5
+      "width": 50,
+      "hint": "DD",
+      "height": 20
     },
     {
       "x": 698.5,
       "y": 608,
-      "name": "field_1764192532858",
+      "name": "Menor nascido MÊS",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 52.5
+      "width": 52,
+      "hint": "MMM",
+      "height": 20
     },
     {
       "x": 762.5,
       "y": 608,
-      "name": "field_1764192534276",
+      "name": "Menor nascido ANO",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 71,
-      "height": 19
+      "width": 60,
+      "height": 19,
+      "hint": "AAAA"
     },
     {
       "x": 101.5,
       "y": 633,
-      "name": "field_1764192535976",
+      "name": "Menor Sexo MASCULIINO",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 15
+      "width": 15,
+      "hint": "M",
+      "height": 20
     },
     {
       "x": 168.5,
       "y": 634,
-      "name": "field_1764192537479",
+      "name": "Menor Sexo FEMININO",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 18.5
+      "width": 18,
+      "hint": "F",
+      "height": 20
     },
     {
       "x": 302.5,
       "y": 633,
-      "name": "field_1764192539219",
+      "name": "Menor natural de",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 500
+      "width": 516,
+      "hint": "",
+      "height": 19
     },
     {
       "x": 227.5,
       "y": 663,
-      "name": "field_1764192541886",
+      "name": "Menor passaporte ou RG",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 234.5
+      "width": 234,
+      "hint": "",
+      "height": 20
     },
     {
       "x": 576.5,
       "y": 663,
-      "name": "field_1764192543748",
+      "name": "Menor passaporte ou RG pela",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 248.5
+      "width": 248,
+      "hint": "",
+      "height": 20
     },
     {
       "x": 87.5,
       "y": 687,
-      "name": "field_1764192545740",
+      "name": "Menor passaporte ou RG expedido DIA",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 58.5
+      "width": 58,
+      "hint": "DD",
+      "height": 20
     },
     {
       "x": 155.5,
       "y": 687,
-      "name": "field_1764192547041",
+      "name": "Menor passaporte ou RG expedido MÊS",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 50.5
+      "width": 50,
+      "hint": "MMM",
+      "height": 20
     },
     {
       "x": 220.5,
       "y": 687,
-      "name": "field_1764192548610",
+      "name": "Menor passaporte ou RG expedido ANO",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 47,
-      "height": 20
+      "height": 20,
+      "hint": "AAAA"
     },
     {
       "x": 83.5,
       "y": 718,
-      "name": "field_1764192555858",
+      "name": "Acompanhante nome",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 738,
-      "height": 18
+      "height": 18,
+      "hint": ""
     },
     {
       "x": 321.5,
       "y": 746,
-      "name": "field_1764192558425",
+      "name": "Acompanhante passaporte ou RG",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 142.5
+      "width": 142,
+      "hint": "",
+      "height": 20
     },
     {
       "x": 574.5,
       "y": 748,
-      "name": "field_1764192560106",
+      "name": "Acompanhante passaporte ou RG expedido pela",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 254,
-      "height": 19
+      "height": 19,
+      "hint": ""
     },
     {
       "x": 90.5,
       "y": 775,
-      "name": "field_1764192561665",
+      "name": "Acompanhante passaporte ou RG expedido DIA",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 52.5
+      "width": 52,
+      "hint": "DD",
+      "height": 20
     },
     {
       "x": 158.5,
       "y": 775,
-      "name": "field_1764192563145",
+      "name": "Acompanhante passaporte ou RG expedido MÊS",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 46.5
+      "width": 46,
+      "hint": "MMM",
+      "height": 20
     },
     {
       "x": 218.5,
       "y": 774,
-      "name": "field_1764192564360",
+      "name": "Acompanhante passaporte ou RG expedido AAAA",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 56,
-      "height": 20
+      "height": 20,
+      "hint": ""
     },
     {
       "x": 346.5,
       "y": 775,
-      "name": "field_1764192565979",
+      "name": "Acompanhante Endereço - linha 1",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 475,
-      "height": 20
+      "height": 20,
+      "hint": ""
     },
     {
       "x": 65.5,
-      "y": 804,
-      "name": "field_1764192567564",
+      "y": 805,
+      "name": "Acompanhante Endereço - linha 1",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 536.5
+      "width": 536,
+      "hint": "",
+      "height": 20
     },
     {
-      "x": 703.5,
-      "y": 804,
-      "name": "field_1764192569857",
+      "x": 701.5,
+      "y": 805,
+      "name": "Acompanhante cidade - linha 1",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 119,
-      "height": 19
+      "height": 19,
+      "hint": ""
     },
     {
       "x": 66.5,
       "y": 835,
-      "name": "field_1764192571762",
+      "name": "Acompanhante cidade - linha 2",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 688.5
+      "width": 688,
+      "hint": "",
+      "height": 20
     },
     {
       "x": 783.5,
       "y": 835,
-      "name": "field_1764192573921",
+      "name": "Acompanhante UF",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 37,
-      "height": 20
+      "height": 20,
+      "hint": "SP"
     },
     {
       "x": 140.5,
       "y": 952,
-      "name": "field_1764192577433",
+      "name": "Local",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 188.5
+      "width": 188,
+      "hint": "",
+      "height": 20
     },
     {
       "x": 338.5,
       "y": 952,
-      "name": "field_1764192579242",
+      "name": "Local DIA",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 42.5
+      "width": 42,
+      "hint": "DD",
+      "height": 20
     },
     {
       "x": 406.5,
       "y": 953,
-      "name": "field_1764192580631",
+      "name": "Local MÊS",
       "value": "",
       "page": 1,
       "fontSize": 16,
-      "width": 116.5
+      "width": 116,
+      "hint": "Janeiro",
+      "height": 20
     },
     {
       "x": 574.5,
       "y": 953,
-      "name": "field_1764192581977",
+      "name": "Local ANO",
       "value": "",
       "page": 1,
       "fontSize": 16,
       "width": 44,
-      "height": 19
+      "height": 19,
+      "hint": ""
     }
   ]
 }

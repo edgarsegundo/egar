@@ -3042,11 +3042,12 @@ async function renderPDF(url) {
                 let newHeight = Math.max(18, startHeight + (ev.clientY - startY));
                 input.style.width = newWidth + 'px';
                 input.style.height = newHeight + 'px';
-                // Salva no config (verifica se o índice ainda é válido)
+                // Atualiza array e DOM
                 if (templateConfig.fields[idx]) {
                     templateConfig.fields[idx].width = newWidth;
                     templateConfig.fields[idx].height = newHeight;
-                    debounceFieldSave();
+                    syncFieldsToDOM();
+                    debounceSaveConfig();
                 }
             }
             function onResizeMouseUp() {
@@ -3118,10 +3119,10 @@ async function renderPDF(url) {
                 const deltaY = fontStartY - ev.clientY; // Invertido: arrastar pra cima aumenta
                 let newFontSize = Math.max(8, Math.min(72, fontStartSize + deltaY)); // Min 8px, Max 72px
                 input.style.fontSize = newFontSize + 'px';
-                // Salva no config (verifica se o índice ainda é válido)
                 if (templateConfig.fields[idx]) {
                     templateConfig.fields[idx].fontSize = newFontSize;
-                    debounceFieldSave();
+                    syncFieldsToDOM();
+                    debounceSaveConfig();
                 }
             }
             
@@ -3427,14 +3428,12 @@ async function renderPDF(url) {
                     target.removeEventListener(type, handler);
                 });
                 if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
-                // Remove o campo do array createdFields
                 const fieldIndex = createdFields.findIndex(f => f.wrapper === wrapper);
                 if (fieldIndex !== -1) {
                     createdFields.splice(fieldIndex, 1);
                 }
                 syncFieldsToDOM();
-                saveConfig(); // Save imediato na exclusão
-                // Recalcula tabindex após excluir campo
+                saveConfig();
                 recalculateTabIndex();
             }
         };
