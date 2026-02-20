@@ -1,0 +1,240 @@
+{
+  "fields": [
+    {
+      "x": 125,
+      "y": 218,
+      "name": "responsavel_1_nome",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 684,
+      "height": 19,
+      "hint": ""
+    },
+    {
+      "x": 363,
+      "y": 241,
+      "name": "responsavel_1_rg",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 447,
+      "height": 20
+    },
+    {
+      "x": 203,
+      "y": 263,
+      "name": "responsavel_1_rg_expedido_pelo",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 186,
+      "height": 20
+    },
+    {
+      "x": 506,
+      "y": 263,
+      "name": "responsavel_1_rg_data_expedicao",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 303,
+      "height": 23,
+      "hint": ""
+    },
+    {
+      "x": 134,
+      "y": 286,
+      "name": "responsavel_1_cpf",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 296
+    },
+    {
+      "x": 551,
+      "y": 288,
+      "name": "responsavel_1_tel",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 256,
+      "height": 21,
+      "hint": ""
+    },
+    {
+      "x": 158,
+      "y": 311,
+      "name": "responsavel_1_endereco",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 648,
+      "height": 20,
+      "hint": ""
+    },
+    {
+      "x": 124,
+      "y": 403,
+      "name": "responsavel_2_nome",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 681,
+      "height": 18,
+      "hint": ""
+    },
+    {
+      "x": 365,
+      "y": 425,
+      "name": "responsavel_2_rg",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 442,
+      "height": 21
+    },
+    {
+      "x": 202,
+      "y": 449,
+      "name": "responsavel_2_rg_expedido_pelo",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 194,
+      "height": 20
+    },
+    {
+      "x": 507,
+      "y": 450,
+      "name": "responsavel_2_rg_data_expedicao",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 297,
+      "height": 20,
+      "hint": ""
+    },
+    {
+      "x": 134,
+      "y": 472,
+      "name": "responsavel_2_cpf",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 298
+    },
+    {
+      "x": 550,
+      "y": 473,
+      "name": "responsavel_2_tel",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 256,
+      "height": 21
+    },
+    {
+      "x": 158,
+      "y": 496,
+      "name": "responsavel_2_endereco",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 644,
+      "height": 19
+    },
+    {
+      "x": 146,
+      "y": 748,
+      "name": "menor_nome",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 642,
+      "height": 19,
+      "hint": ""
+    },
+    {
+      "x": 138,
+      "y": 779,
+      "name": "menor_sexo",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 244
+    },
+    {
+      "x": 493,
+      "y": 780,
+      "name": "menor_data_nascimento",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 292,
+      "height": 20
+    },
+    {
+      "x": 251,
+      "y": 810,
+      "name": "menor_natural_cidade",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 419,
+      "height": 20,
+      "hint": ""
+    },
+    {
+      "x": 682,
+      "y": 810,
+      "name": "menor_natural_uf",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 106,
+      "height": 22,
+      "hint": ""
+    },
+    {
+      "x": 139,
+      "y": 908,
+      "name": "local",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 435,
+      "height": 20
+    },
+    {
+      "x": 602,
+      "y": 908,
+      "name": "data",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 199,
+      "height": 20
+    },
+    {
+      "x": 187,
+      "y": 980,
+      "name": "assinatura_1",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 604,
+      "height": 20
+    },
+    {
+      "x": 187,
+      "y": 1016,
+      "name": "asssinatura_2",
+      "value": "",
+      "page": 1,
+      "fontSize": 16,
+      "width": 600,
+      "height": 20
+    }
+  ]
+}
